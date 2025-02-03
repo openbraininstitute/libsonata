@@ -169,24 +169,26 @@ target_include_directories(sonata_static
 # Install
 # =============================================================================
 
+include(GNUInstallDirs)
+
 install(TARGETS sonata_shared sonata_static
     EXPORT sonata-targets
     LIBRARY
-        DESTINATION lib
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE
-        DESTINATION lib
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 install(DIRECTORY ${SONATA_INCLUDE_DIR}/bbp
-    DESTINATION include
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
 install(FILES CMake/sonata-config.cmake
-    DESTINATION share/sonata/CMake
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/sonata/CMake
 )
 
 install(EXPORT sonata-targets
-    DESTINATION share/sonata/CMake
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/sonata/CMake
     NAMESPACE sonata::
 )
 
