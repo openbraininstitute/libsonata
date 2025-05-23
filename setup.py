@@ -113,7 +113,7 @@ setup(
     long_description=README,
     long_description_content_type='text/x-rst',
     license="LGPLv3",
-    url='https://github.com/BlueBrain/libsonata',
+    url='https://github.com/openbraininstitute/libsonata',
     classifiers=[
         "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
     ],

@@ -23,14 +23,14 @@ Installing as a Python package, directly from GitHub
 
 .. code-block:: shell
 
-   pip install git+https://github.com/BlueBrain/libsonata
+   pip install git+https://github.com/openbraininstitute/libsonata
 
 Building the C++ library
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: shell
 
-   git clone git@github.com:BlueBrain/libsonata.git --recursive
+   git clone git@github.com:openbraininstitute/libsonata.git --recursive
    cd libsonata
    mkdir build && cd build
    cmake -DCMAKE_BUILD_TYPE=Release -DEXTLIB_FROM_SUBMODULES=ON ..
@@ -419,10 +419,10 @@ along with libsonata.  If not, see <https://www.gnu.org/licenses/>.
 
 
 .. |license| image:: https://img.shields.io/pypi/l/libsonata
-                :target: https://github.com/BlueBrain/libsonata/blob/master/COPYING.LESSER
+                :target: https://github.com/openbraininstitute/libsonata/blob/master/COPYING.LESSER
 
-.. |coverage| image:: https://coveralls.io/repos/github/BlueBrain/libsonata/badge.svg
-                 :target: https://coveralls.io/github/BlueBrain/libsonata
+.. |coverage| image:: https://coveralls.io/repos/github/openbraininstitute/libsonata/badge.svg
+                 :target: https://coveralls.io/github/openbraininstitute/libsonata
 
 .. |docs| image:: https://readthedocs.org/projects/libsonata/badge/?version=latest
              :target: https://libsonata.readthedocs.io/

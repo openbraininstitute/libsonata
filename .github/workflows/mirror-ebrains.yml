@@ -11,14 +11,14 @@ jobs:
       - name: syncmaster
         uses: wei/git-sync@v3
         with:
-          source_repo: "BlueBrain/libsonata"
+          source_repo: "openbraininstitute/libsonata"
           source_branch: "master"
-          destination_repo: "https://ghpusher:${{ secrets.EBRAINS_GITLAB_ACCESS_TOKEN }}@gitlab.ebrains.eu/BlueBrain/libsonata.git"
+          destination_repo: "https://ghpusher:${{ secrets.EBRAINS_GITLAB_ACCESS_TOKEN }}@gitlab.ebrains.eu/openbraininstitute/libsonata.git"
           destination_branch: "main"
       - name: synctags
         uses: wei/git-sync@v3
         with:
-          source_repo: "BlueBrain/libsonata"
+          source_repo: "openbraininstitute/libsonata"
           source_branch: "refs/tags/*"
-          destination_repo: "https://ghpusher:${{ secrets.EBRAINS_GITLAB_ACCESS_TOKEN }}@gitlab.ebrains.eu/BlueBrain/libsonata.git"
+          destination_repo: "https://ghpusher:${{ secrets.EBRAINS_GITLAB_ACCESS_TOKEN }}@gitlab.ebrains.eu/openbraininstitute/libsonata.git"
           destination_branch: "refs/tags/*"
