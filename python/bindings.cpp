@@ -1139,6 +1139,9 @@ PYBIND11_MODULE(_libsonata, m) {
         .def_property_readonly("node_sets_file",
                                &SimulationConfig::getNodeSetsFile,
                                DOC_SIMULATIONCONFIG(getNodeSetsFile))
+        .def_property_readonly("compartment_sets_file",
+                               &SimulationConfig::getCompartmentSetsFile,
+                               DOC_SIMULATIONCONFIG(getCompartmentSetsFile))
         .def_property_readonly("node_set",
                                &SimulationConfig::getNodeSet,
                                DOC_SIMULATIONCONFIG(getNodeSet))

@@ -171,6 +171,11 @@ class SONATA_API CircuitConfig
     const std::string& getNodeSetsPath() const;
 
     /**
+     * Returns the path to the compartment sets file.
+     */
+    const std::string& getCompartmentSetsPath() const;
+
+    /**
      *  Returns a set with all available population names across all the node networks.
      */
     std::set<std::string> listNodePopulations() const;
@@ -782,6 +787,11 @@ class SONATA_API SimulationConfig
     const std::string& getNodeSetsFile() const noexcept;
 
     /**
+     * Returns the path of compartment sets file
+     */
+    const std::string& getCompartmentSetsFile() const noexcept;
+
+    /**
      * Returns the name of node set to be instantiated for the simulation, default = None
      */
     const nonstd::optional<std::string>& getNodeSet() const noexcept;
@@ -827,6 +837,8 @@ class SONATA_API SimulationConfig
     SimulatorType _targetSimulator;
     // Path of node sets file
     std::string _nodeSetsFile;
+    // Path of compartment sets file
+    std::string _compartmentSetsFile;
     // Name of node set
     nonstd::optional<std::string> _nodeSet{nonstd::nullopt};
     // Remarks on the simulation

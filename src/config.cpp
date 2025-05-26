@@ -1207,6 +1207,15 @@ class SimulationConfig::Parser
         }
     }
 
+    std::string parseCompartmentSetsFile() const noexcept {
+        std::string val;
+        if (_json.contains("compartment_sets_file")) {
+            val = _json["compartment_sets_file"];
+            return toAbsolute(_basePath, val);
+        }
+        return val;
+    }
+
     nonstd::optional<std::string> parseNodeSet() const {
         if (_json.contains("node_set")) {
             return {_json["node_set"]};
@@ -1380,6 +1389,7 @@ SimulationConfig::SimulationConfig(const std::string& content, const std::string
     _connection_overrides = parser.parseConnectionOverrides();
     _targetSimulator = parser.parseTargetSimulator();
     _nodeSetsFile = parser.parseNodeSetsFile();
+    _compartmentSetsFile = parser.parseCompartmentSetsFile();
     _nodeSet = parser.parseNodeSet();
     _metaData = parser.parseMetaData();
     _betaFeatures = parser.parseBetaFeatures();
@@ -1452,6 +1462,10 @@ const SimulationConfig::SimulatorType& SimulationConfig::getTargetSimulator() co
 
 const std::string& SimulationConfig::getNodeSetsFile() const noexcept {
     return _nodeSetsFile;
+}
+
+const std::string& SimulationConfig::getCompartmentSetsFile() const noexcept {
+    return _compartmentSetsFile;
 }
 
 const nonstd::optional<std::string>& SimulationConfig::getNodeSet() const noexcept {
