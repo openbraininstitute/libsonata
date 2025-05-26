@@ -161,7 +161,7 @@ class TestNodePopulationNodeSet(unittest.TestCase):
         ns1 = NodeSets(new)
         self.assertEqual(new, ns1.toJSON())
 
-        ns = NodeSets.from_file(os.path.join(PATH, 'config/node_sets.json'))
+        ns = NodeSets.from_file(os.path.join(PATH, 'node_sets.json'))
         self.assertEqual(new, ns.toJSON())
 
     def test_NodeSetEmptyArray(self):

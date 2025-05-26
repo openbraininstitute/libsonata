@@ -6,6 +6,7 @@
 #include <bbp/sonata/config.h>
 #include <bbp/sonata/edges.h>
 #include <bbp/sonata/node_sets.h>
+#include <bbp/sonata/compartment_sets.h>
 #include <bbp/sonata/nodes.h>
 #include <bbp/sonata/optional.hpp>  //nonstd::optional
 #include <bbp/sonata/report_reader.h>
@@ -534,6 +535,11 @@ PYBIND11_MODULE(_libsonata, m) {
         .def("materialize", &NodeSets::materialize, DOC_NODESETS(materialize))
         .def("update", &NodeSets::update, "other"_a, DOC_NODESETS(update))
         .def("toJSON", &NodeSets::toJSON, DOC_NODESETS(toJSON));
+
+    py::class_<CompartmentSets>(m, "CompartmentSets", "CompartmentSets")
+        .def(py::init<const std::string&>())
+        .def_static("from_file", [](py::object path) { return CompartmentSets::fromFile(py::str(path)); })
+        .def("toJSON", &CompartmentSets::toJSON, DOC_COMPARTMENTSETS(toJSON));
 
     py::class_<CommonPopulationProperties>(m,
                                            "CommonPopulationProperties",

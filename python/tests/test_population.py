@@ -293,6 +293,6 @@ class TestMisc(unittest.TestCase):
         SpikeReader(path / 'spikes.h5')
         SomaReportReader(path / 'somas.h5')
         ElementReportReader(path / 'elements.h5')
-        NodeSets.from_file(path / 'config/node_sets.json')
+        NodeSets.from_file(path / 'node_sets.json')
         CircuitConfig.from_file(path / 'config/circuit_config.json')
         SimulationConfig.from_file(path / 'config/simulation_config.json')

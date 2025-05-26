@@ -16,7 +16,7 @@ class TestCircuitConfig(unittest.TestCase):
 
     def test_basic(self):
         self.assertEqual(self.config.node_sets_path,
-                         os.path.abspath(os.path.join(PATH, 'config/node_sets.json')))
+                         os.path.abspath(os.path.join(PATH, 'node_sets.json')))
 
         self.assertEqual(self.config.node_populations,
                          {'nodes-A', 'nodes-B'})
