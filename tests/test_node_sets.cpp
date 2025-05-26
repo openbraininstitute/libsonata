@@ -299,7 +299,7 @@ TEST_CASE("NodeSet") {
             NodeSets ns1(j);
             CHECK(ns0.toJSON() == ns1.toJSON());
 
-            auto ns = NodeSets::fromFile("./data/node_sets.json");
+            auto ns = NodeSets::fromFile("./data/config/node_sets.json");
             CHECK(ns.toJSON() == ns1.toJSON());
         }
 
