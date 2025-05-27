@@ -381,6 +381,8 @@ static const char *__doc_bbp_sonata_NodeSets_operator_assign = R"doc()doc";
 
 static const char *__doc_bbp_sonata_NodeSets_toJSON = R"doc(Return the nodesets as a JSON string.)doc";
 
+static const char *__doc_bbp_sonata_CompartmentSets_toJSON = R"doc(Return the compartmentsets as a JSON string.)doc";
+
 static const char *__doc_bbp_sonata_NodeSets_update =
 R"doc(Update `this` to include all nodesets from `this` and `other`.
 

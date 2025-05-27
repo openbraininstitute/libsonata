@@ -60,5 +60,26 @@ class CompartmentSets
 };
 
 }  // namespace detail
+
+CompartmentSets::CompartmentSets(const std::string& content)
+    : impl_(new detail::CompartmentSets(content)) {}
+
+CompartmentSets::CompartmentSets(std::unique_ptr<detail::CompartmentSets>&& impl)
+    : impl_(std::move(impl)) {}
+
+CompartmentSets::CompartmentSets(CompartmentSets&&) noexcept = default;
+CompartmentSets& CompartmentSets::operator=(CompartmentSets&&) noexcept = default;
+CompartmentSets::~CompartmentSets() = default;
+
+CompartmentSets CompartmentSets::fromFile(const std::string& path) {
+    return CompartmentSets(detail::CompartmentSets::fromFile(path));
+}
+
+
+std::string CompartmentSets::toJSON() const {
+    return impl_->toJSON();
+}
+
+
 }  // namespace sonata
 }  // namespace bbp

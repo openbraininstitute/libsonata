@@ -127,6 +127,7 @@ py::object getDynamicsAttributeVectorWithDefault(const Population& obj,
 
 // create a macro to reduce repetition for docstrings
 #define DOC_NODESETS(x) DOC(bbp, sonata, NodeSets, x)
+#define DOC_COMPARTMENTSETS(x) DOC(bbp, sonata, CompartmentSets, x)
 #define DOC_SEL(x) DOC(bbp, sonata, Selection, x)
 #define DOC_POP(x) DOC(bbp, sonata, Population, x)
 #define DOC_POP_NODE(x) DOC(bbp, sonata, NodePopulation, x)
