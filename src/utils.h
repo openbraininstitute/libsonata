@@ -16,6 +16,8 @@
 #include <vector>
 
 #include <bbp/sonata/population.h>
+#include <nlohmann/json.hpp>
+#include <fmt/format.h>
 
 std::string readFile(const std::string& path);
 
@@ -43,6 +45,22 @@ std::set<std::string> getMapKeys(const T& map) {
         return pair.first;
     });
     return ret;
+}
+
+using json = nlohmann::json;
+inline uint64_t get_uint64_or_throw(const json& el) {
+    if (!el.is_number()) {
+        throw SonataError(fmt::format("expected unsigned integer, got {}", el.dump()));
+    }
+    auto v = el.get<double>();
+    if (v < 0) {
+        throw SonataError(fmt::format("expected unsigned integer, got {}", v));
+    }
+
+    if (std::floor(v) != v) {
+        throw SonataError(fmt::format("expected integer, got float {}", v));
+    }
+    return static_cast<uint64_t>(v);
 }
 }  // namespace sonata
 }  // namespace bbp

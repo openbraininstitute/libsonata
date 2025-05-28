@@ -381,7 +381,29 @@ static const char *__doc_bbp_sonata_NodeSets_operator_assign = R"doc()doc";
 
 static const char *__doc_bbp_sonata_NodeSets_toJSON = R"doc(Return the nodesets as a JSON string.)doc";
 
-static const char *__doc_bbp_sonata_CompartmentSets_toJSON = R"doc(Return the compartmentsets as a JSON string.)doc";
+static const char *__doc_bbp_sonata_CompartmentSetElement_gid = R"doc(GID)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSetElement_sectionName = R"doc(Section name)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSetElement_sectionIndex = R"doc(Section index)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSetElement_location = R"doc(Location along the section)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSetElement_toJSON = R"doc(Return the compartment set element as a JSON string.)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSet_elements = R"doc(Get the list of CompartmentSetElements.)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSet_gids = R"doc(Gids in the list of CompartmentSetElement.)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSet_toJSON = R"doc(Return the compartment set as a JSON string.)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSet_population = R"doc(Population name)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets_toJSON = R"doc(Return the compartment sets as a JSON string.)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets_names = R"doc(Names of the compartment sets available)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets_getCompartmentSet = R"doc(Get compartment set)doc";
 
 static const char *__doc_bbp_sonata_NodeSets_update =
 R"doc(Update `this` to include all nodesets from `this` and `other`.

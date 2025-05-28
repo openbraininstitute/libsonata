@@ -127,6 +127,8 @@ py::object getDynamicsAttributeVectorWithDefault(const Population& obj,
 
 // create a macro to reduce repetition for docstrings
 #define DOC_NODESETS(x) DOC(bbp, sonata, NodeSets, x)
+#define DOC_COMPARTMENTSETELEMENT(x) DOC(bbp, sonata, CompartmentSetElement, x)
+#define DOC_COMPARTMENTSET(x) DOC(bbp, sonata, CompartmentSet, x)
 #define DOC_COMPARTMENTSETS(x) DOC(bbp, sonata, CompartmentSets, x)
 #define DOC_SEL(x) DOC(bbp, sonata, Selection, x)
 #define DOC_POP(x) DOC(bbp, sonata, Population, x)
@@ -537,9 +539,50 @@ PYBIND11_MODULE(_libsonata, m) {
         .def("update", &NodeSets::update, "other"_a, DOC_NODESETS(update))
         .def("toJSON", &NodeSets::toJSON, DOC_NODESETS(toJSON));
 
+    py::class_<CompartmentSetElement>(m, "CompartmentSetElement", "CompartmentSetElement")
+        .def(py::init<const std::string&>())
+        .def(py::init<uint64_t, const std::string&, uint64_t, double>())
+        .def_property_readonly("gid", &CompartmentSetElement::gid, DOC_COMPARTMENTSETELEMENT(gid))
+        .def_property_readonly("section_name", &CompartmentSetElement::sectionName, DOC_COMPARTMENTSETELEMENT(sectionName))
+        .def_property_readonly("section_index", &CompartmentSetElement::sectionIndex, DOC_COMPARTMENTSETELEMENT(sectionIndex))
+        .def_property_readonly("location", &CompartmentSetElement::location, DOC_COMPARTMENTSETELEMENT(location))
+        .def("__iter__", [](const CompartmentSetElement& self) {
+            return py::iter(py::make_tuple(
+                self.gid(),
+                self.sectionName(),
+                self.sectionIndex(),
+                self.location()
+            ));
+        })
+        .def("__repr__", [](const CompartmentSetElement& self) {
+            return py::str("CompartmentSetElement({}, '{}', {}, {})")
+                .format(self.gid(), self.sectionName(), self.sectionIndex(), self.location());
+        })
+        .def("__str__", [](const CompartmentSetElement& self) {
+            return py::str(py::repr(py::cast(self)));  // Delegates to __repr__
+        })
+        .def("toJSON", &CompartmentSetElement::toJSON, DOC_COMPARTMENTSETELEMENT(toJSON));
+
+    py::class_<CompartmentSet>(m, "CompartmentSet", "CompartmentSet")
+        .def(py::init<const std::string&>())
+        .def_property_readonly("population", &CompartmentSet::population, DOC_COMPARTMENTSET(population))
+        .def("elements",
+            [](CompartmentSet& self) {
+                return self.getElements();
+            },
+            py::return_value_policy::move,
+            DOC_COMPARTMENTSET(elements))
+        .def("gids",
+             &CompartmentSet::gids,
+             py::return_value_policy::move,
+             DOC_COMPARTMENTSET(gids))
+        .def("toJSON", &CompartmentSet::toJSON, DOC_COMPARTMENTSET(toJSON));
+
     py::class_<CompartmentSets>(m, "CompartmentSets", "CompartmentSets")
         .def(py::init<const std::string&>())
+        .def("compartment_set", &CompartmentSets::getCompartmentSet, DOC_COMPARTMENTSETS(getCompartmentSet))
         .def_static("from_file", [](py::object path) { return CompartmentSets::fromFile(py::str(path)); })
+        .def_property_readonly("names", &CompartmentSets::names, DOC_COMPARTMENTSETS(names))
         .def("toJSON", &CompartmentSets::toJSON, DOC_COMPARTMENTSETS(toJSON));
 
     py::class_<CommonPopulationProperties>(m,

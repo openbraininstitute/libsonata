@@ -470,18 +470,6 @@ int64_t get_int64_or_throw(const json& el) {
     return static_cast<int64_t>(v);
 }
 
-uint64_t get_uint64_or_throw(const json& el) {
-    auto v = el.get<double>();
-    if (v < 0) {
-        throw SonataError(fmt::format("expected unsigned integer, got {}", v));
-    }
-
-    if (std::floor(v) != v) {
-        throw SonataError(fmt::format("expected integer, got float {}", v));
-    }
-    return static_cast<uint64_t>(v);
-}
-
 NodeSetRulePtr _dispatch_node(const std::string& attribute, const json& value) {
     if (value.is_number()) {
         if (attribute == "population") {
