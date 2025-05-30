@@ -54,7 +54,7 @@ class CompartmentLocation
     }
 
     explicit CompartmentLocation(const std::string& content)
-        : CompartmentLocation(json::parse(content)) { }
+        : CompartmentLocation(json::parse(content)) {}
 
     CompartmentLocation(const nlohmann::json& j) {
         if (!j.is_array() || j.size() != 3) {
@@ -122,7 +122,6 @@ class CompartmentSet {
     std::vector<CompartmentLocation> compartment_locations_;
 
   public:
-
     explicit CompartmentSet(const std::string& content)
         : CompartmentSet(json::parse(content)) {}
 
@@ -274,13 +273,13 @@ std::map<std::string, CompartmentSet> compartment_sets_;
 CompartmentLocation::CompartmentLocation(const int64_t gid,
                                          const int64_t section_idx,
                                          const double offset)
-    : impl_(new detail::CompartmentLocation(gid, section_idx, offset)) { }
+    : impl_(new detail::CompartmentLocation(gid, section_idx, offset)) {}
 
 CompartmentLocation::CompartmentLocation(const std::string& content)
-    : impl_(new detail::CompartmentLocation(content)) { }
+    : impl_(new detail::CompartmentLocation(content)) {}
 
 CompartmentLocation::CompartmentLocation(std::unique_ptr<detail::CompartmentLocation>&& impl)
-    : impl_(std::move(impl)) { }
+    : impl_(std::move(impl)) {}
 
 CompartmentLocation::CompartmentLocation(CompartmentLocation&&) noexcept = default;
 CompartmentLocation& CompartmentLocation::operator=(CompartmentLocation&&) noexcept = default;
