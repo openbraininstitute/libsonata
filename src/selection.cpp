@@ -120,9 +120,8 @@ Selection operator|(const Selection& lhs, const Selection& rhs) {
 }
 
 bool Selection::contains(Value gid) const {
-    auto it = std::lower_bound(
-        ranges_.begin(), ranges_.end(), gid,
-        [](const Range& range, Value v) {
+    auto it =
+        std::lower_bound(ranges_.begin(), ranges_.end(), gid, [](const Range& range, Value v) {
             return range[1] <= v;  // Keep searching if gid >= end
         });
 

@@ -5,7 +5,7 @@
 namespace bbp {
 namespace sonata {
 namespace detail {
-  class CompartmentLocation;
+class CompartmentLocation;
 class CompartmentSet;
 class CompartmentSets;
 }  // namespace detail
@@ -23,7 +23,7 @@ class SONATA_API CompartmentLocation
      * \throw if content cannot be parsed
      */
     explicit CompartmentLocation(const int64_t gid, const int64_t section_idx, const double offset);
-    explicit CompartmentLocation(const std::string& content);                   
+    explicit CompartmentLocation(const std::string& content);
     explicit CompartmentLocation(std::unique_ptr<detail::CompartmentLocation>&& impl);
     CompartmentLocation(CompartmentLocation&&) noexcept;
     CompartmentLocation(const CompartmentLocation& other) = delete;
@@ -37,7 +37,7 @@ class SONATA_API CompartmentLocation
     uint64_t gid() const;
 
     /**
-     * Absolute section index. Progressive index that uniquely identifies the section. 
+     * Absolute section index. Progressive index that uniquely identifies the section.
      * There is a mapping between neuron section names (i.e. dend[10]) and this index.
      */
     uint64_t sectionIdx() const;
@@ -84,7 +84,8 @@ class SONATA_API CompartmentSet
     /**
      * Get the CompartmentLocations.
      */
-    std::vector<CompartmentLocation> getCompartmentLocations(const Selection& selection = Selection({})) const;
+    std::vector<CompartmentLocation> getCompartmentLocations(
+        const Selection& selection = Selection({})) const;
 
     /**
      * Return the gids of the compartment locations.

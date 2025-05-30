@@ -1,8 +1,8 @@
 #include "../extlib/filesystem.hpp"
 
-#include <unordered_set>
-#include <functional>
 #include <cmath>
+#include <functional>
+#include <unordered_set>
 
 #include "utils.h"  // readFile
 
@@ -16,7 +16,8 @@ namespace detail {
 
 using json = nlohmann::json;
 
-class CompartmentLocation {
+class CompartmentLocation
+{
     std::uint64_t gid_;
     std::uint64_t section_idx_;
     double offset_;
@@ -29,18 +30,20 @@ class CompartmentLocation {
     }
     void setSectionIdx(int64_t section_idx) {
         if (section_idx < 0) {
-            throw SonataError(fmt::format("Section index must be non-negative, got {}", section_idx));
+            throw SonataError(
+                fmt::format("Section index must be non-negative, got {}", section_idx));
         }
         section_idx_ = static_cast<uint64_t>(section_idx);
     }
     void setOffset(double offset) {
         if (offset < 0.0 || offset > 1.0) {
-            throw SonataError(fmt::format("Offset must be between 0 and 1 inclusive, got {}", offset));
+            throw SonataError(
+                fmt::format("Offset must be between 0 and 1 inclusive, got {}", offset));
         }
         offset_ = offset;
     }
 
-public:
+  public:
     static constexpr double offsetTolerance = 1e-4;
     static constexpr double offsetToleranceInv = 1.0 / offsetTolerance;
 
@@ -51,11 +54,13 @@ public:
     }
 
     explicit CompartmentLocation(const std::string& content)
-        : CompartmentLocation(json::parse(content)) {}
+        : CompartmentLocation(json::parse(content)) { }
 
     CompartmentLocation(const nlohmann::json& j) {
         if (!j.is_array() || j.size() != 3) {
-            throw SonataError("CompartmentLocation must be an array of exactly 3 elements: [gid, section_idx, offset]");
+            throw SonataError(
+                "CompartmentLocation must be an array of exactly 3 elements: [gid, section_idx, "
+                "offset]");
         }
 
         setGid(get_uint64_or_throw(j[0]));
@@ -84,9 +89,8 @@ public:
     }
 
     bool operator==(const CompartmentLocation& other) const {
-        return gid_ == other.gid_
-            && section_idx_ == other.section_idx_
-            && std::abs(offset_ - other.offset_) < offsetTolerance;
+        return gid_ == other.gid_ && section_idx_ == other.section_idx_ &&
+               std::abs(offset_ - other.offset_) < offsetTolerance;
     }
 };
 
@@ -98,7 +102,8 @@ struct CompartmentLocationHash {
 
         // Quantize offset to 4 decimal places
         double offset = loc.offset();
-        uint64_t quantized_offset = static_cast<uint64_t>(std::round(offset * CompartmentLocation::offsetToleranceInv));
+        uint64_t quantized_offset = static_cast<uint64_t>(
+            std::round(offset * CompartmentLocation::offsetToleranceInv));
 
         std::size_t h3 = std::hash<uint64_t>{}(quantized_offset);
 
@@ -116,7 +121,7 @@ class CompartmentSet {
     std::string population_;
     std::vector<CompartmentLocation> compartment_locations_;
 
-public:
+  public:
 
     explicit CompartmentSet(const std::string& content)
         : CompartmentSet(json::parse(content)) {}
@@ -166,8 +171,8 @@ public:
         return population_;
     }
 
-    std::vector<std::unique_ptr<CompartmentLocation>>
-    getCompartmentLocations(const Selection& selection) const {
+    std::vector<std::unique_ptr<CompartmentLocation>> getCompartmentLocations(
+        const Selection& selection) const {
         std::vector<std::unique_ptr<CompartmentLocation>> result;
         result.reserve(compartment_locations_.size());
 
@@ -267,15 +272,15 @@ std::map<std::string, CompartmentSet> compartment_sets_;
 // CompartmentLocation python API
 
 CompartmentLocation::CompartmentLocation(const int64_t gid,
-                                             const int64_t section_idx,
-                                             const double offset)
-    : impl_(new detail::CompartmentLocation(gid, section_idx, offset)) {}
+                                         const int64_t section_idx,
+                                         const double offset)
+    : impl_(new detail::CompartmentLocation(gid, section_idx, offset)) { }
 
 CompartmentLocation::CompartmentLocation(const std::string& content)
-    : impl_(new detail::CompartmentLocation(content)) {}
+    : impl_(new detail::CompartmentLocation(content)) { }
 
 CompartmentLocation::CompartmentLocation(std::unique_ptr<detail::CompartmentLocation>&& impl)
-    : impl_(std::move(impl)) {}
+    : impl_(std::move(impl)) { }
 
 CompartmentLocation::CompartmentLocation(CompartmentLocation&&) noexcept = default;
 CompartmentLocation& CompartmentLocation::operator=(CompartmentLocation&&) noexcept = default;
@@ -317,7 +322,8 @@ const std::string& CompartmentSet::population() const {
     return impl_->population();
 }
 
-std::vector<CompartmentLocation> CompartmentSet::getCompartmentLocations(const Selection& selection) const {
+std::vector<CompartmentLocation> CompartmentSet::getCompartmentLocations(
+    const Selection& selection) const {
     std::vector<CompartmentLocation> view;
     auto raw_locs = impl_->getCompartmentLocations(selection);
     view.reserve(raw_locs.size());
