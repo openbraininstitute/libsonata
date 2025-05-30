@@ -462,14 +462,6 @@ class NodeSetCompoundRule: public NodeSetRule
     CompoundTargets targets_;
 };
 
-int64_t get_int64_or_throw(const json& el) {
-    auto v = el.get<double>();
-    if (std::floor(v) != v) {
-        throw SonataError(fmt::format("expected integer, got float {}", v));
-    }
-    return static_cast<int64_t>(v);
-}
-
 NodeSetRulePtr _dispatch_node(const std::string& attribute, const json& value) {
     if (value.is_number()) {
         if (attribute == "population") {

@@ -48,6 +48,18 @@ std::set<std::string> getMapKeys(const T& map) {
 }
 
 using json = nlohmann::json;
+
+inline int64_t get_int64_or_throw(const json& el) {
+    if (!el.is_number()) {
+        throw SonataError(fmt::format("expected integer, got {}", el.dump()));
+    }
+    auto v = el.get<double>();
+    if (std::floor(v) != v) {
+        throw SonataError(fmt::format("expected integer, got float {}", v));
+    }
+    return static_cast<int64_t>(v);
+}
+
 inline uint64_t get_uint64_or_throw(const json& el) {
     if (!el.is_number()) {
         throw SonataError(fmt::format("expected unsigned integer, got {}", el.dump()));
@@ -62,5 +74,6 @@ inline uint64_t get_uint64_or_throw(const json& el) {
     }
     return static_cast<uint64_t>(v);
 }
+
 }  // namespace sonata
 }  // namespace bbp

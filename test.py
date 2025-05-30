@@ -1,8 +1,9 @@
 from libsonata import (
-    CompartmentSetElement,
+    CompartmentLocation,
     CompartmentSets,
     CompartmentSet,
     SonataError,
+    Selection
 )
 
 def inspect(v):
@@ -11,5 +12,6 @@ def inspect(v):
         # if not i.startswith('__'):
         print(f'  {i} = {getattr(v, i)}')
 
-a = CompartmentSets('{ "CompartmentSet0": { "population": "pop0", "compartment_set": [[0, "dend", 10, 0.2], [2, "dend", 11, 0.2], [0, "dend", 11, 0.2], [1, "dend", 11, 0.2]] } }')
-print(a.compartment_set("CompartmentSet0").gids())
+a = CompartmentSets('{ "CompartmentSet0": { "population": "pop0", "compartment_set": [[0, 10, 0.2], [3, 11, 0.2], [0, 10, 0.201], [1, 11, 0.2]] } }')
+
+print("CompartmentSet" in a)

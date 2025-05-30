@@ -381,19 +381,17 @@ static const char *__doc_bbp_sonata_NodeSets_operator_assign = R"doc()doc";
 
 static const char *__doc_bbp_sonata_NodeSets_toJSON = R"doc(Return the nodesets as a JSON string.)doc";
 
-static const char *__doc_bbp_sonata_CompartmentSetElement_gid = R"doc(GID)doc";
+static const char *__doc_bbp_sonata_CompartmentLocation_gid = R"doc(GID)doc";
 
-static const char *__doc_bbp_sonata_CompartmentSetElement_sectionName = R"doc(Section name)doc";
+static const char *__doc_bbp_sonata_CompartmentLocation_sectionIdx = R"doc(Absolute section index. Progressive index that uniquely identifies the section. There is a mapping between neuron section names (i.e. dend[10]) and this index.)doc";
 
-static const char *__doc_bbp_sonata_CompartmentSetElement_sectionIndex = R"doc(Section index)doc";
+static const char *__doc_bbp_sonata_CompartmentLocation_offset = R"doc(Offset of the compartment along the section)doc";
 
-static const char *__doc_bbp_sonata_CompartmentSetElement_location = R"doc(Location along the section)doc";
+static const char *__doc_bbp_sonata_CompartmentLocation_toJSON = R"doc(Return the compartment set element as a JSON string.)doc";
 
-static const char *__doc_bbp_sonata_CompartmentSetElement_toJSON = R"doc(Return the compartment set element as a JSON string.)doc";
+static const char *__doc_bbp_sonata_CompartmentSet_getCompartmentLocations = R"doc(Get the list of CompartmentLocations.)doc";
 
-static const char *__doc_bbp_sonata_CompartmentSet_elements = R"doc(Get the list of CompartmentSetElements.)doc";
-
-static const char *__doc_bbp_sonata_CompartmentSet_gids = R"doc(Gids in the list of CompartmentSetElement.)doc";
+static const char *__doc_bbp_sonata_CompartmentSet_gids = R"doc(Gids in the list of CompartmentLocation.)doc";
 
 static const char *__doc_bbp_sonata_CompartmentSet_toJSON = R"doc(Return the compartment set as a JSON string.)doc";
 

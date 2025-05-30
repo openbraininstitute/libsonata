@@ -5,16 +5,16 @@
 namespace bbp {
 namespace sonata {
 namespace detail {
-  class CompartmentSetElement;
+  class CompartmentLocation;
 class CompartmentSet;
 class CompartmentSets;
 }  // namespace detail
 
-class SONATA_API CompartmentSetElement
+class SONATA_API CompartmentLocation
 {
   public:
     /**
-     * Create CompartmentSetElement from JSON
+     * Create CompartmentLocation from JSON
      *
      * See also:
      * TODO
@@ -22,32 +22,30 @@ class SONATA_API CompartmentSetElement
      * \param content is the JSON compartment_set value
      * \throw if content cannot be parsed
      */
-    explicit CompartmentSetElement(const uint64_t gid, const std::string& section_name,
-                            const uint64_t section_index, const double location);
-    explicit CompartmentSetElement(const std::string& content);                   
-    explicit CompartmentSetElement(std::unique_ptr<detail::CompartmentSetElement>&& impl);
-    CompartmentSetElement(CompartmentSetElement&&) noexcept;
-    CompartmentSetElement(const CompartmentSetElement& other) = delete;
-    CompartmentSetElement& operator=(CompartmentSetElement&&) noexcept;
-    ~CompartmentSetElement();
+    explicit CompartmentLocation(const int64_t gid, const int64_t section_idx, const double offset);
+    explicit CompartmentLocation(const std::string& content);                   
+    explicit CompartmentLocation(std::unique_ptr<detail::CompartmentLocation>&& impl);
+    CompartmentLocation(CompartmentLocation&&) noexcept;
+    CompartmentLocation(const CompartmentLocation& other) = delete;
+    CompartmentLocation& operator=(CompartmentLocation&&) noexcept;
+    bool operator==(const CompartmentLocation& other) const noexcept;
+    ~CompartmentLocation();
 
     /**
      * GID
      */
     uint64_t gid() const;
-    /**
-     * Section name
-     */
-    const std::string& sectionName() const;
-    /**
-     * Section index
-     */
-    uint64_t sectionIndex() const;
 
     /**
-     * Location in the section
+     * Absolute section index. Progressive index that uniquely identifies the section. 
+     * There is a mapping between neuron section names (i.e. dend[10]) and this index.
      */
-    double location() const;
+    uint64_t sectionIdx() const;
+
+    /**
+     * Offset of the compartment along the section.
+     */
+    double offset() const;
 
     /**
      * Return the nodesets as a JSON string.
@@ -55,7 +53,7 @@ class SONATA_API CompartmentSetElement
     std::string toJSON() const;
 
   private:
-    std::unique_ptr<detail::CompartmentSetElement> impl_;
+    std::unique_ptr<detail::CompartmentLocation> impl_;
 };
 
 
@@ -84,14 +82,14 @@ class SONATA_API CompartmentSet
     const std::string& population() const;
 
     /**
-     * Get the Elements
+     * Get the CompartmentLocations.
      */
-    std::vector<CompartmentSetElement> getElements();
+    std::vector<CompartmentLocation> getCompartmentLocations(const Selection& selection = Selection({})) const;
 
     /**
-     * Return the gids of the compartment set elements.
+     * Return the gids of the compartment locations.
      */
-    std::vector<uint64_t> gids() const;
+    Selection gids() const;
 
     /**
      * Return the nodesets as a JSON string.
@@ -120,6 +118,8 @@ class SONATA_API CompartmentSets
     CompartmentSets(const CompartmentSets& other) = delete;
     CompartmentSets& operator=(CompartmentSets&&) noexcept;
     ~CompartmentSets();
+    size_t size() const;
+    bool contains(const std::string& name) const;
 
     /** Open a SONATA `Compartment sets` file from a path */
     static CompartmentSets fromFile(const std::string& path);

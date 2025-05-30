@@ -1,6 +1,8 @@
 #include "../extlib/filesystem.hpp"
 
 #include <unordered_set>
+#include <functional>
+#include <cmath>
 
 #include "utils.h"  // readFile
 
@@ -14,79 +16,105 @@ namespace detail {
 
 using json = nlohmann::json;
 
-class CompartmentSetElement {
+class CompartmentLocation {
     std::uint64_t gid_;
-    std::string section_name_;
-    std::uint64_t section_index_;
-    double location_;
+    std::uint64_t section_idx_;
+    double offset_;
 
-public:
-
-    explicit CompartmentSetElement(uint64_t gid,
-                                   const std::string& section_name,
-                                   uint64_t section_index,
-                                   double location)
-        : gid_(gid),
-          section_name_(section_name),
-          section_index_(section_index),
-          location_(location) {
-        if (location < 0.0 || location > 1.0) {
-            throw SonataError(fmt::format("Location must be between 0 and 1 inclusive, got {}", location));
+    void setGid(int64_t gid) {
+        if (gid < 0) {
+            throw SonataError(fmt::format("GID must be non-negative, got {}", gid));
         }
+        gid_ = static_cast<uint64_t>(gid);
+    }
+    void setSectionIdx(int64_t section_idx) {
+        if (section_idx < 0) {
+            throw SonataError(fmt::format("Section index must be non-negative, got {}", section_idx));
+        }
+        section_idx_ = static_cast<uint64_t>(section_idx);
+    }
+    void setOffset(double offset) {
+        if (offset < 0.0 || offset > 1.0) {
+            throw SonataError(fmt::format("Offset must be between 0 and 1 inclusive, got {}", offset));
+        }
+        offset_ = offset;
     }
 
-    explicit CompartmentSetElement(const std::string& content)
-        : CompartmentSetElement(json::parse(content)) {}
+public:
+    static constexpr double offsetTolerance = 1e-4;
+    static constexpr double offsetToleranceInv = 1.0 / offsetTolerance;
 
-    CompartmentSetElement(const nlohmann::json& j) {
-        if (!j.is_array() || j.size() != 4) {
-            throw SonataError("CompartmentSetElement must be an array of exactly 4 elements: [gid, \"section_name\", section_index, location]");
+    explicit CompartmentLocation(int64_t gid, int64_t section_idx, double offset) {
+        setGid(gid);
+        setSectionIdx(section_idx);
+        setOffset(offset);
+    }
+
+    explicit CompartmentLocation(const std::string& content)
+        : CompartmentLocation(json::parse(content)) {}
+
+    CompartmentLocation(const nlohmann::json& j) {
+        if (!j.is_array() || j.size() != 3) {
+            throw SonataError("CompartmentLocation must be an array of exactly 3 elements: [gid, section_idx, offset]");
         }
 
-        gid_ = get_uint64_or_throw(j[0]);
+        setGid(get_uint64_or_throw(j[0]));
+        setSectionIdx(get_uint64_or_throw(j[1]));
 
-        if (!j[1].is_string()) {
-            throw SonataError("Second element (section_name) must be a string");
+        if (!j[2].is_number()) {
+            throw SonataError("Fourth element (offset) must be a number");
         }
-        section_name_ = j[1].get<std::string>();
-
-        section_index_ = get_uint64_or_throw(j[2]);
-
-        if (!j[3].is_number()) {
-            throw SonataError("Fourth element (location) must be a number");
-        }
-        const double location = j[3].get<double>();
-        if (location < 0.0 || location > 1.0) {
-            throw SonataError(fmt::format("Location must be between 0 and 1 inclusive, got {}", location));
-        }
-        location_ = location;
+        setOffset(j[2].get<double>());
     }
 
     uint64_t gid() const {
         return gid_;
     }
 
-    const std::string& sectionName() const {
-        return section_name_;
+    uint64_t sectionIdx() const {
+        return section_idx_;
     }
 
-    uint64_t sectionIndex() const {
-        return section_index_;
-    }
-
-    double location() const {
-        return location_;
+    double offset() const {
+        return offset_;
     }
 
     nlohmann::json to_json() const {
-        return nlohmann::json::array({gid_, section_name_, section_index_, location_});
+        return nlohmann::json::array({gid_, section_idx_, offset_});
+    }
+
+    bool operator==(const CompartmentLocation& other) const {
+        return gid_ == other.gid_
+            && section_idx_ == other.section_idx_
+            && std::abs(offset_ - other.offset_) < offsetTolerance;
     }
 };
 
+// Custom hash for CompartmentLocation
+struct CompartmentLocationHash {
+    std::size_t operator()(const CompartmentLocation& loc) const noexcept {
+        std::size_t h1 = std::hash<uint64_t>{}(loc.gid());
+        std::size_t h2 = std::hash<uint64_t>{}(loc.sectionIdx());
+
+        // Quantize offset to 4 decimal places
+        double offset = loc.offset();
+        uint64_t quantized_offset = static_cast<uint64_t>(std::round(offset * CompartmentLocation::offsetToleranceInv));
+
+        std::size_t h3 = std::hash<uint64_t>{}(quantized_offset);
+
+        // Combine hashes (boost style)
+        std::size_t seed = 0;
+        seed ^= h1 + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= h2 + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= h3 + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+
+        return seed;
+    }
+};
 
 class CompartmentSet {
     std::string population_;
-    std::vector<CompartmentSetElement> compartment_set_elements_;
+    std::vector<CompartmentLocation> compartment_locations_;
 
 public:
 
@@ -98,52 +126,65 @@ public:
             throw SonataError("CompartmentSet must be an object");
         }
 
-        if (j.contains("population")) {
-            if (!j.at("population").is_string()) {
-                throw SonataError("'population' must be a string");
-            }
-            population_ = j.at("population").get<std::string>();
-        } else {
-            throw SonataError("CompartmentSet must contain 'population' key");
+        // Extract and check 'population' key once
+        auto pop_it = j.find("population");
+        if (pop_it == j.end() || !pop_it->is_string()) {
+            throw SonataError("CompartmentSet must contain 'population' key of string type");
+        }
+        population_ = pop_it->get<std::string>();
+
+        // Extract and check 'compartment_set' key once
+        auto comp_it = j.find("compartment_set");
+        if (comp_it == j.end() || !comp_it->is_array()) {
+            throw SonataError("CompartmentSet must contain 'compartment_set' key of array type");
         }
 
-        if (j.contains("compartment_set")) {
-            if (!j.at("compartment_set").is_array()) {
-                throw SonataError("'compartment_set' must be an array");
-            }
-
-            for (const auto& el : j.at("compartment_set")) {
-                compartment_set_elements_.emplace_back(el);
-            }
-        } else {
-            throw SonataError("CompartmentSet must contain 'compartment_set' key");
+        compartment_locations_.reserve(comp_it->size());
+        for (const auto& el : *comp_it) {
+            compartment_locations_.emplace_back(el);
         }
+        compartment_locations_.shrink_to_fit();
     }
 
-    std::vector<uint64_t> gids() const {
+
+    Selection gids() const {
         std::vector<uint64_t> result;
         std::unordered_set<uint64_t> seen;
 
-        result.reserve(compartment_set_elements_.size());
-        for (const auto& elem : compartment_set_elements_) {
+        result.reserve(compartment_locations_.size());
+        for (const auto& elem : compartment_locations_) {
             uint64_t id = elem.gid();
             if (seen.insert(id).second) { // insert returns {iterator, bool}
                 result.push_back(id);
             }
         }
-        return result;
+        sort(result.begin(), result.end());
+        return Selection::fromValues(result.begin(), result.end());
     }
 
     const std::string& population() const {
         return population_;
     }
 
-    std::vector<CompartmentSetElement>& getElements() {
-    return compartment_set_elements_;
-    }
+    std::vector<std::unique_ptr<CompartmentLocation>>
+    getCompartmentLocations(const Selection& selection) const {
+        std::vector<std::unique_ptr<CompartmentLocation>> result;
+        result.reserve(compartment_locations_.size());
 
-    const std::vector<CompartmentSetElement>& getElements() const {
-        return compartment_set_elements_;
+        if (selection.empty()) {
+            for (const auto& el : compartment_locations_) {
+                result.emplace_back(std::make_unique<detail::CompartmentLocation>(el));
+            }
+        } else {
+            for (const auto& el : compartment_locations_) {
+                if (selection.contains(el.gid())) {
+                    result.emplace_back(std::make_unique<detail::CompartmentLocation>(el));
+                }
+            }
+        }
+        result.shrink_to_fit();
+
+        return result;
     }
 
     nlohmann::json to_json() const {
@@ -151,7 +192,7 @@ public:
         j["population"] = population_;
 
         j["compartment_set"] = nlohmann::json::array();
-        for (const auto& elem : compartment_set_elements_) {
+        for (const auto& elem : compartment_locations_) {
             j["compartment_set"].push_back(elem.to_json());
         }
 
@@ -191,6 +232,13 @@ std::map<std::string, CompartmentSet> compartment_sets_;
     explicit CompartmentSets(const std::string& content)
         : CompartmentSets(json::parse(content)) {}
 
+    size_t size() const {
+        return compartment_sets_.size();
+    }
+    bool contains(const std::string& name) const {
+        return compartment_sets_.find(name) != compartment_sets_.end();
+    }
+
     std::set<std::string> names() const {
         return getMapKeys(compartment_sets_);
     }
@@ -216,39 +264,40 @@ std::map<std::string, CompartmentSet> compartment_sets_;
 
 }  // namespace detail
 
-// CompartmentSetElement python API
+// CompartmentLocation python API
 
-CompartmentSetElement::CompartmentSetElement(const uint64_t gid,
-                                             const std::string& section_name,
-                                             const uint64_t section_index,
-                                             const double location)
-    : impl_(new detail::CompartmentSetElement(gid, section_name, section_index, location)) {}
+CompartmentLocation::CompartmentLocation(const int64_t gid,
+                                             const int64_t section_idx,
+                                             const double offset)
+    : impl_(new detail::CompartmentLocation(gid, section_idx, offset)) {}
 
-CompartmentSetElement::CompartmentSetElement(const std::string& content)
-    : impl_(new detail::CompartmentSetElement(content)) {}
+CompartmentLocation::CompartmentLocation(const std::string& content)
+    : impl_(new detail::CompartmentLocation(content)) {}
 
-CompartmentSetElement::CompartmentSetElement(std::unique_ptr<detail::CompartmentSetElement>&& impl)
+CompartmentLocation::CompartmentLocation(std::unique_ptr<detail::CompartmentLocation>&& impl)
     : impl_(std::move(impl)) {}
 
-CompartmentSetElement::CompartmentSetElement(CompartmentSetElement&&) noexcept = default;
-CompartmentSetElement& CompartmentSetElement::operator=(CompartmentSetElement&&) noexcept = default;
-CompartmentSetElement::~CompartmentSetElement() = default;
+CompartmentLocation::CompartmentLocation(CompartmentLocation&&) noexcept = default;
+CompartmentLocation& CompartmentLocation::operator=(CompartmentLocation&&) noexcept = default;
+CompartmentLocation::~CompartmentLocation() = default;
 
-uint64_t CompartmentSetElement::gid() const {
+bool CompartmentLocation::operator==(const CompartmentLocation& other) const noexcept {
+    return *impl_ == *(other.impl_);
+}
+
+uint64_t CompartmentLocation::gid() const {
     return impl_->gid();
 }
-const std::string& CompartmentSetElement::sectionName() const {
-    return impl_->sectionName();
-}
-uint64_t CompartmentSetElement::sectionIndex() const {
-    return impl_->sectionIndex();
+
+uint64_t CompartmentLocation::sectionIdx() const {
+    return impl_->sectionIdx();
 }
 
-double CompartmentSetElement::location() const {
-    return impl_->location();
+double CompartmentLocation::offset() const {
+    return impl_->offset();
 }
 
-std::string CompartmentSetElement::toJSON() const {
+std::string CompartmentLocation::toJSON() const {
     return impl_->to_json().dump(4); // Pretty print with 4 spaces
 }
 
@@ -268,16 +317,17 @@ const std::string& CompartmentSet::population() const {
     return impl_->population();
 }
 
-std::vector<CompartmentSetElement> CompartmentSet::getElements() {
-    std::vector<CompartmentSetElement> view;
-    view.reserve(impl_->getElements().size());
-    for (auto& el : impl_->getElements()) {
-        view.emplace_back(std::make_unique<detail::CompartmentSetElement>(el));
+std::vector<CompartmentLocation> CompartmentSet::getCompartmentLocations(const Selection& selection) const {
+    std::vector<CompartmentLocation> view;
+    auto raw_locs = impl_->getCompartmentLocations(selection);
+    view.reserve(raw_locs.size());
+    for (auto& el : raw_locs) {
+        view.emplace_back(std::move(el));  // take ownership
     }
     return view;
 }
 
-std::vector<uint64_t> CompartmentSet::gids() const {
+Selection CompartmentSet::gids() const {
     return impl_->gids();
 }
 
@@ -299,6 +349,14 @@ CompartmentSets::~CompartmentSets() = default;
 
 CompartmentSets CompartmentSets::fromFile(const std::string& path) {
     return CompartmentSets(detail::CompartmentSets::fromFile(path));
+}
+
+size_t CompartmentSets::size() const {
+    return impl_->size();
+}
+
+bool CompartmentSets::contains(const std::string& name) const {
+    return impl_->contains(name);
 }
 
 std::set<std::string> CompartmentSets::names() const {

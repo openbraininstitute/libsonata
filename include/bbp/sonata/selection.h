@@ -40,6 +40,13 @@ class SONATA_API Selection
 
     bool empty() const;
 
+    /**
+     * Check if Selection contains a given GID (binary search)
+     * @param gid is the GID to check
+     * @return true if Selection contains gid, false otherwise
+     */
+    bool contains(Value gid) const;
+
   private:
     Ranges ranges_;
 };

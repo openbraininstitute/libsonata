@@ -119,6 +119,15 @@ Selection operator|(const Selection& lhs, const Selection& rhs) {
     return detail::union_(lhs.ranges(), rhs.ranges());
 }
 
+bool Selection::contains(Value gid) const {
+    auto it = std::lower_bound(
+        ranges_.begin(), ranges_.end(), gid,
+        [](const Range& range, Value v) {
+            return range[1] <= v;  // Keep searching if gid >= end
+        });
+
+    return it != ranges_.end() && (*it)[0] <= gid && gid < (*it)[1];
+}
 
 }  // namespace sonata
 }  // namespace bbp
