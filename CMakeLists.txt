@@ -97,6 +97,7 @@ set(SONATA_SRC
     src/hdf5_mutex.cpp
     src/hdf5_reader.cpp
     src/node_sets.cpp
+    src/compartment_sets.cpp
     src/nodes.cpp
     src/population.cpp
     src/report_reader.cpp

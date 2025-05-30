@@ -1,12 +1,4 @@
-set(TESTS_SRC
-  main.cpp
-  test_config.cpp
-  test_edges.cpp
-  test_node_sets.cpp
-  test_nodes.cpp
-  test_report_reader.cpp
-  test_selection.cpp
-)
+file(GLOB TESTS_SRC "*.cpp")
 
 if(NOT EXTLIB_FROM_SUBMODULES)
   # When using submodules `include(.../Catch)` is performed

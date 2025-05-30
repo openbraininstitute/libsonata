@@ -381,6 +381,28 @@ static const char *__doc_bbp_sonata_NodeSets_operator_assign = R"doc()doc";
 
 static const char *__doc_bbp_sonata_NodeSets_toJSON = R"doc(Return the nodesets as a JSON string.)doc";
 
+static const char *__doc_bbp_sonata_CompartmentLocation_gid = R"doc(GID)doc";
+
+static const char *__doc_bbp_sonata_CompartmentLocation_sectionIdx = R"doc(Absolute section index. Progressive index that uniquely identifies the section. There is a mapping between neuron section names (i.e. dend[10]) and this index.)doc";
+
+static const char *__doc_bbp_sonata_CompartmentLocation_offset = R"doc(Offset of the compartment along the section)doc";
+
+static const char *__doc_bbp_sonata_CompartmentLocation_toJSON = R"doc(Return the compartment set element as a JSON string.)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSet_getCompartmentLocations = R"doc(Get the list of CompartmentLocations.)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSet_gids = R"doc(Gids in the list of CompartmentLocation.)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSet_toJSON = R"doc(Return the compartment set as a JSON string.)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSet_population = R"doc(Population name)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets_toJSON = R"doc(Return the compartment sets as a JSON string.)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets_names = R"doc(Names of the compartment sets available)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets_getCompartmentSet = R"doc(Get compartment set)doc";
+
 static const char *__doc_bbp_sonata_NodeSets_update =
 R"doc(Update `this` to include all nodesets from `this` and `other`.
 
@@ -1261,6 +1283,9 @@ static const char *__doc_bbp_sonata_SimulationConfig_getNodeSetsFile =
 R"doc(Returns the path of node sets file overriding node_sets_file provided
 in _network, default is empty in case of no setting in _network)doc";
 
+static const char *__doc_bbp_sonata_SimulationConfig_getCompartmentSetsFile =
+R"doc(Returns the path of compartment sets file, default is empty in case of no setting in _network)doc";
+
 static const char *__doc_bbp_sonata_SimulationConfig_getOutput = R"doc(Returns the Output section of the simulation configuration.)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_getReport =
@@ -1291,6 +1316,8 @@ static const char *__doc_bbp_sonata_SimulationConfig_network = R"doc()doc";
 static const char *__doc_bbp_sonata_SimulationConfig_nodeSet = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_nodeSetsFile = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_compartmentSetsFile = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_output = R"doc()doc";
 

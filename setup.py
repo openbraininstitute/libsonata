@@ -112,11 +112,8 @@ setup(
     author="Blue Brain Project, EPFL",
     long_description=README,
     long_description_content_type='text/x-rst',
-    license="LGPLv3",
+    license="LGPL-3.0-or-later",
     url='https://github.com/openbraininstitute/libsonata',
-    classifiers=[
-        "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
-    ],
     ext_modules=[CMakeExtension("libsonata._libsonata")],
     cmdclass={'build_ext': CMakeBuild,
               },

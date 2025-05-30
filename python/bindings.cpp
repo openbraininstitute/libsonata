@@ -6,6 +6,7 @@
 #include <bbp/sonata/config.h>
 #include <bbp/sonata/edges.h>
 #include <bbp/sonata/node_sets.h>
+#include <bbp/sonata/compartment_sets.h>
 #include <bbp/sonata/nodes.h>
 #include <bbp/sonata/optional.hpp>  //nonstd::optional
 #include <bbp/sonata/report_reader.h>
@@ -126,6 +127,9 @@ py::object getDynamicsAttributeVectorWithDefault(const Population& obj,
 
 // create a macro to reduce repetition for docstrings
 #define DOC_NODESETS(x) DOC(bbp, sonata, NodeSets, x)
+#define DOC_COMPARTMENTLOCATION(x) DOC(bbp, sonata, CompartmentLocation, x)
+#define DOC_COMPARTMENTSET(x) DOC(bbp, sonata, CompartmentSet, x)
+#define DOC_COMPARTMENTSETS(x) DOC(bbp, sonata, CompartmentSets, x)
 #define DOC_SEL(x) DOC(bbp, sonata, Selection, x)
 #define DOC_POP(x) DOC(bbp, sonata, Population, x)
 #define DOC_POP_NODE(x) DOC(bbp, sonata, NodePopulation, x)
@@ -467,6 +471,10 @@ PYBIND11_MODULE(_libsonata, m) {
             "flatten", [](Selection& obj) { return asArray(obj.flatten()); }, DOC_SEL(flatten))
         .def_property_readonly("flat_size", &Selection::flatSize, DOC_SEL(flatSize))
         .def(
+            "__contains__",
+            [](const Selection& sel, uint64_t gid) { return sel.contains(gid); },
+            "Check if a GID is contained in the selection")
+        .def(
             "__bool__",
             [](const Selection& obj) { return !obj.empty(); },
             "True if Selection is not empty")
@@ -534,6 +542,59 @@ PYBIND11_MODULE(_libsonata, m) {
         .def("materialize", &NodeSets::materialize, DOC_NODESETS(materialize))
         .def("update", &NodeSets::update, "other"_a, DOC_NODESETS(update))
         .def("toJSON", &NodeSets::toJSON, DOC_NODESETS(toJSON));
+
+    py::class_<CompartmentLocation>(m, "CompartmentLocation", "CompartmentLocation")
+        .def(py::init<const std::string&>())
+        .def(py::init<const int64_t, const int64_t, const double>())
+        .def_property_readonly("gid", &CompartmentLocation::gid, DOC_COMPARTMENTLOCATION(gid))
+        .def_property_readonly("section_idx",
+                               &CompartmentLocation::sectionIdx,
+                               DOC_COMPARTMENTLOCATION(sectionIdx))
+        .def_property_readonly("offset",
+                               &CompartmentLocation::offset,
+                               DOC_COMPARTMENTLOCATION(offset))
+        .def("__iter__",
+             [](const CompartmentLocation& self) {
+                 return py::iter(py::make_tuple(self.gid(), self.sectionIdx(), self.offset()));
+             })
+        .def("__repr__",
+             [](const CompartmentLocation& self) {
+                 return py::str("CompartmentLocation({}, {}, {})")
+                     .format(self.gid(), self.sectionIdx(), self.offset());
+             })
+        .def("__str__",
+             [](const CompartmentLocation& self) {
+                 return py::str(py::repr(py::cast(self)));  // Delegates to __repr__
+             })
+        .def("__eq__", &CompartmentLocation::operator==)
+        .def("toJSON", &CompartmentLocation::toJSON, DOC_COMPARTMENTLOCATION(toJSON));
+
+    py::class_<CompartmentSet>(m, "CompartmentSet", "CompartmentSet")
+        .def(py::init<const std::string&>())
+        .def_property_readonly("population",
+                               &CompartmentSet::population,
+                               DOC_COMPARTMENTSET(population))
+        .def(
+            "compartment_locations",
+            [](const CompartmentSet& self, const Selection& sel) {
+                return self.getCompartmentLocations(sel);
+            },
+            py::arg("selection") = Selection({}),  // provide default arg here
+            DOC_COMPARTMENTSET(getCompartmentLocations))
+        .def("gids", &CompartmentSet::gids, DOC_COMPARTMENTSET(gids))
+        .def("toJSON", &CompartmentSet::toJSON, DOC_COMPARTMENTSET(toJSON));
+
+    py::class_<CompartmentSets>(m, "CompartmentSets", "CompartmentSets")
+        .def(py::init<const std::string&>())
+        .def("__contains__", &CompartmentSets::contains)
+        .def("__len__", &CompartmentSets::size)
+        .def("compartment_set",
+             &CompartmentSets::getCompartmentSet,
+             DOC_COMPARTMENTSETS(getCompartmentSet))
+        .def_static("from_file",
+                    [](py::object path) { return CompartmentSets::fromFile(py::str(path)); })
+        .def_property_readonly("names", &CompartmentSets::names, DOC_COMPARTMENTSETS(names))
+        .def("toJSON", &CompartmentSets::toJSON, DOC_COMPARTMENTSETS(toJSON));
 
     py::class_<CommonPopulationProperties>(m,
                                            "CommonPopulationProperties",
@@ -1139,6 +1200,9 @@ PYBIND11_MODULE(_libsonata, m) {
         .def_property_readonly("node_sets_file",
                                &SimulationConfig::getNodeSetsFile,
                                DOC_SIMULATIONCONFIG(getNodeSetsFile))
+        .def_property_readonly("compartment_sets_file",
+                               &SimulationConfig::getCompartmentSetsFile,
+                               DOC_SIMULATIONCONFIG(getCompartmentSetsFile))
         .def_property_readonly("node_set",
                                &SimulationConfig::getNodeSet,
                                DOC_SIMULATIONCONFIG(getNodeSet))
