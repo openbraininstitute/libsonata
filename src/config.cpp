@@ -341,7 +341,7 @@ template <typename Type>
 void raiseIfInvalidEnum(const char* /*unused*/,
                         const Type& /*unused*/,
                         const std::string& /*unused*/,
-                        std::false_type /* tag */) {}
+                        std::false_type /* tag */) { }
 
 template <typename Type>
 void parseMandatory(const nlohmann::json& it,
@@ -923,10 +923,11 @@ class CircuitConfig::Parser
             "node",
             status,
             [&](NodePopulationProperties& popProperties, const nlohmann::json& popData) {
-            popProperties.spatialSegmentIndexDir = getJSONPath(popData, "spatial_segment_index_dir");
-            popProperties.vasculatureFile = getOptionalJSONPath(popData, "vasculature_file");
-            popProperties.vasculatureMesh = getOptionalJSONPath(popData, "vasculature_mesh");
-            popProperties.microdomainsFile = getOptionalJSONPath(popData, "microdomains_file");
+                popProperties.spatialSegmentIndexDir = getJSONPath(popData,
+                                                                   "spatial_segment_index_dir");
+                popProperties.vasculatureFile = getOptionalJSONPath(popData, "vasculature_file");
+                popProperties.vasculatureMesh = getOptionalJSONPath(popData, "vasculature_mesh");
+                popProperties.microdomainsFile = getOptionalJSONPath(popData, "microdomains_file");
             });
     }
 
@@ -936,10 +937,12 @@ class CircuitConfig::Parser
             "edge",
             status,
             [&](EdgePopulationProperties& popProperties, const nlohmann::json& popData) {
-            popProperties.spatialSynapseIndexDir = getJSONPath(popData, "spatial_synapse_index_dir");
-            popProperties.endfeetMeshesFile = getOptionalJSONPath(popData, "endfeet_meshes_file");
-            popProperties.spineMorphologiesDir = getOptionalJSONPath(popData,
-                                                                     "spine_morphologies_dir");
+                popProperties.spatialSynapseIndexDir = getJSONPath(popData,
+                                                                   "spatial_synapse_index_dir");
+                popProperties.endfeetMeshesFile = getOptionalJSONPath(popData,
+                                                                      "endfeet_meshes_file");
+                popProperties.spineMorphologiesDir = getOptionalJSONPath(popData,
+                                                                         "spine_morphologies_dir");
             });
     }
 
@@ -1458,13 +1461,13 @@ const nonstd::optional<std::string>& SimulationConfig::getNodeSet() const noexce
     return _nodeSet;
 }
 
-const std::unordered_map<std::string, variantValueType>& SimulationConfig::getMetaData() const
-    noexcept {
+const std::unordered_map<std::string, variantValueType>& SimulationConfig::getMetaData()
+    const noexcept {
     return _metaData;
 }
 
-const std::unordered_map<std::string, variantValueType>& SimulationConfig::getBetaFeatures() const
-    noexcept {
+const std::unordered_map<std::string, variantValueType>& SimulationConfig::getBetaFeatures()
+    const noexcept {
     return _betaFeatures;
 }
 

@@ -64,7 +64,7 @@ Population::Population(const std::string& h5FilePath,
     : impl_([h5FilePath, csvFilePath, name, prefix, hdf5_reader] {
         HDF5_LOCK_GUARD
         return new Population::Impl(h5FilePath, csvFilePath, name, prefix, hdf5_reader);
-    }()) {}
+    }()) { }
 
 
 Population::Population(Population&&) noexcept = default;

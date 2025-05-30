@@ -8,7 +8,7 @@ DIRS_TO_FORMAT='src include python'
 set -euo pipefail
 
 VENV=build/venv-clang-format
-CLANG_FORMAT_VERSION=9.0.0
+CLANG_FORMAT_VERSION=20.1.5
 
 if [[ ! -d $VENV ]]; then
     python3 -mvenv "$VENV"
