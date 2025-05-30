@@ -328,7 +328,8 @@ class SONATA_API SimulationConfig
         std::string name;
     };
 
-    struct ModificationTTX: public ModificationBase {};
+    struct ModificationTTX: public ModificationBase {
+    };
 
     struct ModificationConfigureAllSections: public ModificationBase {
         /// For “ConfigureAllSections” manipulation, a snippet of python code to perform one or more

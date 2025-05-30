@@ -37,13 +37,13 @@ namespace sonata {
 EdgePopulation::EdgePopulation(const std::string& h5FilePath,
                                const std::string& csvFilePath,
                                const std::string& name)
-    : Population(h5FilePath, csvFilePath, name, ELEMENT, Hdf5Reader()) {}
+    : Population(h5FilePath, csvFilePath, name, ELEMENT, Hdf5Reader()) { }
 
 EdgePopulation::EdgePopulation(const std::string& h5FilePath,
                                const std::string& csvFilePath,
                                const std::string& name,
                                const Hdf5Reader& hdf5_reader)
-    : Population(h5FilePath, csvFilePath, name, ELEMENT, hdf5_reader) {}
+    : Population(h5FilePath, csvFilePath, name, ELEMENT, hdf5_reader) { }
 
 
 std::string EdgePopulation::source() const {
