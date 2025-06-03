@@ -54,6 +54,22 @@ class SONATA_API CompartmentLocation
  * Each compartment is uniquely defined by a (gid, section_idx, offset) triplet.
  * This API supports filtering based on a gid selection.
  */
+
+
+class SONATA_API CompartmentSetFilteredIterator {
+public:
+    explicit CompartmentSetFilteredIterator(std::unique_ptr<detail::CompartmentSetFilteredIterator> impl);
+    ~CompartmentSetFilteredIterator();
+    // CompartmentLocation operator*() const;
+    // FilteredIterator& operator++();            // prefix ++
+    // FilteredIterator operator++(int);          // postfix ++
+    // bool operator==(const FilteredIterator& other) const;
+    // bool operator!=(const FilteredIterator& other) const;
+
+private:
+    std::unique_ptr<detail::CompartmentSetFilteredIterator>> impl_;
+};
+
 class SONATA_API CompartmentSet
 {
   public:
@@ -63,19 +79,7 @@ class SONATA_API CompartmentSet
     explicit CompartmentSet(const std::string& json_content);
     explicit CompartmentSet(std::shared_ptr<detail::CompartmentSet>&& impl);
 
-    // class FilteredIterator {
-    // public:
-    //     explicit FilteredIterator(std::unique_ptr<void> impl);
-    //     ~FilteredIterator();
-    //     // CompartmentLocation operator*() const;
-    //     // FilteredIterator& operator++();            // prefix ++
-    //     // FilteredIterator operator++(int);          // postfix ++
-    //     // bool operator==(const FilteredIterator& other) const;
-    //     // bool operator!=(const FilteredIterator& other) const;
 
-    // private:
-    //     std::unique_ptr<void> impl_;
-    // };
 
     // std::pair<FilteredIterator, FilteredIterator>
     // filteredRange(Selection selection = bbp::sonata::Selection({})) const;

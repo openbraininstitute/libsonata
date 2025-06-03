@@ -519,9 +519,9 @@ std::string CompartmentLocation::toJSON() const {
 
 // CompartmentSetFilteredIterator public API
 
-// CompartmentSet::FilteredIterator::FilteredIterator(std::unique_ptr<void> impl)
-//     : impl_(std::move(impl)) {}
-// CompartmentSet::FilteredIterator::~FilteredIterator() = default;
+CompartmentSetFilteredIterator::CompartmentSetFilteredIterator(std::unique_ptr<detail::CompartmentSetFilteredIterator> impl)
+    : impl_(std::move(impl)) {}
+CompartmentSetFilteredIterator::~CompartmentSetFilteredIterator() = default;
 
 // CompartmentSet public API
 
