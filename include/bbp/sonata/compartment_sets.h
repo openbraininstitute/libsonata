@@ -7,6 +7,7 @@ namespace sonata {
 namespace detail {
 class CompartmentLocation;
 class CompartmentSet;
+class CompartmentSetFilteredIterator;
 }  // namespace detail
 /**
  * CompartmentLocation public API.
@@ -43,6 +44,60 @@ class SONATA_API CompartmentLocation
 
   private:
     std::unique_ptr<detail::CompartmentLocation> impl_;
+};
+
+
+/**
+ * CompartmentSet public API.
+ *
+ * This class represents a set of compartment locations associated with a neuron population.
+ * Each compartment is uniquely defined by a (gid, section_idx, offset) triplet.
+ * This API supports filtering based on a gid selection.
+ */
+class SONATA_API CompartmentSet
+{
+  public:
+
+    CompartmentSet() = delete;
+
+    explicit CompartmentSet(const std::string& json_content);
+    explicit CompartmentSet(std::shared_ptr<detail::CompartmentSet>&& impl);
+
+    // class FilteredIterator {
+    // public:
+    //     explicit FilteredIterator(std::unique_ptr<void> impl);
+    //     ~FilteredIterator();
+    //     // CompartmentLocation operator*() const;
+    //     // FilteredIterator& operator++();            // prefix ++
+    //     // FilteredIterator operator++(int);          // postfix ++
+    //     // bool operator==(const FilteredIterator& other) const;
+    //     // bool operator!=(const FilteredIterator& other) const;
+
+    // private:
+    //     std::unique_ptr<void> impl_;
+    // };
+
+    // std::pair<FilteredIterator, FilteredIterator>
+    // filteredRange(Selection selection = bbp::sonata::Selection({})) const;
+
+    /// Size of the set, optionally filtered by selection
+    std::size_t size(const bbp::sonata::Selection& selection = bbp::sonata::Selection({})) const;
+
+    /// Population name
+    const std::string& population() const;
+
+    /// Access element by index. It returns a copy!
+    CompartmentLocation operator[](std::size_t index) const;
+
+    bbp::sonata::Selection gids() const;
+
+    CompartmentSet filter(const bbp::sonata::Selection& selection = bbp::sonata::Selection({})) const;
+
+    /// Serialize to JSON string
+    std::string toJSON() const;
+
+  private:
+    std::shared_ptr<detail::CompartmentSet> impl_;
 };
 
 

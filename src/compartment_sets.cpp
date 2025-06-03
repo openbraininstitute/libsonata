@@ -106,7 +106,65 @@ class CompartmentLocation
     }
 };
 
+class CompartmentSetFilteredIterator {
+public:
+    using base_iterator = std::vector<CompartmentLocation>::const_iterator;
+    using value_type = detail::CompartmentLocation;
+    using reference = const value_type&;
+    using pointer = const value_type*;
+    using difference_type = std::ptrdiff_t;
+    using iterator_category = std::input_iterator_tag;
+private:
+    base_iterator current_;
+    base_iterator end_;
+    bbp::sonata::Selection selection_; // copied
 
+    void skip_to_valid() {
+        while (current_ != end_) {
+            if (selection_.empty() || selection_.contains(current_->gid())) {
+                break;
+            }
+            ++current_;
+        }
+    }
+
+public:
+
+    CompartmentSetFilteredIterator(base_iterator current,
+                    base_iterator end,
+                    bbp::sonata::Selection selection)
+        : current_(current), end_(end), selection_(std::move(selection)) {
+        skip_to_valid();
+    }
+
+    reference operator*() const {
+        return *current_;
+    }
+
+    pointer operator->() const {
+        return &(*current_);
+    }
+
+    CompartmentSetFilteredIterator& operator++() {
+        ++current_;
+        skip_to_valid();
+        return *this;
+    }
+
+    CompartmentSetFilteredIterator operator++(int) {
+        CompartmentSetFilteredIterator tmp = *this;
+        ++(*this);
+        return tmp;
+    }
+
+    bool operator==(const CompartmentSetFilteredIterator& other) const {
+        return current_ == other.current_;
+    }
+
+    bool operator!=(const CompartmentSetFilteredIterator& other) const {
+        return !(*this == other);
+    }
+};
 class CompartmentSet {
 public:
     using container_t = std::vector<CompartmentLocation>;
@@ -159,72 +217,12 @@ public:
     CompartmentSet(CompartmentSet&&) noexcept = default;
     CompartmentSet& operator=(CompartmentSet&&) noexcept = default;
 
-    class FilteredIterator {
-    public:
-        using base_iterator = CompartmentSet::container_t::const_iterator;
-        using value_type = detail::CompartmentLocation;
-        using reference = const value_type&;
-        using pointer = const value_type*;
-        using difference_type = std::ptrdiff_t;
-        using iterator_category = std::input_iterator_tag;
-    private:
-        base_iterator current_;
-        base_iterator end_;
-        bbp::sonata::Selection selection_; // copied
-
-        void skip_to_valid() {
-            while (current_ != end_) {
-                if (selection_.empty() || selection_.contains(current_->gid())) {
-                    break;
-                }
-                ++current_;
-            }
-        }
-
-    public:
-
-        FilteredIterator(base_iterator current,
-                        base_iterator end,
-                        bbp::sonata::Selection selection)
-            : current_(current), end_(end), selection_(std::move(selection)) {
-            skip_to_valid();
-        }
-
-        reference operator*() const {
-            return *current_;
-        }
-
-        pointer operator->() const {
-            return &(*current_);
-        }
-
-        FilteredIterator& operator++() {
-            ++current_;
-            skip_to_valid();
-            return *this;
-        }
-
-        FilteredIterator operator++(int) {
-            FilteredIterator tmp = *this;
-            ++(*this);
-            return tmp;
-        }
-
-        bool operator==(const FilteredIterator& other) const {
-            return current_ == other.current_;
-        }
-
-        bool operator!=(const FilteredIterator& other) const {
-            return !(*this == other);
-        }
-    };
-
-    std::pair<FilteredIterator, FilteredIterator>
+    std::pair<CompartmentSetFilteredIterator, CompartmentSetFilteredIterator>
     filtered_crange(bbp::sonata::Selection selection = Selection({})) const {
-        FilteredIterator begin_it(compartment_locations_.cbegin(),
+        CompartmentSetFilteredIterator begin_it(compartment_locations_.cbegin(),
                                 compartment_locations_.cend(),
                                 selection);
-        FilteredIterator end_it(compartment_locations_.cend(),
+        CompartmentSetFilteredIterator end_it(compartment_locations_.cend(),
                                 compartment_locations_.cend(),
                                 std::move(selection));
         return {begin_it, end_it};
@@ -242,8 +240,8 @@ public:
             }));
     }
 
-    const CompartmentLocation& operator[](std::size_t index) const {
-        return compartment_locations_.at(index);
+    std::unique_ptr<CompartmentLocation> operator[](std::size_t index) const {
+        return compartment_locations_.at(index).clone();
     }
 
     Selection gids() const {
@@ -472,7 +470,7 @@ public:
 
 }  // namespace detail
 
-// CompartmentLocation python API
+// CompartmentLocation public API
 
 CompartmentLocation::CompartmentLocation(const int64_t gid,
                                          const int64_t section_idx,
@@ -519,7 +517,50 @@ std::string CompartmentLocation::toJSON() const {
     return impl_->to_json().dump();
 }
 
-// CompartmentSet python API
+// CompartmentSetFilteredIterator public API
+
+// CompartmentSet::FilteredIterator::FilteredIterator(std::unique_ptr<void> impl)
+//     : impl_(std::move(impl)) {}
+// CompartmentSet::FilteredIterator::~FilteredIterator() = default;
+
+// CompartmentSet public API
+
+CompartmentSet::CompartmentSet(const std::string& json_content)
+    : impl_(std::make_shared<detail::CompartmentSet>(json_content)) {}
+
+CompartmentSet::CompartmentSet(std::shared_ptr<detail::CompartmentSet>&& impl)
+    : impl_(std::move(impl)) {}
+
+
+const std::string& CompartmentSet::population() const {
+    return impl_->population();
+}
+
+std::size_t CompartmentSet::size(const bbp::sonata::Selection& selection) const {
+    return impl_->size(selection);
+}
+
+CompartmentLocation CompartmentSet::operator[](std::size_t index) const {
+    return CompartmentLocation((*impl_)[index]);
+}
+
+bbp::sonata::Selection CompartmentSet::gids() const {
+    return impl_->gids();
+}
+
+CompartmentSet CompartmentSet::filter(const bbp::sonata::Selection& selection) const {
+    return CompartmentSet(impl_->filter(selection));
+}
+
+
+std::string CompartmentSet::toJSON() const {
+    return impl_->to_json().dump();
+}
+
+
+
+
+// CompartmentSet public API
 
 // CompartmentSet::CompartmentSet(const std::string& content)
 //     : impl_(new detail::CompartmentSet(content)) {}
@@ -563,7 +604,7 @@ std::string CompartmentLocation::toJSON() const {
 //     return impl_->to_json().dump(4); // Pretty print with 4 spaces
 // }
 
-// // CompartmentSets python API
+// // CompartmentSets public API
 
 // CompartmentSets::CompartmentSets(const std::string& content)
 //     : impl_(new detail::CompartmentSets(content)) {}
