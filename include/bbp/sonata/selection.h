@@ -17,6 +17,10 @@ class SONATA_API Selection
     using Range = std::array<Value, 2>;
     using Ranges = std::vector<Range>;
 
+    /**
+     * Create Selection from a list of ranges
+     * @param ranges is a list of ranges constituting Selection
+     */
     Selection(Ranges ranges);
 
     template <typename Iterator>

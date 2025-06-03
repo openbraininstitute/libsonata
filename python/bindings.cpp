@@ -542,10 +542,11 @@ PYBIND11_MODULE(_libsonata, m) {
         .def("materialize", &NodeSets::materialize, DOC_NODESETS(materialize))
         .def("update", &NodeSets::update, "other"_a, DOC_NODESETS(update))
         .def("toJSON", &NodeSets::toJSON, DOC_NODESETS(toJSON));
-
-    py::class_<CompartmentLocation>(m, "CompartmentLocation", "CompartmentLocation")
+    
+    py::class_<CompartmentLocation>(m, "CompartmentLocation")
         .def(py::init<const std::string&>())
-        .def(py::init<const int64_t, const int64_t, const double>())
+        .def(py::init<const int64_t, const int64_t, const double>(),
+            py::arg("gid"), py::arg("section_idx"), py::arg("offset"))
         .def_property_readonly("gid", &CompartmentLocation::gid, DOC_COMPARTMENTLOCATION(gid))
         .def_property_readonly("section_idx",
                                &CompartmentLocation::sectionIdx,
@@ -553,10 +554,20 @@ PYBIND11_MODULE(_libsonata, m) {
         .def_property_readonly("offset",
                                &CompartmentLocation::offset,
                                DOC_COMPARTMENTLOCATION(offset))
+        .def("toJSON", &CompartmentLocation::toJSON, DOC_COMPARTMENTLOCATION(toJSON))
         .def("__iter__",
              [](const CompartmentLocation& self) {
                  return py::iter(py::make_tuple(self.gid(), self.sectionIdx(), self.offset()));
              })
+        .def("__eq__", &CompartmentLocation::operator==)
+        .def("__ne__", &CompartmentLocation::operator!=)
+        .def("__copy__", [](const CompartmentLocation& self) {
+            return CompartmentLocation(self);
+        })
+        .def("__deepcopy__",
+            [](const CompartmentLocation& self, py::dict /* memo */) {
+                return CompartmentLocation(self);
+            })
         .def("__repr__",
              [](const CompartmentLocation& self) {
                  return py::str("CompartmentLocation({}, {}, {})")
@@ -564,37 +575,54 @@ PYBIND11_MODULE(_libsonata, m) {
              })
         .def("__str__",
              [](const CompartmentLocation& self) {
-                 return py::str(py::repr(py::cast(self)));  // Delegates to __repr__
-             })
-        .def("__eq__", &CompartmentLocation::operator==)
-        .def("toJSON", &CompartmentLocation::toJSON, DOC_COMPARTMENTLOCATION(toJSON));
+                 return py::str(py::repr(py::cast(self)));
+             });
+                    
 
-    py::class_<CompartmentSet>(m, "CompartmentSet", "CompartmentSet")
-        .def(py::init<const std::string&>())
-        .def_property_readonly("population",
-                               &CompartmentSet::population,
-                               DOC_COMPARTMENTSET(population))
-        .def(
-            "compartment_locations",
-            [](const CompartmentSet& self, const Selection& sel) {
-                return self.getCompartmentLocations(sel);
-            },
-            py::arg("selection") = Selection({}),  // provide default arg here
-            DOC_COMPARTMENTSET(getCompartmentLocations))
-        .def("gids", &CompartmentSet::gids, DOC_COMPARTMENTSET(gids))
-        .def("toJSON", &CompartmentSet::toJSON, DOC_COMPARTMENTSET(toJSON));
 
-    py::class_<CompartmentSets>(m, "CompartmentSets", "CompartmentSets")
-        .def(py::init<const std::string&>())
-        .def("__contains__", &CompartmentSets::contains)
-        .def("__len__", &CompartmentSets::size)
-        .def("compartment_set",
-             &CompartmentSets::getCompartmentSet,
-             DOC_COMPARTMENTSETS(getCompartmentSet))
-        .def_static("from_file",
-                    [](py::object path) { return CompartmentSets::fromFile(py::str(path)); })
-        .def_property_readonly("names", &CompartmentSets::names, DOC_COMPARTMENTSETS(names))
-        .def("toJSON", &CompartmentSets::toJSON, DOC_COMPARTMENTSETS(toJSON));
+    // py::class_<CompartmentSet>(m, "CompartmentSet", "CompartmentSet")
+    //     .def(py::init<const std::string&>())
+    //     .def_property_readonly("population",
+    //                            &CompartmentSet::population,
+    //                            DOC_COMPARTMENTSET(population))
+    //     .def("__len__", [](const CompartmentSet& self) {
+    //         return self.size();
+    //     })
+    //     .def("__getitem__", [](const CompartmentSet& self, py::ssize_t i) {
+    //         if (i < 0) {
+    //             i += static_cast<py::ssize_t>(self.size());
+    //         }
+    //         if (i < 0 || static_cast<std::size_t>(i) >= self.size()) {
+    //             throw py::index_error("Index out of range");
+    //         }
+    //         return self[static_cast<std::size_t>(i)];
+    //     }, py::arg("index"))
+    //     .def("gids", &CompartmentSet::gids)
+    //     .def(
+    //         "locations",
+    //         [](const CompartmentSet& self, const Selection& sel = Selection({})) {
+    //             return self.locations(sel);
+    //         },
+    //         py::arg("selection") = Selection({}),
+    //         DOC_COMPARTMENTSET(locations))
+    //     .def("toJSON", &CompartmentSet::toJSON, DOC_COMPARTMENTSET(toJSON));
+
+    // py::class_<CompartmentSets>(m, "CompartmentSets", "CompartmentSets")
+    //     .def(py::init<const std::string&>())
+    //     .def_static(
+    //         "from_file",
+    //         [](py::object path) {
+    //             return CompartmentSets::fromFile(py::str(path));
+    //         },
+    //         py::arg("path"),
+    //         "Create a CompartmentSets object from a file")
+    //     .def("__contains__", &CompartmentSets::contains)
+    //     .def("__len__", &CompartmentSets::size)
+    //     .def("__getitem__", &CompartmentSets::get, py::arg("name"))
+    //     .def("keys", &CompartmentSets::keys, DOC_COMPARTMENTSETS(keys))
+    //     .def("values", &CompartmentSets::values, DOC_COMPARTMENTSETS(values))
+    //     .def("items", &CompartmentSets::items, DOC_COMPARTMENTSETS(items))
+    //     .def("toJSON", &CompartmentSets::toJSON, DOC_COMPARTMENTSETS(toJSON));
 
     py::class_<CommonPopulationProperties>(m,
                                            "CommonPopulationProperties",

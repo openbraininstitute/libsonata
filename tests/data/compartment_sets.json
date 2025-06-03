@@ -1,6 +1,6 @@
   {
-    "example_compartment_set": {
-      "population": "S1nonbarrel_neurons",
+    "cs1": {
+      "population": "pop1",
       "compartment_set": [
         [0, 10, 0.1],
         [0, 10, 0.2],
@@ -8,5 +8,9 @@
         [2, 3, 0.1],
         [3, 6, 0.3]
       ]
+    },
+    "cs0": {
+      "population": "pop0",
+      "compartment_set": []
     }
   }
