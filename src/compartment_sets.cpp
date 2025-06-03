@@ -1,10 +1,10 @@
+
+
 #include "../extlib/filesystem.hpp"
 
-#include <cmath>
-#include <functional>
-#include <unordered_set>
-
 #include "utils.h"  // readFile
+
+#include <unordered_set>
 
 #include <bbp/sonata/compartment_sets.h>
 namespace bbp {
@@ -15,6 +15,7 @@ namespace fs = ghc::filesystem;
 namespace detail {
 
 using json = nlohmann::json;
+
 
 class CompartmentLocation
 {
@@ -44,16 +45,13 @@ class CompartmentLocation
             offset_ = offset;
         }
 
-        /**
-         * Copy-construction is explicit and private. Used only for cloning.
-         */
-        explicit CompartmentLocation(const CompartmentLocation& other) = default;
-
   public:
     static constexpr double offsetTolerance = 1e-4;
     // static constexpr double offsetToleranceInv = 1.0 / offsetTolerance;
 
-
+    CompartmentLocation(const CompartmentLocation& other) = default;
+    CompartmentLocation(CompartmentLocation&&) noexcept = default;
+    CompartmentLocation& operator=(CompartmentLocation&&) noexcept = default;
     CompartmentLocation(int64_t gid, int64_t section_idx, double offset) {
         setGid(gid);
         setSectionIdx(section_idx);
@@ -108,28 +106,195 @@ class CompartmentLocation
     }
 };
 
-// // Custom hash for CompartmentLocation
-// struct CompartmentLocationHash {
-//     std::size_t operator()(const CompartmentLocation& loc) const noexcept {
-//         std::size_t h1 = std::hash<uint64_t>{}(loc.gid());
-//         std::size_t h2 = std::hash<uint64_t>{}(loc.sectionIdx());
 
-//         // Quantize offset to 4 decimal places
-//         double offset = loc.offset();
-//         uint64_t quantized_offset = static_cast<uint64_t>(
-//             std::round(offset * CompartmentLocation::offsetToleranceInv));
+class CompartmentSet {
+public:
+    using container_t = std::vector<CompartmentLocation>;
+    class FilteredIterator;
+private:
+    // Private constructor for filter factory method
 
-//         std::size_t h3 = std::hash<uint64_t>{}(quantized_offset);
+    std::string population_;
+    container_t compartment_locations_;
+    
 
-//         // Combine hashes (boost style)
-//         std::size_t seed = 0;
-//         seed ^= h1 + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-//         seed ^= h2 + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-//         seed ^= h3 + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    /**
+     * Copy-construction is private. Used only for cloning.
+     */
+    CompartmentSet(const CompartmentSet& other) = default;
+    CompartmentSet(const std::string& population, const container_t& compartment_locations): population_(population), compartment_locations_(compartment_locations) {}
 
-//         return seed;
-//     }
-// };
+public:
+    
+    // Construct from JSON string (delegates to JSON constructor)
+    explicit CompartmentSet(const std::string& content)
+        : CompartmentSet(nlohmann::json::parse(content)) {}
+
+    // Construct from JSON object
+    explicit CompartmentSet(const nlohmann::json& j) {
+        if (!j.is_object()) {
+            throw SonataError("CompartmentSet must be an object");
+        }
+
+        auto pop_it = j.find("population");
+        if (pop_it == j.end() || !pop_it->is_string()) {
+            throw SonataError("CompartmentSet must contain 'population' key of string type");
+        }
+        population_ = pop_it->get<std::string>();
+
+        auto comp_it = j.find("compartment_set");
+        if (comp_it == j.end() || !comp_it->is_array()) {
+            throw SonataError("CompartmentSet must contain 'compartment_set' key of array type");
+        }
+
+        compartment_locations_.reserve(comp_it->size());
+        for (auto&& el : *comp_it) {
+            compartment_locations_.emplace_back(std::forward<decltype(el)>(el));
+        }
+        compartment_locations_.shrink_to_fit();
+    }
+
+    ~CompartmentSet() = default;
+    CompartmentSet& operator=(const CompartmentSet&) = delete;
+    CompartmentSet(CompartmentSet&&) noexcept = default;
+    CompartmentSet& operator=(CompartmentSet&&) noexcept = default;
+
+    class FilteredIterator {
+    public:
+        using base_iterator = CompartmentSet::container_t::const_iterator;
+        using value_type = detail::CompartmentLocation;
+        using reference = const value_type&;
+        using pointer = const value_type*;
+        using difference_type = std::ptrdiff_t;
+        using iterator_category = std::input_iterator_tag;
+    private:
+        base_iterator current_;
+        base_iterator end_;
+        bbp::sonata::Selection selection_; // copied
+
+        void skip_to_valid() {
+            while (current_ != end_) {
+                if (selection_.empty() || selection_.contains(current_->gid())) {
+                    break;
+                }
+                ++current_;
+            }
+        }
+
+    public:
+
+        FilteredIterator(base_iterator current,
+                        base_iterator end,
+                        bbp::sonata::Selection selection)
+            : current_(current), end_(end), selection_(std::move(selection)) {
+            skip_to_valid();
+        }
+
+        reference operator*() const {
+            return *current_;
+        }
+
+        pointer operator->() const {
+            return &(*current_);
+        }
+
+        FilteredIterator& operator++() {
+            ++current_;
+            skip_to_valid();
+            return *this;
+        }
+
+        FilteredIterator operator++(int) {
+            FilteredIterator tmp = *this;
+            ++(*this);
+            return tmp;
+        }
+
+        bool operator==(const FilteredIterator& other) const {
+            return current_ == other.current_;
+        }
+
+        bool operator!=(const FilteredIterator& other) const {
+            return !(*this == other);
+        }
+    };
+
+    std::pair<FilteredIterator, FilteredIterator>
+    filtered_crange(bbp::sonata::Selection selection = Selection({})) const {
+        FilteredIterator begin_it(compartment_locations_.cbegin(),
+                                compartment_locations_.cend(),
+                                selection);
+        FilteredIterator end_it(compartment_locations_.cend(),
+                                compartment_locations_.cend(),
+                                std::move(selection));
+        return {begin_it, end_it};
+    }
+
+    // Size with optional filter
+    std::size_t size(const bbp::sonata::Selection& selection = bbp::sonata::Selection({})) const {
+        if (selection.empty()) {
+            return compartment_locations_.size();
+        }
+        return static_cast<std::size_t>(std::count_if(compartment_locations_.begin(),
+                                                     compartment_locations_.end(),
+            [&](const CompartmentLocation& loc) {
+                return selection.contains(loc.gid());
+            }));
+    }
+
+    const CompartmentLocation& operator[](std::size_t index) const {
+        return compartment_locations_.at(index);
+    }
+
+    Selection gids() const {
+        std::vector<uint64_t> result;
+        std::unordered_set<uint64_t> seen;
+
+        result.reserve(compartment_locations_.size());
+        for (const auto& elem : compartment_locations_) {
+            uint64_t id = elem.gid();
+            if (seen.insert(id).second) { // insert returns {iterator, bool}
+                result.push_back(id);
+            }
+        }
+        sort(result.begin(), result.end());
+        return Selection::fromValues(result.begin(), result.end());
+    }
+
+    const std::string& population() const {
+        return population_;
+    }
+
+    nlohmann::json to_json() const {
+        nlohmann::json j;
+        j["population"] = population_;
+
+        j["compartment_set"] = nlohmann::json::array();
+        for (const auto& elem : compartment_locations_) {
+            j["compartment_set"].push_back(elem.to_json());
+        }
+
+        return j;
+    }
+
+    std::unique_ptr<CompartmentSet> clone() const {
+        return std::unique_ptr<CompartmentSet>(new CompartmentSet(*this));
+    }
+
+    std::unique_ptr<CompartmentSet> filter(const bbp::sonata::Selection& selection = bbp::sonata::Selection({})) const {
+        if (selection.empty()) {
+            return clone();
+        }
+        std::vector<CompartmentLocation> filtered;
+        filtered.reserve(compartment_locations_.size());
+        for (const auto& el : compartment_locations_) {
+            if (selection.contains(el.gid())) {
+                filtered.emplace_back(el);
+            }
+        }
+        return std::unique_ptr<CompartmentSet>(new CompartmentSet(population_, std::move(filtered)));
+    }
+};
 
 // class CompartmentSet {
 //     std::string population_;
@@ -308,6 +473,7 @@ class CompartmentLocation
 }  // namespace detail
 
 // CompartmentLocation python API
+
 CompartmentLocation::CompartmentLocation(const int64_t gid,
                                          const int64_t section_idx,
                                          const double offset)

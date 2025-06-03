@@ -7,9 +7,7 @@ namespace sonata {
 namespace detail {
 class CompartmentLocation;
 class CompartmentSet;
-class CompartmentSets;
 }  // namespace detail
-
 /**
  * CompartmentLocation public API.
  * 
@@ -51,47 +49,15 @@ class SONATA_API CompartmentLocation
 // class SONATA_API CompartmentSet
 // {
 //   public:
-//     /**
-//      * Create CompartmentSet from JSON
-//      *
-//      * See also:
-//      * TODO
-//      *
-//      * \param content is the JSON compartment_set value
-//      * \throw if content cannot be parsed
-//      */
-//     CompartmentSet(const std::string& content);
-//     CompartmentSet(std::unique_ptr<detail::CompartmentSet>&& impl);
-//     CompartmentSet(detail::CompartmentSet&& impl);
-//     CompartmentSet(CompartmentSet&&) noexcept;
-//     CompartmentSet(const CompartmentSet& other) = delete;
-//     CompartmentSet& operator=(CompartmentSet&&) noexcept;
-//     ~CompartmentSet();
+
 
     
 //     std::size_t size() const;
-
 //     CompartmentLocation operator[](std::size_t index) const;
-  
-//     /**
-//      * Population name
-//      */
 //     const std::string& population() const;
-
-//     /**
-//      * Get the CompartmentLocations.
-//      */
 //     std::vector<CompartmentLocation> locations(
 //         const Selection& selection = Selection({})) const;
-
-//     /**
-//      * Return the gids of the compartment locations.
-//      */
 //     Selection gids() const;
-
-//     /**
-//      * Return the nodesets as a JSON string.
-//      */
 //     std::string toJSON() const;
 
 //   private:
