@@ -164,6 +164,10 @@ public:
     bool operator!=(const CompartmentSetFilteredIterator& other) const {
         return !(*this == other);
     }
+
+    std::unique_ptr<CompartmentSetFilteredIterator> clone() const {
+        return std::make_unique<CompartmentSetFilteredIterator>(*this);
+    }
 };
 class CompartmentSet {
 public:
@@ -233,6 +237,7 @@ public:
         if (selection.empty()) {
             return compartment_locations_.size();
         }
+
         return static_cast<std::size_t>(std::count_if(compartment_locations_.begin(),
                                                      compartment_locations_.end(),
             [&](const CompartmentLocation& loc) {
@@ -519,9 +524,53 @@ std::string CompartmentLocation::toJSON() const {
 
 // CompartmentSetFilteredIterator public API
 
+// Constructor
 CompartmentSetFilteredIterator::CompartmentSetFilteredIterator(std::unique_ptr<detail::CompartmentSetFilteredIterator> impl)
     : impl_(std::move(impl)) {}
+
+// Copy constructor
+CompartmentSetFilteredIterator::CompartmentSetFilteredIterator(const CompartmentSetFilteredIterator& other)
+    : impl_(other.impl_ ? other.impl_->clone() : nullptr) {}
+
+// Copy assignment operator
+CompartmentSetFilteredIterator& CompartmentSetFilteredIterator::operator=(const CompartmentSetFilteredIterator& other) {
+    if (this != &other) {
+        impl_ = other.impl_ ? other.impl_->clone() : nullptr;
+    }
+    return *this;
+}
+
+// Move constructor
+CompartmentSetFilteredIterator::CompartmentSetFilteredIterator(CompartmentSetFilteredIterator&&) noexcept = default;
+
+// Move assignment operator
+CompartmentSetFilteredIterator& CompartmentSetFilteredIterator::operator=(CompartmentSetFilteredIterator&&) noexcept = default;
+
+
 CompartmentSetFilteredIterator::~CompartmentSetFilteredIterator() = default;
+
+CompartmentLocation CompartmentSetFilteredIterator::operator*() const {
+    return CompartmentLocation(impl_->operator*().clone());
+}
+
+CompartmentSetFilteredIterator& CompartmentSetFilteredIterator::operator++() {
+    ++(*impl_);
+    return *this;
+}
+
+CompartmentSetFilteredIterator CompartmentSetFilteredIterator::operator++(int) {
+    CompartmentSetFilteredIterator tmp(std::make_unique<detail::CompartmentSetFilteredIterator>(*impl_));
+    ++(*impl_);
+    return tmp;
+}
+
+bool CompartmentSetFilteredIterator::operator==(const CompartmentSetFilteredIterator& other) const {
+    return *impl_ == *other.impl_;
+}
+
+bool CompartmentSetFilteredIterator::operator!=(const CompartmentSetFilteredIterator& other) const {
+    return !(*this == other);
+}
 
 // CompartmentSet public API
 
@@ -532,12 +581,23 @@ CompartmentSet::CompartmentSet(std::shared_ptr<detail::CompartmentSet>&& impl)
     : impl_(std::move(impl)) {}
 
 
-const std::string& CompartmentSet::population() const {
-    return impl_->population();
+std::pair<CompartmentSetFilteredIterator, CompartmentSetFilteredIterator>
+CompartmentSet::filtered_crange(bbp::sonata::Selection selection) const {
+    const auto internal_result = impl_->filtered_crange(std::move(selection));
+
+    // Wrap clones of detail iterators in public API iterators
+    return {
+        CompartmentSetFilteredIterator(internal_result.first.clone()),
+        CompartmentSetFilteredIterator(internal_result.second.clone())
+    };
 }
 
 std::size_t CompartmentSet::size(const bbp::sonata::Selection& selection) const {
     return impl_->size(selection);
+}
+
+const std::string& CompartmentSet::population() const {
+    return impl_->population();
 }
 
 CompartmentLocation CompartmentSet::operator[](std::size_t index) const {

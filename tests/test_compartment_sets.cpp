@@ -5,6 +5,7 @@
 #include <nlohmann/json.hpp>
 
 using namespace bbp::sonata;
+using json = nlohmann::json;
 
 TEST_CASE("CompartmentLocation public API") {
 
@@ -85,6 +86,89 @@ TEST_CASE("CompartmentLocation public API") {
         REQUIRE(json[2] == Approx(0.9));
     }
 }
+
+
+TEST_CASE("CompartmentSet public API") {
+
+    // Example JSON representing a CompartmentSet (adjust to match real expected format)
+    std::string json_content = R"(
+        {
+            "population": "test_population",
+            "compartment_set": [
+                [1, 10, 0.5],
+                [2, 20, 0.25],
+                [2, 20, 0.25],
+                [3, 30, 0.75]
+            ]
+        }
+    )";
+
+    SECTION("Construct from JSON string, round-trip serialization") {
+        CompartmentSet cs(json_content);
+
+        REQUIRE(cs.population() == "test_population");
+        REQUIRE(cs.size() == 4);
+
+        // Access elements by index
+        REQUIRE(cs[0] == CompartmentLocation(1, 10, 0.5));
+        REQUIRE(cs[1] == CompartmentLocation(2, 20, 0.25));
+        REQUIRE(cs[2] == CompartmentLocation(2, 20, 0.25));
+        REQUIRE(cs[3] == CompartmentLocation(3, 30, 0.75));
+        REQUIRE_THROWS_AS(cs[4], std::out_of_range);
+        REQUIRE(cs.toJSON() == json::parse(json_content).dump());
+    }
+
+    SECTION("Size with selection filter") {
+        CompartmentSet cs(json_content);
+
+        REQUIRE(cs.size(Selection::fromValues({1, 2})) == 3);
+        REQUIRE(cs.size(Selection::fromValues({3, 8, 9, 10, 13})) == 1);
+        REQUIRE(cs.size(Selection::fromValues({999})) == 0);
+    }
+
+    // SECTION("Filtered iteration") {
+    //     CompartmentSet cs(json_content);
+    //     Selection sel({1, 3});
+
+    //     auto [begin, end] = cs.filtered_crange(sel);
+
+    //     std::vector<int> gids;
+    //     for (auto it = begin; it != end; ++it) {
+    //         gids.push_back(it->gid());
+    //     }
+
+    //     REQUIRE(gids.size() == 2);
+    //     REQUIRE((gids == std::vector<int>{1, 3}));
+    // }
+
+    // SECTION("Filter returns subset") {
+    //     CompartmentSet cs(json_content);
+    //     Selection sel({1, 2});
+    //     auto filtered = cs.filter(sel);
+
+    //     REQUIRE(filtered.size() == 2);
+
+    //     // Check filtered compartments only contain gids 1 and 2
+    //     auto gids = filtered.gids();
+    //     REQUIRE(gids.contains(1));
+    //     REQUIRE(gids.contains(2));
+    //     REQUIRE(!gids.contains(3));
+    // }
+
+    // SECTION("toJSON serialization") {
+    //     CompartmentSet cs(json_content);
+    //     std::string json_out = cs.toJSON();
+
+    //     // The output should contain the population name (basic check)
+    //     REQUIRE(json_out.find("test_population") != std::string::npos);
+
+    //     // It should contain all gids from the set (basic check)
+    //     REQUIRE(json_out.find("1") != std::string::npos);
+    //     REQUIRE(json_out.find("2") != std::string::npos);
+    //     REQUIRE(json_out.find("3") != std::string::npos);
+    // }
+}
+
 
 
 // TEST_CASE("CompartmentSets: fail on invalid JSON strings") {
