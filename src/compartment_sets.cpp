@@ -476,7 +476,7 @@ public:
 }  // namespace detail
 
 // CompartmentLocation public API
-
+CompartmentLocation::CompartmentLocation() = default;
 CompartmentLocation::CompartmentLocation(const int64_t gid,
                                          const int64_t section_idx,
                                          const double offset)

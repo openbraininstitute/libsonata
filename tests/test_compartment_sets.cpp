@@ -97,8 +97,8 @@ TEST_CASE("CompartmentSet public API") {
             "compartment_set": [
                 [1, 10, 0.5],
                 [2, 20, 0.25],
-                [2, 20, 0.25],
-                [3, 30, 0.75]
+                [3, 30, 0.75],
+                [2, 20, 0.25]
             ]
         }
     )";
@@ -112,11 +112,41 @@ TEST_CASE("CompartmentSet public API") {
         // Access elements by index
         REQUIRE(cs[0] == CompartmentLocation(1, 10, 0.5));
         REQUIRE(cs[1] == CompartmentLocation(2, 20, 0.25));
-        REQUIRE(cs[2] == CompartmentLocation(2, 20, 0.25));
-        REQUIRE(cs[3] == CompartmentLocation(3, 30, 0.75));
+        REQUIRE(cs[2] == CompartmentLocation(3, 30, 0.75));
+        REQUIRE(cs[3] == CompartmentLocation(2, 20, 0.25));
         REQUIRE_THROWS_AS(cs[4], std::out_of_range);
         REQUIRE(cs.toJSON() == json::parse(json_content).dump());
     }
+
+    SECTION("JSON constructor throws on invalid input") {
+        // Not an object (array instead)
+        REQUIRE_THROWS_AS(CompartmentSet("[1, 2, 3]"), SonataError);
+
+        // Missing population key
+        REQUIRE_THROWS_AS(
+            CompartmentSet(R"({"compartment_set": []})"),
+            SonataError
+        );
+
+        // population not a string
+        REQUIRE_THROWS_AS(
+            CompartmentSet(R"({"population": 123, "compartment_set": []})"),
+            SonataError
+        );
+
+        // Missing compartment_set key
+        REQUIRE_THROWS_AS(
+            CompartmentSet(R"({"population": "test_population"})"),
+            SonataError
+        );
+
+        // compartment_set not an array
+        REQUIRE_THROWS_AS(
+            CompartmentSet(R"({"population": "test_population", "compartment_set": "not an array"})"),
+            SonataError
+        );
+    }
+
 
     SECTION("Size with selection filter") {
         CompartmentSet cs(json_content);
@@ -126,47 +156,40 @@ TEST_CASE("CompartmentSet public API") {
         REQUIRE(cs.size(Selection::fromValues({999})) == 0);
     }
 
-    // SECTION("Filtered iteration") {
-    //     CompartmentSet cs(json_content);
-    //     Selection sel({1, 3});
+    SECTION("Filtered iteration") {
+        CompartmentSet cs(json_content);
 
-    //     auto [begin, end] = cs.filtered_crange(sel);
+        auto pp = cs.filtered_crange();
 
-    //     std::vector<int> gids;
-    //     for (auto it = begin; it != end; ++it) {
-    //         gids.push_back(it->gid());
-    //     }
+        std::vector<int> gids;
+        for (auto it = pp.first; it != pp.second; ++it) {
+            gids.push_back((*it).gid());
+        }
 
-    //     REQUIRE(gids.size() == 2);
-    //     REQUIRE((gids == std::vector<int>{1, 3}));
-    // }
+        REQUIRE(gids.size() == 4);
+        REQUIRE((gids == std::vector<int>{1, 2, 3, 2}));
+        gids.clear();
+        for (auto it = cs.filtered_crange(Selection::fromValues({2, 3})).first; it != pp.second; ++it) {
+            gids.push_back((*it).gid());
+        }
+        REQUIRE(gids.size() == 3);
+        REQUIRE((gids == std::vector<int>{2, 3, 2}));
+    }
 
-    // SECTION("Filter returns subset") {
-    //     CompartmentSet cs(json_content);
-    //     Selection sel({1, 2});
-    //     auto filtered = cs.filter(sel);
+    SECTION("Filter returns subset") {
+        CompartmentSet cs(json_content);
+        auto filtered = cs.filter(Selection::fromValues({2, 3}));
 
-    //     REQUIRE(filtered.size() == 2);
+        REQUIRE(filtered.size() == 3);
 
-    //     // Check filtered compartments only contain gids 1 and 2
-    //     auto gids = filtered.gids();
-    //     REQUIRE(gids.contains(1));
-    //     REQUIRE(gids.contains(2));
-    //     REQUIRE(!gids.contains(3));
-    // }
-
-    // SECTION("toJSON serialization") {
-    //     CompartmentSet cs(json_content);
-    //     std::string json_out = cs.toJSON();
-
-    //     // The output should contain the population name (basic check)
-    //     REQUIRE(json_out.find("test_population") != std::string::npos);
-
-    //     // It should contain all gids from the set (basic check)
-    //     REQUIRE(json_out.find("1") != std::string::npos);
-    //     REQUIRE(json_out.find("2") != std::string::npos);
-    //     REQUIRE(json_out.find("3") != std::string::npos);
-    // }
+        // Check filtered compartments only contain gids 1 and 2
+        auto gids = filtered.gids().flatten();
+        REQUIRE(gids == std::vector<uint64_t>({2, 3}));
+        auto no_filtered = cs.filter();
+        REQUIRE(no_filtered.size() == 4);
+        auto no_filtered_gids = no_filtered.gids().flatten();
+        REQUIRE(no_filtered_gids == std::vector<uint64_t>({1, 2, 3}));
+    }
 }
 
 

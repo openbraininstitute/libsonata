@@ -23,7 +23,7 @@ class CompartmentSetFilteredIterator;
 class SONATA_API CompartmentLocation
 {
   public:
-    CompartmentLocation() = delete;
+    CompartmentLocation();
     CompartmentLocation(const int64_t gid, const int64_t section_idx, const double offset);
     explicit CompartmentLocation(const std::string& content);
     explicit CompartmentLocation(std::unique_ptr<detail::CompartmentLocation>&& impl);
@@ -63,6 +63,8 @@ public:
 
     /// Dereference operator. It makes a copy!
     CompartmentLocation operator*() const;
+    /// Arrow operator is voluntarely disabled because we can only return copies of CompartmentLocation.
+    /// In any way we need to find a location to store a temp CompartmentLocation and memory leaks become possible.
     CompartmentSetFilteredIterator& operator++();            // prefix ++
     CompartmentSetFilteredIterator operator++(int);          // postfix ++
     bool operator==(const CompartmentSetFilteredIterator& other) const;
