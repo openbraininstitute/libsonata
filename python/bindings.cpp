@@ -627,24 +627,53 @@ PYBIND11_MODULE(_libsonata, m) {
         .def("__ne__", [](const CompartmentSet& self, const CompartmentSet& other) {
             return self != other;
         })
-        .def("toJSON", &CompartmentSet::toJSON, DOC_COMPARTMENTSET(toJSON));
+        .def("toJSON", &CompartmentSet::toJSON, DOC_COMPARTMENTSET(toJSON))
+        .def("__repr__",
+            [](const CompartmentSet& self) {
+                auto range = self.filtered_crange(bbp::sonata::Selection({}));
+                std::vector<py::object> parts;
+                for (auto it = range.first; it != range.second; ++it) {
+                    parts.push_back(py::repr(py::cast(*it)));
+                }
+                auto joined = py::str(", ").attr("join")(parts);
+                return "CompartmentSet(population=" + py::repr(py::cast(self.population())).cast<std::string>() +
+                    ", compartments=[" + joined.cast<std::string>() + "])";
+            })
+        .def("__str__",
+            [](const CompartmentSet& self) {
+                return py::str(py::repr(py::cast(self)));
+            });
 
-    // py::class_<CompartmentSets>(m, "CompartmentSets", "CompartmentSets")
-    //     .def(py::init<const std::string&>())
-    //     .def_static(
-    //         "from_file",
-    //         [](py::object path) {
-    //             return CompartmentSets::fromFile(py::str(path));
-    //         },
-    //         py::arg("path"),
-    //         "Create a CompartmentSets object from a file")
-    //     .def("__contains__", &CompartmentSets::contains)
-    //     .def("__len__", &CompartmentSets::size)
-    //     .def("__getitem__", &CompartmentSets::get, py::arg("name"))
-    //     .def("keys", &CompartmentSets::keys, DOC_COMPARTMENTSETS(keys))
-    //     .def("values", &CompartmentSets::values, DOC_COMPARTMENTSETS(values))
-    //     .def("items", &CompartmentSets::items, DOC_COMPARTMENTSETS(items))
-    //     .def("toJSON", &CompartmentSets::toJSON, DOC_COMPARTMENTSETS(toJSON));
+    py::class_<CompartmentSets>(m, "CompartmentSets")
+        .def(py::init<const std::string&>())
+        .def_static("fromFile", &CompartmentSets::fromFile, py::arg("path"))
+        .def("at", &CompartmentSets::at, py::arg("key"))
+        .def("__contains__", &CompartmentSets::contains, py::arg("key"), DOC_COMPARTMENTSETS(contains))
+        .def("keys", &CompartmentSets::keys)
+        .def("values", &CompartmentSets::values)
+        .def("items", &CompartmentSets::items)
+        .def("toJSON", &CompartmentSets::toJSON, DOC_COMPARTMENTSETS(toJSON))
+        .def("__eq__", &CompartmentSets::operator==)
+        .def("__ne__", &CompartmentSets::operator!=)
+        .def("__len__", &CompartmentSets::size)
+        .def("__getitem__", &CompartmentSets::at, py::arg("key"), DOC_COMPARTMENTSET(getitem))
+        .def("__repr__",
+            [](const CompartmentSets& self) {
+                auto items = self.items();
+                std::vector<py::object> parts;
+                for (const auto& item : items) {
+                    // Build "key: value" strings
+                    auto key_repr = py::repr(py::cast(item.first));
+                    auto val_repr = py::repr(py::cast(item.second));
+                    parts.push_back(key_repr.attr("__str__")() + py::str(": ") + val_repr.attr("__str__")());
+                }
+                auto joined = py::str(", ").attr("join")(parts);
+                return "CompartmentSets({" + joined.cast<std::string>() + "})";
+            })
+        .def("__str__",
+            [](const CompartmentSets& self) {
+                return py::str(py::repr(py::cast(self)));
+            });
 
     py::class_<CommonPopulationProperties>(m,
                                            "CommonPopulationProperties",

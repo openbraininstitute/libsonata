@@ -409,6 +409,10 @@ static const char *__doc_bbp_sonata_CompartmentSets_values = R"doc(Return the va
 
 static const char *__doc_bbp_sonata_CompartmentSets_items = R"doc(Return the (key, value) pairs of the CompartmentSets)doc";
 
+static const char *__doc_bbp_sonata_CompartmentSets_contains = R"doc(Check if key exists.)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets_getitem = R"doc("Get a CompartmentSet by key.")doc";
+
 static const char *__doc_bbp_sonata_CompartmentSets_toJSON = R"doc(Serialize CompartmentSets to a JSON string)doc";
 
 static const char *__doc_bbp_sonata_NodeSets_update =
