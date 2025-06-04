@@ -6,8 +6,9 @@ namespace bbp {
 namespace sonata {
 namespace detail {
 class CompartmentLocation;
-class CompartmentSet;
 class CompartmentSetFilteredIterator;
+class CompartmentSet;
+class CompartmentSets;
 }  // namespace detail
 /**
  * CompartmentLocation public API.
@@ -109,58 +110,54 @@ class SONATA_API CompartmentSet
     /// Serialize to JSON string
     std::string toJSON() const;
 
+    bool operator==(const CompartmentSet& other) const;
+    bool operator!=(const CompartmentSet& other) const;
+
   private:
     std::shared_ptr<detail::CompartmentSet> impl_;
 };
 
+class SONATA_API CompartmentSets
+{
+public:
 
-// class SONATA_API CompartmentSet
-// {
-//   public:
-
-
+    CompartmentSets(const std::string& content);
+    CompartmentSets(std::unique_ptr<detail::CompartmentSets>&& impl);
+    CompartmentSets(detail::CompartmentSets&& impl);
+    CompartmentSets(CompartmentSets&&) noexcept;
+    CompartmentSets(const CompartmentSets& other) = delete;
+    CompartmentSets& operator=(CompartmentSets&&) noexcept;
+    ~CompartmentSets();
     
-//     std::size_t size() const;
-//     CompartmentLocation operator[](std::size_t index) const;
-//     const std::string& population() const;
-//     std::vector<CompartmentLocation> locations(
-//         const Selection& selection = Selection({})) const;
-//     Selection gids() const;
-//     std::string toJSON() const;
+    static CompartmentSets fromFile(const std::string& path);
 
-//   private:
-//     std::unique_ptr<detail::CompartmentSet> impl_;
-// };
+    // Access element by key (throws if not found)
+    CompartmentSet at(const std::string& key) const;
 
-// class SONATA_API CompartmentSets
-// {
-// public:
-//     // Keep these exactly as-is:
-//     CompartmentSets(const std::string& content);
-//     CompartmentSets(std::unique_ptr<detail::CompartmentSets>&& impl);
-//     CompartmentSets(detail::CompartmentSets&& impl);
-//     CompartmentSets(CompartmentSets&&) noexcept;
-//     CompartmentSets(const CompartmentSets& other) = delete;
-//     CompartmentSets& operator=(CompartmentSets&&) noexcept;
-//     ~CompartmentSets();
-    
-//     static CompartmentSets fromFile(const std::string& path);
+    // Number of compartment sets
+    std::size_t size() const;
 
-//     // Read-only dict-like API, Python-style names:
-//     size_t size() const;
-//     bool contains(const std::string& name) const;
+    // Is empty?
+    bool empty() const;
 
-//     std::vector<std::string> keys() const;
-//     std::vector<CompartmentSet> values() const;
-//     std::vector<std::pair<std::string, CompartmentSet>> items() const;
+    // Check if key exists
+    bool contains(const std::string& key) const;
 
-//     CompartmentSet get(const std::string& name) const;
+    // Get keys as set or vector (use vector here)
+    std::vector<std::string> keys() const;
 
-//     std::string toJSON() const;
+    // Get all compartment sets as vector
+    std::vector<CompartmentSet> values() const;
 
-// private:
-//     std::unique_ptr<detail::CompartmentSets> impl_;
-// };
+    // Get items (key + compartment set) as vector of pairs
+    std::vector<std::pair<std::string, CompartmentSet>> items() const;
+
+    // Serialize all compartment sets to JSON string
+    std::string toJSON() const;
+
+private:
+    std::unique_ptr<detail::CompartmentSets> impl_;
+};
 
 }  // namespace sonata
 }  // namespace bbp

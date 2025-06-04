@@ -297,6 +297,15 @@ public:
         }
         return std::unique_ptr<CompartmentSet>(new CompartmentSet(population_, std::move(filtered)));
     }
+
+    bool operator==(const CompartmentSet& other) const {
+        return (population_ == other.population_) &&
+            (compartment_locations_ == other.compartment_locations_);
+    }
+
+    bool operator!=(const CompartmentSet& other) const {
+        return !(*this == other);
+    }
 };
 class CompartmentSets
 {
@@ -343,6 +352,10 @@ public:
 
     bool contains(const std::string& key) const {
         return data_.find(key) != data_.end();
+    }
+
+    bool empty() const {
+        return data_.empty();
     }
 
     std::vector<std::string> keys() const {
@@ -516,117 +529,92 @@ CompartmentSet CompartmentSet::filter(const bbp::sonata::Selection& selection) c
     return CompartmentSet(impl_->filter(selection));
 }
 
+bool CompartmentSet::operator==(const CompartmentSet& other) const {
+    return *impl_ == *(other.impl_);
+}
+
+bool CompartmentSet::operator!=(const CompartmentSet& other) const {
+    return *impl_ != *(other.impl_);
+}
 
 std::string CompartmentSet::toJSON() const {
     return impl_->to_json().dump();
 }
 
+// CompartmentSets public API
+
+CompartmentSets::CompartmentSets(const std::string& content)
+    : impl_(new detail::CompartmentSets(content)) {}
+CompartmentSets::CompartmentSets(std::unique_ptr<detail::CompartmentSets>&& impl)
+    : impl_(std::move(impl)) {}
+CompartmentSets::CompartmentSets(detail::CompartmentSets&& impl)
+    : CompartmentSets(std::make_unique<detail::CompartmentSets>(impl)) {}
+
+CompartmentSets::CompartmentSets(CompartmentSets&&) noexcept = default;
+CompartmentSets& CompartmentSets::operator=(CompartmentSets&&) noexcept = default;
+CompartmentSets::~CompartmentSets() = default;
 
 
 
-// CompartmentSet public API
+CompartmentSets CompartmentSets::fromFile(const std::string& path) {
+    return detail::CompartmentSets::fromFile(path);
+}
 
-// CompartmentSet::CompartmentSet(const std::string& content)
-//     : impl_(new detail::CompartmentSet(content)) {}
-// CompartmentSet::CompartmentSet(std::unique_ptr<detail::CompartmentSet>&& impl)
-//     : impl_(std::move(impl)) {}
-// CompartmentSet::CompartmentSet(detail::CompartmentSet&& impl)
-//     : CompartmentSet(std::make_unique<detail::CompartmentSet>(impl)) {}
+CompartmentSet CompartmentSets::at(const std::string& key) const {
+    return CompartmentSet(impl_->at(key));
+}
 
-// CompartmentSet::CompartmentSet(CompartmentSet&&) noexcept = default;
-// CompartmentSet& CompartmentSet::operator=(CompartmentSet&&) noexcept = default;
-// CompartmentSet::~CompartmentSet() = default;
+// Number of compartment sets
+std::size_t CompartmentSets::size() const {
+    return impl_->size();
+}
 
-// std::size_t CompartmentSet::size() const {
-//     return impl_->size();
-// }
+// is empty?
+bool CompartmentSets::empty() const {
+    return impl_->empty();
+}
 
-// CompartmentLocation CompartmentSet::operator[](std::size_t index) const {
-//     return (*impl_)[index];
-// }
+// Check if key exists
+bool CompartmentSets::contains(const std::string& key) const {
+    return impl_->contains(key);
+}
 
-// const std::string& CompartmentSet::population() const {
-//     return impl_->population();
-// }
+// Get keys as set or vector (use vector here)
+std::vector<std::string> CompartmentSets::keys() const {
+    return impl_->keys();
+}
 
-// std::vector<CompartmentLocation> CompartmentSet::locations(
-//     const Selection& selection) const {
-//     std::vector<CompartmentLocation> view;
-//     auto raw_locs = impl_->locations(selection);
-//     view.reserve(raw_locs.size());
-//     for (auto& el : raw_locs) {
-//         view.emplace_back(el);  // take ownership
-//     }
-//     return view;
-// }
+// Get all compartment sets as vector
+std::vector<CompartmentSet> CompartmentSets::values() const {
+    const auto vals = impl_->values();
+    std::vector<CompartmentSet> result;
+    result.reserve(vals.size());
+    std::transform(vals.begin(), vals.end(), std::back_inserter(result),
+        [](std::shared_ptr<detail::CompartmentSet> ptr) { return CompartmentSet(std::move(ptr)); });
 
-// Selection CompartmentSet::gids() const {
-//     return impl_->gids();
-// }
+    return result;
+}
 
-// std::string CompartmentSet::toJSON() const {
-//     return impl_->to_json().dump(4); // Pretty print with 4 spaces
-// }
+// Get items (key + compartment set) as vector of pairs
+std::vector<std::pair<std::string, CompartmentSet>> CompartmentSets::items() const {
+    auto items_vec = impl_->items();
 
-// // CompartmentSets public API
+    std::vector<std::pair<std::string, CompartmentSet>> result;
+    result.reserve(items_vec.size());
 
-// CompartmentSets::CompartmentSets(const std::string& content)
-//     : impl_(new detail::CompartmentSets(content)) {}
-// CompartmentSets::CompartmentSets(std::unique_ptr<detail::CompartmentSets>&& impl)
-//     : impl_(std::move(impl)) {}
-// CompartmentSets::CompartmentSets(detail::CompartmentSets&& impl)
-//     : CompartmentSets(std::make_unique<detail::CompartmentSets>(impl)) {}
+    std::transform(
+        items_vec.begin(), items_vec.end(),
+        std::back_inserter(result),
+        [](auto kv) { // pass by value to own the shared_ptr
+            return std::make_pair(std::move(kv.first), CompartmentSet(std::move(kv.second)));
+        });
 
-// CompartmentSets::CompartmentSets(CompartmentSets&&) noexcept = default;
-// CompartmentSets& CompartmentSets::operator=(CompartmentSets&&) noexcept = default;
-// CompartmentSets::~CompartmentSets() = default;
-
-
-
-// CompartmentSets CompartmentSets::fromFile(const std::string& path) {
-//     return detail::CompartmentSets::fromFile(path);
-// }
-
-// size_t CompartmentSets::size() const {
-//     return impl_->size();
-// }
-
-// bool CompartmentSets::contains(const std::string& name) const {
-//     return impl_->contains(name);
-// }
-
-// std::vector<std::string> CompartmentSets::keys() const {
-//     return impl_->keys(); // Assuming detail::CompartmentSets has keys() returning std::set<std::string>
-// }
-
-// CompartmentSet CompartmentSets::get(const std::string& name) const {
-//     // Assuming impl_->getCompartmentSet returns detail::CompartmentSet by value or reference
-//     return impl_->get(name);
-// }
-
-// std::vector<CompartmentSet> CompartmentSets::values() const {
-//     std::vector<CompartmentSet> result;
-//     result.reserve(size());
-//     for (const auto& key : keys()) {
-//         result.emplace_back(impl_->get(key));
-//     }
-//     return result;
-// }
-
-// std::vector<std::pair<std::string, CompartmentSet>> CompartmentSets::items() const {
-//     std::vector<std::pair<std::string, CompartmentSet>> result;
-//     for (const auto& key : keys()) {
-//         result.emplace_back(key, impl_->get(key));
-//     }
-//     return result;
-// }
-
-// std::string CompartmentSets::toJSON() const {
-//     return impl_->to_json().dump(4); // Pretty print with 4 spaces
-// }
-
-
-
+    return result;
+}
+// Serialize all compartment sets to JSON string
+std::string CompartmentSets::toJSON() const {
+    return impl_->to_json().dump();
+}
 
 }  // namespace sonata
 }  // namespace bbp

@@ -190,6 +190,61 @@ TEST_CASE("CompartmentSet public API") {
         auto no_filtered_gids = no_filtered.gids().flatten();
         REQUIRE(no_filtered_gids == std::vector<uint64_t>({1, 2, 3}));
     }
+
+    SECTION("Equality and inequality operators") {
+        std::string json1 = R"(
+            {
+                "population": "pop1",
+                "compartment_set": [
+                    [1, 10, 0.5],
+                    [2, 20, 0.25]
+                ]
+            }
+        )";
+
+        std::string json2 = R"(
+            {
+                "population": "pop1",
+                "compartment_set": [
+                    [1, 10, 0.5],
+                    [2, 20, 0.25]
+                ]
+            }
+        )";
+
+        std::string json_different = R"(
+            {
+                "population": "pop1",
+                "compartment_set": [
+                    [1, 10, 0.5],
+                    [2, 20, 0.3]
+                ]
+            }
+        )";
+
+        std::string json_different2 = R"(
+            {
+                "population": "pop2",
+                "compartment_set": [
+                    [1, 10, 0.5],
+                    [2, 20, 0.25]
+                ]
+            }
+        )";
+
+        CompartmentSet cs1(json1);
+        CompartmentSet cs2(json2);
+        CompartmentSet cs3(json_different);
+        CompartmentSet cs4(json_different2);
+
+        REQUIRE(cs1 == cs2);
+        REQUIRE_FALSE(cs1 != cs2);
+
+        REQUIRE(cs1 != cs3);
+        REQUIRE_FALSE(cs1 == cs3);
+         REQUIRE_FALSE(cs1 == cs4);
+    }
+
 }
 
 

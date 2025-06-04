@@ -133,5 +133,24 @@ class TestCompartmentSet(unittest.TestCase):
         self.assertEqual(len(cs2), 4)
         self.assertEqual(cs2.population, self.cs.population)
         self.assertEqual([tuple(loc) for loc in cs2], [tuple(loc) for loc in self.cs])
+    
+    def test_equality(self):
+        cs1 = CompartmentSet(self.json)
+        cs2 = CompartmentSet(self.json)
+        self.assertEqual(cs1, cs2)
+        self.assertFalse(cs1 != cs2)
+
+        # Slightly modify JSON to create a different object
+        json_diff = '''{
+            "population": "pop0",
+            "compartment_set": [
+                [1, 10, 0.5],
+                [2, 20, 0.25],
+                [3, 30, 0.75]
+            ]
+        }'''
+        cs3 = CompartmentSet(json_diff)
+        self.assertNotEqual(cs1, cs3)
+        self.assertFalse(cs1 == cs3)
 
 

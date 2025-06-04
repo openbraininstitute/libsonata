@@ -621,6 +621,12 @@ PYBIND11_MODULE(_libsonata, m) {
                 return py::make_iterator(range.first, range.second);
             },
             py::keep_alive<0, 1>())
+        .def("__eq__", [](const CompartmentSet& self, const CompartmentSet& other) {
+            return self == other;
+        })
+        .def("__ne__", [](const CompartmentSet& self, const CompartmentSet& other) {
+            return self != other;
+        })
         .def("toJSON", &CompartmentSet::toJSON, DOC_COMPARTMENTSET(toJSON));
 
     // py::class_<CompartmentSets>(m, "CompartmentSets", "CompartmentSets")
