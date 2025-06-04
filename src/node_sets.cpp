@@ -93,7 +93,7 @@ class NodeSets
     }
 
     explicit NodeSets(const fs::path& path)
-        : NodeSets(json::parse(std::ifstream(validate_path(path)))) {}
+        : NodeSets(json::parse(std::ifstream(validate_path(path)))) { }
 
     static std::unique_ptr<NodeSets> fromFile(const std::string& path_) {
         fs::path path(path_);
@@ -101,7 +101,7 @@ class NodeSets
     }
 
     explicit NodeSets(const std::string& content)
-        : NodeSets(json::parse(content)) {}
+        : NodeSets(json::parse(content)) { }
 
     Selection materialize(const std::string& name, const NodePopulation& population) const;
 
@@ -168,7 +168,7 @@ class NodeSetBasicRule: public NodeSetRule
   public:
     NodeSetBasicRule(std::string attribute, const std::vector<T>& values)
         : attribute_(std::move(attribute))
-        , values_(values) {}
+        , values_(values) { }
 
     Selection materialize(const detail::NodeSets& /* unused */,
                           const NodePopulation& np) const final {
@@ -200,7 +200,7 @@ class NodeSetBasicPopulation: public NodeSetRule
 {
   public:
     explicit NodeSetBasicPopulation(const std::vector<std::string>& values)
-        : values_(values) {}
+        : values_(values) { }
 
     Selection materialize(const detail::NodeSets& /* unused */,
                           const NodePopulation& np) const final {
@@ -228,7 +228,7 @@ class NodeSetBasicNodeIds: public NodeSetRule
 {
   public:
     explicit NodeSetBasicNodeIds(Selection::Values values)
-        : values_(std::move(values)) {}
+        : values_(std::move(values)) { }
 
     Selection materialize(const detail::NodeSets& /* unused */,
                           const NodePopulation& np) const final {
@@ -256,7 +256,7 @@ class NodeSetBasicMultiClause: public NodeSetRule
 {
   public:
     explicit NodeSetBasicMultiClause(std::vector<NodeSetRulePtr>&& clauses)
-        : clauses_(std::move(clauses)) {}
+        : clauses_(std::move(clauses)) { }
 
     Selection materialize(const detail::NodeSets& ns, const NodePopulation& np) const final {
         Selection ret = np.selectAll();
@@ -302,14 +302,14 @@ class NodeSetBasicOperatorString: public NodeSetRule
                                         std::string value)
         : op_(string2op(op))
         , attribute_(std::move(attribute))
-        , value_(std::move(value)) {}
+        , value_(std::move(value)) { }
 
     Selection materialize(const detail::NodeSets& /* unused */,
                           const NodePopulation& np) const final {
         switch (op_) {
         case Op::regex:
             return np.regexMatch(attribute_, value_);
-        default:              // LCOV_EXCL_LINE
+        default:                        // LCOV_EXCL_LINE
             LIBSONATA_THROW_IF_REACHED  // LCOV_EXCL_LINE
         }
     }
@@ -333,7 +333,7 @@ class NodeSetBasicOperatorString: public NodeSetRule
         switch (op) {
         case Op::regex:
             return "$regex";
-        default:              // LCOV_EXCL_LINE
+        default:                        // LCOV_EXCL_LINE
             LIBSONATA_THROW_IF_REACHED  // LCOV_EXCL_LINE
         }
     }
@@ -357,7 +357,7 @@ class NodeSetBasicOperatorNumeric: public NodeSetRule
     explicit NodeSetBasicOperatorNumeric(std::string name, const std::string& op, double value)
         : name_(std::move(name))
         , value_(value)
-        , op_(string2op(op)) {}
+        , op_(string2op(op)) { }
 
     Selection materialize(const detail::NodeSets& /* unused */,
                           const NodePopulation& np) const final {
@@ -372,7 +372,7 @@ class NodeSetBasicOperatorNumeric: public NodeSetRule
         case Op::lte:
             return np.filterAttribute<double>(name_,
                                               [this](const double v) { return v <= value_; });
-        default:              // LCOV_EXCL_LINE
+        default:                        // LCOV_EXCL_LINE
             LIBSONATA_THROW_IF_REACHED  // LCOV_EXCL_LINE
         }
     }
@@ -411,7 +411,7 @@ class NodeSetBasicOperatorNumeric: public NodeSetRule
             return "$gte";
         case Op::lte:
             return "$lte";
-        default:              // LCOV_EXCL_LINE
+        default:                        // LCOV_EXCL_LINE
             LIBSONATA_THROW_IF_REACHED  // LCOV_EXCL_LINE
         }
     }
@@ -432,7 +432,7 @@ class NodeSetCompoundRule: public NodeSetRule
   public:
     NodeSetCompoundRule(std::string name, CompoundTargets targets)
         : name_(std::move(name))
-        , targets_(std::move(targets)) {}
+        , targets_(std::move(targets)) { }
 
     Selection materialize(const detail::NodeSets& ns, const NodePopulation& np) const final {
         Selection ret{{}};
@@ -707,10 +707,10 @@ Selection NodeSets::materialize(const std::string& name, const NodePopulation& p
 }  // namespace detail
 
 NodeSets::NodeSets(const std::string& content)
-    : impl_(new detail::NodeSets(content)) {}
+    : impl_(new detail::NodeSets(content)) { }
 
 NodeSets::NodeSets(std::unique_ptr<detail::NodeSets>&& impl)
-    : impl_(std::move(impl)) {}
+    : impl_(std::move(impl)) { }
 
 NodeSets::NodeSets(NodeSets&&) noexcept = default;
 NodeSets& NodeSets::operator=(NodeSets&&) noexcept = default;

@@ -330,13 +330,16 @@ py::class_<Storage> bindStorageClass(py::module& m, const char* clsName, const c
 namespace pybind11 {
 namespace detail {
 template <typename T>
-struct type_caster<nonstd::optional<T>>: optional_caster<nonstd::optional<T>> {};
+struct type_caster<nonstd::optional<T>>: optional_caster<nonstd::optional<T>> {
+};
 
 template <>
-struct type_caster<nonstd::nullopt_t>: public void_caster<nonstd::nullopt_t> {};
+struct type_caster<nonstd::nullopt_t>: public void_caster<nonstd::nullopt_t> {
+};
 
 template <typename... Ts>
-struct type_caster<nonstd::variant<Ts...>>: variant_caster<nonstd::variant<Ts...>> {};
+struct type_caster<nonstd::variant<Ts...>>: variant_caster<nonstd::variant<Ts...>> {
+};
 }  // namespace detail
 }  // namespace pybind11
 
@@ -349,17 +352,19 @@ void bindReportReader(py::module& m, const std::string& prefix) {
         // .ids, .data and .time members are owned by the c++ object. We can't do std::move.
         // To avoid copies, we must declare the owner of the data as the current Python
         // object. Numpy will adjust owner reference count according to returned arrays
-        .def_property_readonly("ids", [](const DataFrame<KeyType>& dframe) {
-            std::array<ssize_t, 1> dims { ssize_t(dframe.ids.size()) };
-            return managedMemoryArray(dframe.ids.data(), dims, dframe);
-        })
-        .def_property_readonly("data", [](const DataFrame<KeyType>& dframe) {
-            std::array<ssize_t, 2> dims {0l, ssize_t(dframe.ids.size())};
-            if (dims[1] > 0) {
-                dims[0] = dframe.data.size() / dims[1];
-            }
-            return managedMemoryArray(dframe.data.data(), dims, dframe);
-        })
+        .def_property_readonly("ids",
+                               [](const DataFrame<KeyType>& dframe) {
+                                   std::array<ssize_t, 1> dims{ssize_t(dframe.ids.size())};
+                                   return managedMemoryArray(dframe.ids.data(), dims, dframe);
+                               })
+        .def_property_readonly("data",
+                               [](const DataFrame<KeyType>& dframe) {
+                                   std::array<ssize_t, 2> dims{0l, ssize_t(dframe.ids.size())};
+                                   if (dims[1] > 0) {
+                                       dims[0] = dframe.data.size() / dims[1];
+                                   }
+                                   return managedMemoryArray(dframe.data.data(), dims, dframe);
+                               })
         .def_property_readonly("times", [](DataFrame<KeyType>& dframe) {
             return managedMemoryArray(dframe.times.data(), dframe.times.size(), dframe);
         });

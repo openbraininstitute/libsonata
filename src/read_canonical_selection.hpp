@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vector>
 #include <highfive/H5File.hpp>
+#include <vector>
 
 #include "read_bulk.hpp"
 

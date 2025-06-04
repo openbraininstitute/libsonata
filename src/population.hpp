@@ -169,10 +169,10 @@ struct Population::Impl {
 template <typename Population>
 struct PopulationStorage<Population>::Impl {
     Impl(const std::string& _h5FilePath)
-        : Impl(_h5FilePath, Hdf5Reader()) {}
+        : Impl(_h5FilePath, Hdf5Reader()) { }
 
     Impl(const std::string& _h5FilePath, const Hdf5Reader& hdf5_reader)
-        : Impl(_h5FilePath, std::string(), hdf5_reader) {}
+        : Impl(_h5FilePath, std::string(), hdf5_reader) { }
 
     Impl(const std::string& _h5FilePath,
          const std::string& _csvFilePath,
@@ -196,17 +196,17 @@ struct PopulationStorage<Population>::Impl {
 
 template <typename Population>
 PopulationStorage<Population>::PopulationStorage(const std::string& h5FilePath)
-    : PopulationStorage(h5FilePath, Hdf5Reader()) {}
+    : PopulationStorage(h5FilePath, Hdf5Reader()) { }
 
 template <typename Population>
 PopulationStorage<Population>::PopulationStorage(const std::string& h5FilePath,
                                                  const Hdf5Reader& hdf5_reader)
-    : PopulationStorage(h5FilePath, std::string(), hdf5_reader) {}
+    : PopulationStorage(h5FilePath, std::string(), hdf5_reader) { }
 
 template <typename Population>
 PopulationStorage<Population>::PopulationStorage(const std::string& h5FilePath,
                                                  const std::string& csvFilePath)
-    : PopulationStorage(h5FilePath, csvFilePath, Hdf5Reader()) {}
+    : PopulationStorage(h5FilePath, csvFilePath, Hdf5Reader()) { }
 
 template <typename Population>
 PopulationStorage<Population>::PopulationStorage(const std::string& h5FilePath,
@@ -215,7 +215,7 @@ PopulationStorage<Population>::PopulationStorage(const std::string& h5FilePath,
     : impl_([h5FilePath, csvFilePath, hdf5_reader] {
         HDF5_LOCK_GUARD
         return new PopulationStorage::Impl(h5FilePath, csvFilePath, hdf5_reader);
-    }()) {}
+    }()) { }
 
 
 template <typename Population>

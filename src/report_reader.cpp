@@ -98,7 +98,7 @@ namespace bbp {
 namespace sonata {
 
 SpikeReader::SpikeReader(std::string filename)
-    : filename_(std::move(filename)) {}
+    : filename_(std::move(filename)) { }
 
 std::vector<std::string> SpikeReader::getPopulationNames() const {
     HighFive::File file(filename_, HighFive::File::ReadOnly);
@@ -248,7 +248,7 @@ void SpikeReader::Population::filterTimestamp(Spikes& spikes, double tstart, dou
 
 template <typename T>
 ReportReader<T>::ReportReader(const std::string& filename)
-    : file_(filename, HighFive::File::ReadOnly) {}
+    : file_(filename, HighFive::File::ReadOnly) { }
 
 template <typename T>
 std::vector<std::string> ReportReader<T>::getPopulationNames() const {
@@ -282,9 +282,9 @@ ReportReader<T>::Population::Population(const HighFive::File& file,
     // Expand the pointers into tuples that define the range of each GID
     size_t element_ids_count = 0;
     for (size_t i = 0; i < node_ids_.size(); ++i) {
-        node_ranges_.push_back({index_pointers[i], index_pointers[i + 1]});   // Range of GID
-        node_offsets_.emplace_back(element_ids_count);                        // Offset in output
-        node_index_.emplace_back(i);                                          // Index of previous
+        node_ranges_.push_back({index_pointers[i], index_pointers[i + 1]});  // Range of GID
+        node_offsets_.emplace_back(element_ids_count);                       // Offset in output
+        node_index_.emplace_back(i);                                         // Index of previous
 
         element_ids_count += (index_pointers[i + 1] - index_pointers[i]);
     }

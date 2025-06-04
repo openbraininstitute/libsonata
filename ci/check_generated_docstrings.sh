@@ -18,6 +18,7 @@ set -euo pipefail
 
 if [[ -z $LIBCLANG_PATH ]]; then
     echo "Expect a \$LIBCLANG_PATH in the environment, it should have the path to the libclang.so"
+    echo "see .github/workflows/docstring_check.yaml for the version currrently used"
     exit -1
 fi
 

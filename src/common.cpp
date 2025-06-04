@@ -13,6 +13,6 @@ namespace bbp {
 namespace sonata {
 
 SonataError::SonataError(const std::string& what)
-    : std::runtime_error(what) {}
+    : std::runtime_error(what) { }
 }  // namespace sonata
 }  // namespace bbp
