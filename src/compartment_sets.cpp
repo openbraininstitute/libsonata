@@ -298,180 +298,84 @@ public:
         return std::unique_ptr<CompartmentSet>(new CompartmentSet(population_, std::move(filtered)));
     }
 };
+class CompartmentSets
+{
+private:
+    std::map<std::string, std::shared_ptr<detail::CompartmentSet>> data_;
 
-// class CompartmentSet {
-//     std::string population_;
-//     std::vector<CompartmentLocation> compartment_locations_;
+public:
+    CompartmentSets(const json& j) {
+        if (!j.is_object()) {
+            throw SonataError("Top level compartment_set must be an object");
+        }
 
-//   public:
-//     CompartmentSet(const std::string& content)
-//         : CompartmentSet(json::parse(content)) {}
+        for (const auto& el : j.items()) {
+            data_.emplace(el.key(), std::make_shared<detail::CompartmentSet>(el.value()));
+        }
+    }
 
-//     CompartmentSet(const nlohmann::json& j) {
-//         if (!j.is_object()) {
-//             throw SonataError("CompartmentSet must be an object");
-//         }
+    static const fs::path& validate_path(const fs::path& path) {
+        if (!fs::exists(path)) {
+            throw SonataError(fmt::format("Path does not exist: {}", std::string(path)));
+        }
+        return path;
+    }
 
-//         // Extract and check 'population' key once
-//         auto pop_it = j.find("population");
-//         if (pop_it == j.end() || !pop_it->is_string()) {
-//             throw SonataError("CompartmentSet must contain 'population' key of string type");
-//         }
-//         population_ = pop_it->get<std::string>();
+    CompartmentSets(const fs::path& path)
+        : CompartmentSets(json::parse(std::ifstream(validate_path(path)))) {}
 
-//         // Extract and check 'compartment_set' key once
-//         auto comp_it = j.find("compartment_set");
-//         if (comp_it == j.end() || !comp_it->is_array()) {
-//             throw SonataError("CompartmentSet must contain 'compartment_set' key of array type");
-//         }
+    static CompartmentSets fromFile(const std::string& path_) {
+        fs::path path(path_);
+        return path;
+    }
 
-//         compartment_locations_.reserve(comp_it->size());
-//         for (const auto& el : *comp_it) {
-//             compartment_locations_.emplace_back(el);
-//         }
-//         compartment_locations_.shrink_to_fit();
-//     }
-
-//     std::size_t size() const {
-//         return compartment_locations_.size();
-//     }
-
-//     CompartmentLocation& operator[](std::size_t index) {
-//         if (index >= compartment_locations_.size()) {
-//             throw std::out_of_range("CompartmentSet index out of bounds");
-//         }
-//         return compartment_locations_[index];
-//     }
-
-//     std::vector<CompartmentLocation>::const_iterator cbegin() const noexcept {
-//         return compartment_locations_.cbegin();
-//     }
-
-//     std::vector<CompartmentLocation>::const_iterator cend() const noexcept {
-//         return compartment_locations_.cend();
-//     }
-
-//     Selection gids() const {
-//         std::vector<uint64_t> result;
-//         std::unordered_set<uint64_t> seen;
-
-//         result.reserve(compartment_locations_.size());
-//         for (const auto& elem : compartment_locations_) {
-//             uint64_t id = elem.gid();
-//             if (seen.insert(id).second) { // insert returns {iterator, bool}
-//                 result.push_back(id);
-//             }
-//         }
-//         sort(result.begin(), result.end());
-//         return Selection::fromValues(result.begin(), result.end());
-//     }
-
-//     const std::string& population() const {
-//         return population_;
-//     }
-
-//     std::vector<CompartmentLocation> locations(
-//         const Selection& selection) const {
-//         std::vector<CompartmentLocation> result;
-//         result.reserve(compartment_locations_.size());
-
-//         if (selection.empty()) {
-//             for (const auto& el : compartment_locations_) {
-//                 result.emplace_back(el);
-//             }
-//         } else {
-//             for (const auto& el : compartment_locations_) {
-//                 if (selection.contains(el.gid())) {
-//                     result.emplace_back(el);
-//                 }
-//             }
-//         }
-//         result.shrink_to_fit();
-
-//         return result;
-//     }
-
-//     nlohmann::json to_json() const {
-//         nlohmann::json j;
-//         j["population"] = population_;
-
-//         j["compartment_set"] = nlohmann::json::array();
-//         for (const auto& elem : compartment_locations_) {
-//             j["compartment_set"].push_back(elem.to_json());
-//         }
-
-//         return j;
-//     }
-// };
-// class CompartmentSets
-// {
-
-// std::map<std::string, CompartmentSet> compartment_sets_;
-
-//   public:
-//     CompartmentSets(const json& j) {
-//         if (!j.is_object()) {
-//             throw SonataError("Top level compartment_set must be an object");
-//         }
-//         for (const auto& el : j.items()) {
-//             compartment_sets_.emplace(el.key(), el.value());
-//         }
-//     }
-    
-//     static const fs::path& validate_path(const fs::path& path) {
-//         if (!fs::exists(path)) {
-//             throw SonataError(fmt::format("Path does not exist: {}", std::string(path)));
-//         }
-//         return path;
-//     }
-
-//     static CompartmentSets fromFile(const std::string& path_) {
-//         fs::path path(path_);
-//         return path;
-//     }
-
-//     CompartmentSets(const fs::path& path)
-//         : CompartmentSets(json::parse(std::ifstream(validate_path(path)))) {}
-
-//     CompartmentSets(const std::string& content)
-//         : CompartmentSets(json::parse(content)) {}
-
-//     size_t size() const {
-//         return compartment_sets_.size();
-//     }
-//     bool contains(const std::string& name) const {
-//         return compartment_sets_.find(name) != compartment_sets_.end();
-//     }
-
-//     std::vector<std::string> keys() const {
-//         std::vector<std::string> result;
-//         result.reserve(compartment_sets_.size());  // reserve space for efficiency
-
-//         for (const auto& kv : compartment_sets_) {
-//             result.push_back(kv.first);
-//         }
-
-//         return result;
-//     }
-
-//     CompartmentSet& get(const std::string& name) {
-//         auto it = compartment_sets_.find(name);
-//         if (it == compartment_sets_.end()) {
-//             throw SonataError(fmt::format("CompartmentSet '{}' not found", name));
-//         }
-//         return it->second;
-//     }
-
-//     nlohmann::json to_json() const {
-//         nlohmann::json j;
-//         for (const auto& entry : compartment_sets_) {
-//             j[entry.first] = entry.second.to_json();
-//         }
-//         return j;
-//     }
-// };
+    CompartmentSets(const std::string& content)
+        : CompartmentSets(json::parse(content)) {}
 
 
+    std::shared_ptr<detail::CompartmentSet> at(const std::string& key) const {
+        return data_.at(key);
+    }
+
+    std::size_t size() const {
+        return data_.size();
+    }
+
+    bool contains(const std::string& key) const {
+        return data_.find(key) != data_.end();
+    }
+
+    std::vector<std::string> keys() const {
+        std::vector<std::string> result;
+        result.reserve(data_.size());
+        std::transform(data_.begin(), data_.end(), std::back_inserter(result),
+                    [](const auto& kv) { return kv.first; });
+        return result;
+    }
+
+    std::vector<std::shared_ptr<detail::CompartmentSet>> values() const {
+        std::vector<std::shared_ptr<detail::CompartmentSet>> result;
+        result.reserve(data_.size());
+        std::transform(data_.begin(), data_.end(), std::back_inserter(result),
+            [](const auto& kv) { return kv.second; });
+        return result;
+    }
+
+    std::vector<std::pair<std::string, std::shared_ptr<detail::CompartmentSet>>> items() const {
+        std::vector<std::pair<std::string, std::shared_ptr<detail::CompartmentSet>>> result;
+        result.reserve(data_.size());
+        std::copy(data_.begin(), data_.end(), std::back_inserter(result));
+        return result;
+    }
+
+    nlohmann::json to_json() const {
+        nlohmann::json j;
+        for (const auto& entry : data_) {
+            j[entry.first] = entry.second->to_json();
+        }
+        return j;
+    }
+};
 
 }  // namespace detail
 
