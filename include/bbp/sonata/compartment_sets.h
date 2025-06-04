@@ -97,6 +97,9 @@ class SONATA_API CompartmentSet
     /// Size of the set, optionally filtered by selection
     std::size_t size(const bbp::sonata::Selection& selection = bbp::sonata::Selection({})) const;
 
+    // Is empty?
+    bool empty() const;
+
     /// Population name
     const std::string& population() const;
 
@@ -154,6 +157,9 @@ public:
 
     // Serialize all compartment sets to JSON string
     std::string toJSON() const;
+
+    bool operator==(const CompartmentSets& other) const;
+    bool operator!=(const CompartmentSets& other) const;
 
 private:
     std::unique_ptr<detail::CompartmentSets> impl_;

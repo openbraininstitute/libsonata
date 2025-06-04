@@ -245,6 +245,10 @@ public:
             }));
     }
 
+    std::size_t empty() const {
+        return compartment_locations_.empty();
+    }
+
     std::unique_ptr<CompartmentLocation> operator[](std::size_t index) const {
         return compartment_locations_.at(index).clone();
     }
@@ -388,6 +392,39 @@ public:
         }
         return j;
     }
+
+    bool operator==(const CompartmentSets& other) {
+        if (data_.size() != other.data_.size()) {
+            return false;
+        }
+
+        for (const auto& kv : data_) {
+            const auto& key = kv.first;
+            const auto& this_set = kv.second;
+
+            auto it = other.data_.find(key);
+            if (it == other.data_.end()) {
+                return false;
+            }
+
+            const auto& other_set = it->second;
+            if (this_set == nullptr && other_set == nullptr) {
+                continue;
+            }
+            if (this_set == nullptr || other_set == nullptr) {
+                return false;
+            }
+            if (*this_set != *other_set) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    bool operator!=(const CompartmentSets& other) {
+        return !(*this == other);
+    }
 };
 
 }  // namespace detail
@@ -513,6 +550,10 @@ std::size_t CompartmentSet::size(const bbp::sonata::Selection& selection) const 
     return impl_->size(selection);
 }
 
+bool CompartmentSet::empty() const {
+    return impl_->empty();
+}
+
 const std::string& CompartmentSet::population() const {
     return impl_->population();
 }
@@ -614,6 +655,14 @@ std::vector<std::pair<std::string, CompartmentSet>> CompartmentSets::items() con
 // Serialize all compartment sets to JSON string
 std::string CompartmentSets::toJSON() const {
     return impl_->to_json().dump();
+}
+
+bool CompartmentSets::operator==(const CompartmentSets& other) const {
+    return *impl_ == *(other.impl_);
+}
+
+bool CompartmentSets::operator!=(const CompartmentSets& other) const {
+    return *impl_ != *(other.impl_);
 }
 
 }  // namespace sonata

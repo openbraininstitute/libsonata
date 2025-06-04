@@ -242,137 +242,194 @@ TEST_CASE("CompartmentSet public API") {
 
         REQUIRE(cs1 != cs3);
         REQUIRE_FALSE(cs1 == cs3);
-         REQUIRE_FALSE(cs1 == cs4);
+        REQUIRE_FALSE(cs1 == cs4);
     }
 
 }
 
+TEST_CASE("CompartmentSets public API") {
 
+    const std::string json = R"({
+        "cs1": {
+            "population": "pop1",
+            "compartment_set": [
+                [0, 10, 0.1],
+                [0, 10, 0.2],
+                [0, 10, 0.1],
+                [2, 3, 0.1],
+                [3, 6, 0.3]
+            ]
+        },
+        "cs0": {
+            "population": "pop0",
+            "compartment_set": []
+        }
+    })";
 
-// TEST_CASE("CompartmentSets: fail on invalid JSON strings") {
-//     // Top level must be an object
-//     REQUIRE_THROWS_AS(CompartmentSets("1"), SonataError);
-//     REQUIRE_THROWS_AS(CompartmentSets("[\"array\"]"), SonataError);
+    const auto cs1 = CompartmentSet(R"({
+            "population": "pop1",
+            "compartment_set": [
+                [0, 10, 0.1],
+                [0, 10, 0.2],
+                [0, 10, 0.1],
+                [2, 3, 0.1],
+                [3, 6, 0.3]
+            ]
+        })");
 
-//     // Each CompartmentSet must be an object with 'population' and 'compartment_set' keys
-//     REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": 1 })"), SonataError);
-//     REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": "string" })"), SonataError);
-//     REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": null })"), SonataError);
-//     REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": true })"), SonataError);
+    const auto cs0 = CompartmentSet(R"({
+            "population": "pop0",
+            "compartment_set": []
+        })");
 
-//     // Missing keys
-//     REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "compartment_set": [] } })"), SonataError);
-//     REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "population": "pop0" } })"), SonataError);
+    SECTION("Load from file and basic properties") {
+        auto sets = CompartmentSets::fromFile("./data/compartment_sets.json");
 
-//     // Invalid types
-//     REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "population": 123, "compartment_set": [] } })"), SonataError);
-//     REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "population": null, "compartment_set": [] } })"), SonataError);
-//     REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "population": "pop0", "compartment_set": "not an array" } })"), SonataError);
-//     REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "population": "pop0", "compartment_set": 123 } })"), SonataError);
+        CHECK(sets.size() == 2);
+        CHECK_FALSE(sets.empty());
 
-//     // Invalid compartment_set elements
-//     REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "population": "pop0", "compartment_set": [1] } })"), SonataError);
-//     REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "population": "pop0", "compartment_set": [[1, 2]] } })"), SonataError);
+        auto keys = sets.keys();
+        REQUIRE(sets.keys() == std::vector<std::string>{"cs0", "cs1"});
 
-//     // Wrong types inside compartment_set elements
-//     REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "population": "pop0", "compartment_set": [["not uint64", 0, 0.5]] } })"), SonataError);
-//     REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "population": "pop0", "compartment_set": [[1, "not uint64", 0.5]] } })"), SonataError);
-//     REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "population": "pop0", "compartment_set": [[1, 0, "not a number"]] } })"), SonataError);
+        CHECK(sets.contains("cs0"));
+        CHECK(sets.contains("cs1"));
 
-//     // Location out of bounds
-//     REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "population": "pop0", "compartment_set": [[1, 0, -0.1]] } })"), SonataError);
-//     REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "population": "pop0", "compartment_set": [[1, 0, 1.1]] } })"), SonataError);
-// }
+        const auto& cs0 = sets.at("cs0");
+        CHECK(cs0.empty());
 
-// TEST_CASE("CompartmentSets: load from valid JSON file") {
-//     const auto sets = CompartmentSets::fromFile("./data/compartment_sets.json");
+        const auto& cs1 = sets.at("cs1");
+        CHECK_FALSE(cs1.empty());
+    }
 
-//     REQUIRE(sets.size() == 2);
+    SECTION("Equality operator from file and string") {
+        // Load from file
+        auto sets_from_file = CompartmentSets::fromFile("./data/compartment_sets.json");
 
-//     SECTION("Key presence") {
-//         REQUIRE(sets.contains("cs0"));
-//         REQUIRE(sets.contains("cs1"));
-//     }
+        // The JSON string as in the file
+        const std::string json = R"({
+        "cs1": {
+            "population": "pop1",
+            "compartment_set": [
+            [0, 10, 0.1],
+            [0, 10, 0.2],
+            [0, 10, 0.1],
+            [2, 3, 0.1],
+            [3, 6, 0.3]
+            ]
+        },
+        "cs0": {
+            "population": "pop0",
+            "compartment_set": []
+        }
+        })";
 
-//     SECTION("Key ordering") {
-//         const auto keys = sets.keys();
-//         REQUIRE(keys == std::vector<std::string>{"cs0", "cs1"});
-//     }
+        // Construct from JSON string directly
+        CompartmentSets sets_from_string(json);
 
-//     SECTION("Values and items") {
-//         const auto values = sets.values();
-//         REQUIRE(values.size() == 2);
-//         REQUIRE(values[0].population() == "pop0");
-//         REQUIRE(values[1].population() == "pop1");
+        // They should be equal
+        CHECK(sets_from_file == sets_from_string);
+        CHECK_FALSE(sets_from_file != sets_from_string);
 
-//         const auto items = sets.items();
-//         REQUIRE(items.size() == 2);
-//         REQUIRE(items[0].first == "cs0");
-//         REQUIRE(items[0].second.population() == "pop0");
-//     }
+        // Now change the string slightly and check inequality
+        const std::string json_modified = R"({
+        "cs1": {
+            "population": "pop1",
+            "compartment_set": [
+            [0, 10, 0.8],
+            [0, 10, 0.2],
+            [0, 10, 0.1],
+            [2, 3, 0.1],
+            [3, 6, 0.3]
+            ]
+        },
+        "cs0": {
+            "population": "pop0",
+            "compartment_set": []
+        }
+        })";
 
-//     SECTION("Get by name") {
-//         const auto cs0 = sets.get("cs0");
-//         REQUIRE(cs0.population() == "pop0");
-//     }
-// }
+        CompartmentSets sets_modified(json_modified);
 
-// TEST_CASE("CompartmentSets: round-trip serialization") {
-//     std::string json = R"({
-//         "cs0": {
-//             "population": "P",
-//             "compartment_set": [[1, 1, 0.1]]
-//         }
-//     })";
+        CHECK(sets_from_file != sets_modified);
+        CHECK_FALSE(sets_from_file == sets_modified);
+    }
 
-//     CompartmentSets sets(json);
-//     std::string out = sets.toJSON();
-//     CompartmentSets reloaded(out);
+    SECTION("Throws on missing key") {
+        auto sets = CompartmentSets::fromFile("./data/compartment_sets.json");
+        CHECK_THROWS_AS(sets.at("not_there"), std::out_of_range);
+    }
 
-//     REQUIRE(reloaded.contains("cs0"));
-//     auto set = reloaded.get("cs0");
-//     auto locs = set.locations();
-//     REQUIRE(locs.size() == 1);
-//     REQUIRE(locs[0].gid() == 1);
-//     REQUIRE(locs[0].offset() == Approx(0.1));
-// }
+    SECTION("JSON serialization round-trip") {
+        auto sets = CompartmentSets::fromFile("./data/compartment_sets.json");
 
+        auto json = sets.toJSON();
+        CompartmentSets roundtrip(json);
 
-// TEST_CASE("CompartmentLocation: construction and JSON round-trip") {
-//     CompartmentLocation loc(42, 3, 0.75);
-//     REQUIRE(loc.gid() == 42);
-//     REQUIRE(loc.sectionIdx() == 3);
-//     REQUIRE(loc.offset() == Approx(0.75));
+        CHECK(sets == roundtrip);
+    }
 
-//     std::string json = loc.toJSON();
-//     CompartmentLocation parsed(json);
-//     REQUIRE(parsed == loc);
-//     CompartmentLocation loc0("[42, 3, 0.75]");
-//     REQUIRE(loc == loc0);
-// }
+    SECTION("Keys returns correct vector") {
+        CompartmentSets sets(json);
+        auto keys = sets.keys();
+        CHECK(keys == std::vector<std::string>{"cs0", "cs1"});
+    }
 
-// TEST_CASE("CompartmentSet: valid JSON parsing and access") {
-//     std::string json = R"({
-//         "population": "exc",
-//         "compartment_set": [
-//             [1, 0, 0.0],
-//             [2, 1, 0.5],
-//             [1, 2, 1.0]
-//         ]
-//     })";
+    SECTION("Values returns vector of CompartmentSet") {
+        CompartmentSets sets(json);
+        CHECK(sets.values() == std::vector<CompartmentSet>{cs0, cs1});
+    }
 
-//     CompartmentSet set(json);
-//     REQUIRE(set.population() == "exc");
+    SECTION("Items returns vector of pairs (key, CompartmentSet)") {
+        CompartmentSets sets(json);
+        CHECK(sets.items() == std::vector<std::pair<std::string, CompartmentSet>>{{"cs0", cs0}, {"cs1", cs1}});
+    }
 
-//     auto gids = set.gids();
-//     REQUIRE(gids.flatten().size() == 2);
-//     REQUIRE(gids.contains(1));
-//     REQUIRE(gids.contains(2));
+    SECTION("Size method") {
+        CompartmentSets sets(json);
+        CHECK(sets.size() == 2);
+    }
 
-//     auto locs = set.getCompartmentLocations();
-//     REQUIRE(locs.size() == 3);
-//     REQUIRE(locs[0].gid() == 1);
-//     REQUIRE(locs[1].sectionIdx() == 1);
-//     REQUIRE(locs[2].offset() == Approx(1.0));
-// }
+    SECTION("Contains method") {
+        CompartmentSets sets(json);
+        CHECK(sets.contains("cs0"));
+        CHECK(sets.contains("cs1"));
+        CHECK_FALSE(sets.contains("missing_key"));
+    }
+
+    SECTION("Invalid JSON parsings") {
+        // Top level must be an object
+        REQUIRE_THROWS_AS(CompartmentSets("1"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSets("[\"array\"]"), SonataError);
+
+        // Each CompartmentSet must be an object with 'population' and 'compartment_set' keys
+        REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": 1 })"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": "string" })"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": null })"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": true })"), SonataError);
+
+        // Missing keys
+        REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "compartment_set": [] } })"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "population": "pop0" } })"), SonataError);
+
+        // Invalid types
+        REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "population": 123, "compartment_set": [] } })"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "population": null, "compartment_set": [] } })"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "population": "pop0", "compartment_set": "not an array" } })"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "population": "pop0", "compartment_set": 123 } })"), SonataError);
+
+        // Invalid compartment_set elements
+        REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "population": "pop0", "compartment_set": [1] } })"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "population": "pop0", "compartment_set": [[1, 2]] } })"), SonataError);
+
+        // Wrong types inside compartment_set elements
+        REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "population": "pop0", "compartment_set": [["not uint64", 0, 0.5]] } })"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "population": "pop0", "compartment_set": [[1, "not uint64", 0.5]] } })"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "population": "pop0", "compartment_set": [[1, 0, "not a number"]] } })"), SonataError);
+
+        // Location out of bounds
+        REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "population": "pop0", "compartment_set": [[1, 0, -0.1]] } })"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSets(R"({ "cs0": { "population": "pop0", "compartment_set": [[1, 0, 1.1]] } })"), SonataError);
+    }
+
+}
 
