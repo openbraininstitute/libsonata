@@ -577,35 +577,46 @@ PYBIND11_MODULE(_libsonata, m) {
              [](const CompartmentLocation& self) {
                  return py::str(py::repr(py::cast(self)));
              });
-                    
-
-
-    // py::class_<CompartmentSet>(m, "CompartmentSet", "CompartmentSet")
-    //     .def(py::init<const std::string&>())
-    //     .def_property_readonly("population",
-    //                            &CompartmentSet::population,
-    //                            DOC_COMPARTMENTSET(population))
-    //     .def("__len__", [](const CompartmentSet& self) {
-    //         return self.size();
-    //     })
-    //     .def("__getitem__", [](const CompartmentSet& self, py::ssize_t i) {
-    //         if (i < 0) {
-    //             i += static_cast<py::ssize_t>(self.size());
-    //         }
-    //         if (i < 0 || static_cast<std::size_t>(i) >= self.size()) {
-    //             throw py::index_error("Index out of range");
-    //         }
-    //         return self[static_cast<std::size_t>(i)];
-    //     }, py::arg("index"))
-    //     .def("gids", &CompartmentSet::gids)
-    //     .def(
-    //         "locations",
-    //         [](const CompartmentSet& self, const Selection& sel = Selection({})) {
-    //             return self.locations(sel);
-    //         },
-    //         py::arg("selection") = Selection({}),
-    //         DOC_COMPARTMENTSET(locations))
-    //     .def("toJSON", &CompartmentSet::toJSON, DOC_COMPARTMENTSET(toJSON));
+    
+    py::class_<CompartmentSet>(m, "CompartmentSet")
+        .def(py::init<const std::string&>())
+        .def_property_readonly("population", &CompartmentSet::population, DOC_COMPARTMENTSET(population))
+        .def("size",
+            py::overload_cast<const bbp::sonata::Selection&>(&CompartmentSet::size, py::const_),
+            py::arg("selection") = bbp::sonata::Selection({}), DOC_COMPARTMENTSET(size))
+        .def("gids", &CompartmentSet::gids, DOC_COMPARTMENTSET(gids))
+        .def("filter",
+            &CompartmentSet::filter,
+            py::arg("selection") = bbp::sonata::Selection({}),
+            DOC_COMPARTMENTSET(filter))
+        .def("filtered_iter",
+            [](const CompartmentSet& self, const bbp::sonata::Selection& sel) {
+                auto range = self.filtered_crange(sel);
+                return py::make_iterator(range.first, range.second);
+            },
+            py::arg("selection") = bbp::sonata::Selection({}),
+            py::keep_alive<0, 1>(),
+            DOC_COMPARTMENTSET(filteredIter))
+        .def("__len__", [](const CompartmentSet& self) {
+            return self.size();
+        })
+        .def("__getitem__", [](const CompartmentSet& self, py::ssize_t i) {
+            if (i < 0) {
+                i += static_cast<py::ssize_t>(self.size());
+            }
+            if (i < 0 || static_cast<std::size_t>(i) >= self.size()) {
+                throw py::index_error("Index out of range");
+            }
+            return self[static_cast<std::size_t>(i)];
+        }, py::arg("index"), 
+            DOC_COMPARTMENTSET(getitem))
+        .def("__iter__",
+            [](const CompartmentSet& self) {
+                auto range = self.filtered_crange(bbp::sonata::Selection({}));
+                return py::make_iterator(range.first, range.second);
+            },
+            py::keep_alive<0, 1>())
+        .def("toJSON", &CompartmentSet::toJSON, DOC_COMPARTMENTSET(toJSON));
 
     // py::class_<CompartmentSets>(m, "CompartmentSets", "CompartmentSets")
     //     .def(py::init<const std::string&>())

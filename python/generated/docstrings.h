@@ -391,11 +391,17 @@ static const char *__doc_bbp_sonata_CompartmentLocation_toJSON = R"doc(Return th
 
 static const char *__doc_bbp_sonata_CompartmentSet_population = R"doc(Population name)doc";
 
+static const char *__doc_bbp_sonata_CompartmentSet_toJSON = R"doc(Return the compartment set as a JSON string.)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSet_size = R"doc(Return the size of the set, optionally filtered by selection.)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSet_getitem = R"doc("Get a CompartmentLocation by index. Creates a copy of the object.")doc";
+
 static const char *__doc_bbp_sonata_CompartmentSet_gids = R"doc(Gids in the list of CompartmentLocations.)doc";
 
-static const char *__doc_bbp_sonata_CompartmentSet_locations = R"doc(Get the list of CompartmentLocations.)doc";
+static const char *__doc_bbp_sonata_CompartmentSet_filter = R"doc(Filter the compartment set based on a selection.)doc";
 
-static const char *__doc_bbp_sonata_CompartmentSet_toJSON = R"doc(Return the compartment set as a JSON string.)doc";
+static const char *__doc_bbp_sonata_CompartmentSet_filteredIter = R"doc(Iterator over CompartmentLocations filtered by selection.)doc";
 
 static const char *__doc_bbp_sonata_CompartmentSets_keys = R"doc(Return the keys of the CompartmentSets)doc";
 
