@@ -89,8 +89,22 @@ endif()
 # Targets
 # =============================================================================
 
-file(GLOB SONATA_SRC "src/*.cpp")
-list(APPEND SONATA_SRC "${CMAKE_CURRENT_BINARY_DIR}/src/version.cpp")
+set(SONATA_SRC
+    src/common.cpp
+    src/compartment_sets.cpp
+    src/config.cpp
+    src/edge_index.cpp
+    src/edges.cpp
+    src/hdf5_mutex.cpp
+    src/hdf5_reader.cpp
+    src/node_sets.cpp
+    src/nodes.cpp
+    src/population.cpp
+    src/report_reader.cpp
+    src/selection.cpp
+    src/utils.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/src/version.cpp
+    )
 
 configure_file (
   ${CMAKE_CURRENT_SOURCE_DIR}/src/version.cpp.in
