@@ -45,18 +45,15 @@ class CompartmentLocation
             offset_ = offset;
         }
 
-  public:
-    static constexpr double offsetTolerance = 1e-4;
-    // static constexpr double offsetToleranceInv = 1.0 / offsetTolerance;
-
-    CompartmentLocation(const CompartmentLocation& other) = default;
-    CompartmentLocation(CompartmentLocation&&) noexcept = default;
-    CompartmentLocation& operator=(CompartmentLocation&&) noexcept = default;
-    CompartmentLocation(int64_t node_id, int64_t section_index, double offset) {
-        setNodeId(node_id);
-        setSectionIndex(section_index);
-        setOffset(offset);
-    }
+      public:
+        CompartmentLocation(const CompartmentLocation& other) = default;
+        CompartmentLocation(CompartmentLocation&&) noexcept = default;
+        CompartmentLocation& operator=(CompartmentLocation&&) noexcept = default;
+        CompartmentLocation(int64_t node_id, int64_t section_index, double offset) {
+            setNodeId(node_id);
+            setSectionIndex(section_index);
+            setOffset(offset);
+        }
 
     CompartmentLocation(const std::string& content)
         : CompartmentLocation(json::parse(content)) {}
@@ -96,7 +93,7 @@ class CompartmentLocation
 
     bool operator==(const CompartmentLocation& other) const {
         return node_id_ == other.node_id_ && section_index_ == other.section_index_ &&
-               std::abs(offset_ - other.offset_) < offsetTolerance;
+               offset_ == other.offset_;
     }
     bool operator!=(const CompartmentLocation& other) const {
         return !(*this == other);

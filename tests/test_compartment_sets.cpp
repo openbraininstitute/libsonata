@@ -41,12 +41,10 @@ TEST_CASE("CompartmentLocation public API") {
         CompartmentLocation loc1(1, 10, 0.5);
         CompartmentLocation loc2(1, 10, 0.5);
         CompartmentLocation loc3(1, 10, 0.6);
-        CompartmentLocation loc4(1, 10, 0.5000001);
 
         REQUIRE(loc1 == loc2);
         REQUIRE_FALSE(loc1 != loc2);
         REQUIRE(loc1 != loc3);
-        REQUIRE(loc1 == loc4);
     }
 
     SECTION("Copy constructor and assignment") {
