@@ -91,8 +91,8 @@ class SONATA_API CompartmentSet
     explicit CompartmentSet(const std::string& json_content);
     explicit CompartmentSet(std::shared_ptr<detail::CompartmentSet>&& impl);
 
-    std::pair<CompartmentSetFilteredIterator, CompartmentSetFilteredIterator>
-    filtered_crange(Selection selection = Selection({})) const;
+    std::pair<CompartmentSetFilteredIterator, CompartmentSetFilteredIterator> filtered_crange(
+        Selection selection = Selection({})) const;
 
     /// Size of the set, optionally filtered by selection
     std::size_t size(const Selection& selection = Selection({})) const;
