@@ -20,16 +20,16 @@ using json = nlohmann::json;
 class CompartmentLocation
 {
     private:
-        std::uint64_t node_id_;
-        std::uint64_t section_index_;
-        double offset_;
+      std::uint64_t node_id_;
+      std::uint64_t section_index_;
+      double offset_;
 
-        void setNodeId(int64_t node_id) {
-            if (node_id < 0) {
-                throw SonataError(fmt::format("Node id must be non-negative, got {}", node_id));
-            }
-            node_id_ = static_cast<uint64_t>(node_id);
-        }
+      void setNodeId(int64_t node_id) {
+          if (node_id < 0) {
+              throw SonataError(fmt::format("Node id must be non-negative, got {}", node_id));
+          }
+          node_id_ = static_cast<uint64_t>(node_id);
+      }
         void setSectionIndex(int64_t section_index) {
             if (section_index < 0) {
                 throw SonataError(
@@ -64,7 +64,8 @@ class CompartmentLocation
     CompartmentLocation(const nlohmann::json& j) {
         if (!j.is_array() || j.size() != 3) {
             throw SonataError(
-                "CompartmentLocation must be an array of exactly 3 elements: [node_id, section_index, "
+                "CompartmentLocation must be an array of exactly 3 elements: [node_id, "
+                "section_index, "
                 "offset]");
         }
 
@@ -239,10 +240,10 @@ public:
         }
 
         return static_cast<std::size_t>(std::count_if(compartment_locations_.begin(),
-                                                     compartment_locations_.end(),
-            [&](const CompartmentLocation& loc) {
-                return selection.contains(loc.nodeId());
-            }));
+                                                      compartment_locations_.end(),
+                                                      [&](const CompartmentLocation& loc) {
+                                                          return selection.contains(loc.nodeId());
+                                                      }));
     }
 
     std::size_t empty() const {

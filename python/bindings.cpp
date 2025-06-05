@@ -554,7 +554,9 @@ PYBIND11_MODULE(_libsonata, m) {
              py::arg("node_id"),
              py::arg("section_index"),
              py::arg("offset"))
-        .def_property_readonly("node_id", &CompartmentLocation::nodeId, DOC_COMPARTMENTLOCATION(nodeId))
+        .def_property_readonly("node_id",
+                               &CompartmentLocation::nodeId,
+                               DOC_COMPARTMENTLOCATION(nodeId))
         .def_property_readonly("section_index",
                                &CompartmentLocation::sectionIndex,
                                DOC_COMPARTMENTLOCATION(sectionIndex))
