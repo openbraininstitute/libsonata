@@ -45,11 +45,11 @@ class SONATA_API Selection
     bool empty() const;
 
     /**
-     * Check if Selection contains a given GID
-     * @param gid is the GID to check
-     * @return true if Selection contains gid, false otherwise
+     * Check if Selection contains a given node id
+     * @param node id to check
+     * @return true if Selection contains the node id, false otherwise
      */
-    bool contains(Value gid) const;
+    bool contains(Value node_id) const;
 
   private:
     Ranges ranges_;

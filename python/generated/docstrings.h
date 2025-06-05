@@ -381,7 +381,7 @@ static const char *__doc_bbp_sonata_NodeSets_operator_assign = R"doc()doc";
 
 static const char *__doc_bbp_sonata_NodeSets_toJSON = R"doc(Return the nodesets as a JSON string.)doc";
 
-static const char *__doc_bbp_sonata_CompartmentLocation_gid = R"doc(GID)doc";
+static const char *__doc_bbp_sonata_CompartmentLocation_nodeId = R"doc(Id of the node.)doc";
 
 static const char *__doc_bbp_sonata_CompartmentLocation_sectionIndex = R"doc(Absolute section index. Progressive index that uniquely identifies the section. There is a mapping between neuron section names (i.e. dend[10]) and this index.)doc";
 
@@ -397,7 +397,7 @@ static const char *__doc_bbp_sonata_CompartmentSet_size = R"doc(Return the size 
 
 static const char *__doc_bbp_sonata_CompartmentSet_getitem = R"doc("Get a CompartmentLocation by index. Creates a copy of the object.")doc";
 
-static const char *__doc_bbp_sonata_CompartmentSet_gids = R"doc(Gids in the list of CompartmentLocations.)doc";
+static const char *__doc_bbp_sonata_CompartmentSet_nodeIds = R"doc(Node ids in the list of CompartmentLocations.)doc";
 
 static const char *__doc_bbp_sonata_CompartmentSet_filter = R"doc(Filter the compartment set based on a selection.)doc";
 

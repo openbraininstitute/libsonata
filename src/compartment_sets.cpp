@@ -20,15 +20,15 @@ using json = nlohmann::json;
 class CompartmentLocation
 {
     private:
-        std::uint64_t gid_;
+        std::uint64_t node_id_;
         std::uint64_t section_index_;
         double offset_;
 
-        void setGid(int64_t gid) {
-            if (gid < 0) {
-                throw SonataError(fmt::format("GID must be non-negative, got {}", gid));
+        void setNodeId(int64_t node_id) {
+            if (node_id < 0) {
+                throw SonataError(fmt::format("Node id must be non-negative, got {}", node_id));
             }
-            gid_ = static_cast<uint64_t>(gid);
+            node_id_ = static_cast<uint64_t>(node_id);
         }
         void setSectionIndex(int64_t section_index) {
             if (section_index < 0) {
@@ -52,8 +52,8 @@ class CompartmentLocation
     CompartmentLocation(const CompartmentLocation& other) = default;
     CompartmentLocation(CompartmentLocation&&) noexcept = default;
     CompartmentLocation& operator=(CompartmentLocation&&) noexcept = default;
-    CompartmentLocation(int64_t gid, int64_t section_index, double offset) {
-        setGid(gid);
+    CompartmentLocation(int64_t node_id, int64_t section_index, double offset) {
+        setNodeId(node_id);
         setSectionIndex(section_index);
         setOffset(offset);
     }
@@ -64,11 +64,11 @@ class CompartmentLocation
     CompartmentLocation(const nlohmann::json& j) {
         if (!j.is_array() || j.size() != 3) {
             throw SonataError(
-                "CompartmentLocation must be an array of exactly 3 elements: [gid, section_index, "
+                "CompartmentLocation must be an array of exactly 3 elements: [node_id, section_index, "
                 "offset]");
         }
 
-        setGid(get_int64_or_throw(j[0]));
+        setNodeId(get_int64_or_throw(j[0]));
         setSectionIndex(get_int64_or_throw(j[1]));
 
         if (!j[2].is_number()) {
@@ -77,8 +77,8 @@ class CompartmentLocation
         setOffset(j[2].get<double>());
     }
 
-    uint64_t gid() const {
-        return gid_;
+    uint64_t nodeId() const {
+        return node_id_;
     }
 
     uint64_t sectionIndex() const {
@@ -90,11 +90,11 @@ class CompartmentLocation
     }
 
     nlohmann::json to_json() const {
-        return nlohmann::json::array({gid_, section_index_, offset_});
+        return nlohmann::json::array({node_id_, section_index_, offset_});
     }
 
     bool operator==(const CompartmentLocation& other) const {
-        return gid_ == other.gid_ && section_index_ == other.section_index_ &&
+        return node_id_ == other.node_id_ && section_index_ == other.section_index_ &&
                std::abs(offset_ - other.offset_) < offsetTolerance;
     }
     bool operator!=(const CompartmentLocation& other) const {
@@ -121,7 +121,7 @@ private:
 
     void skip_to_valid() {
         while (current_ != end_) {
-            if (selection_.empty() || selection_.contains(current_->gid())) {
+            if (selection_.empty() || selection_.contains(current_->nodeId())) {
                 break;
             }
             ++current_;
@@ -241,7 +241,7 @@ public:
         return static_cast<std::size_t>(std::count_if(compartment_locations_.begin(),
                                                      compartment_locations_.end(),
             [&](const CompartmentLocation& loc) {
-                return selection.contains(loc.gid());
+                return selection.contains(loc.nodeId());
             }));
     }
 
@@ -253,13 +253,13 @@ public:
         return compartment_locations_.at(index).clone();
     }
 
-    Selection gids() const {
+    Selection nodeIds() const {
         std::vector<uint64_t> result;
         std::unordered_set<uint64_t> seen;
 
         result.reserve(compartment_locations_.size());
         for (const auto& elem : compartment_locations_) {
-            uint64_t id = elem.gid();
+            uint64_t id = elem.nodeId();
             if (seen.insert(id).second) { // insert returns {iterator, bool}
                 result.push_back(id);
             }
@@ -295,7 +295,7 @@ public:
         std::vector<CompartmentLocation> filtered;
         filtered.reserve(compartment_locations_.size());
         for (const auto& el : compartment_locations_) {
-            if (selection.contains(el.gid())) {
+            if (selection.contains(el.nodeId())) {
                 filtered.emplace_back(el);
             }
         }
@@ -431,10 +431,10 @@ public:
 
 // CompartmentLocation public API
 CompartmentLocation::CompartmentLocation() = default;
-CompartmentLocation::CompartmentLocation(const int64_t gid,
+CompartmentLocation::CompartmentLocation(const int64_t node_id,
                                          const int64_t section_index,
                                          const double offset)
-    : impl_(new detail::CompartmentLocation(gid, section_index, offset)) { }
+    : impl_(new detail::CompartmentLocation(node_id, section_index, offset)) { }
 CompartmentLocation::CompartmentLocation(const std::string& content)
     : impl_(new detail::CompartmentLocation(content)) {}
 CompartmentLocation::CompartmentLocation(std::unique_ptr<detail::CompartmentLocation>&& impl)
@@ -460,8 +460,8 @@ bool CompartmentLocation::operator!=(const CompartmentLocation& other) const noe
     return *impl_ != *(other.impl_);
 }
 
-uint64_t CompartmentLocation::gid() const {
-    return impl_->gid();
+uint64_t CompartmentLocation::nodeId() const {
+    return impl_->nodeId();
 }
 
 uint64_t CompartmentLocation::sectionIndex() const {
@@ -562,8 +562,8 @@ CompartmentLocation CompartmentSet::operator[](std::size_t index) const {
     return CompartmentLocation((*impl_)[index]);
 }
 
-bbp::sonata::Selection CompartmentSet::gids() const {
-    return impl_->gids();
+bbp::sonata::Selection CompartmentSet::nodeIds() const {
+    return impl_->nodeIds();
 }
 
 CompartmentSet CompartmentSet::filter(const bbp::sonata::Selection& selection) const {

@@ -118,13 +118,13 @@ Selection operator|(const Selection& lhs, const Selection& rhs) {
     return detail::union_(lhs.ranges(), rhs.ranges());
 }
 
-bool Selection::contains(Value gid) const {
+bool Selection::contains(Value node_id) const {
     auto it =
-        std::lower_bound(ranges_.begin(), ranges_.end(), gid, [](const Range& range, Value v) {
-            return range[1] <= v;  // Keep searching if gid >= end
+        std::lower_bound(ranges_.begin(), ranges_.end(), node_id, [](const Range& range, Value v) {
+            return range[1] <= v;  // Keep searching if node_id >= end
         });
 
-    return it != ranges_.end() && (*it)[0] <= gid && gid < (*it)[1];
+    return it != ranges_.end() && (*it)[0] <= node_id && node_id < (*it)[1];
 }
 
 }  // namespace sonata

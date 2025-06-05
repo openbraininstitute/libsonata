@@ -477,8 +477,8 @@ PYBIND11_MODULE(_libsonata, m) {
         .def_property_readonly("flat_size", &Selection::flatSize, DOC_SEL(flatSize))
         .def(
             "__contains__",
-            [](const Selection& sel, uint64_t gid) { return sel.contains(gid); },
-            "Check if a GID is contained in the selection")
+            [](const Selection& sel, uint64_t node_id) { return sel.contains(node_id); },
+            "Check if a node id is contained in the selection")
         .def(
             "__bool__",
             [](const Selection& obj) { return !obj.empty(); },
@@ -551,10 +551,10 @@ PYBIND11_MODULE(_libsonata, m) {
     py::class_<CompartmentLocation>(m, "CompartmentLocation")
         .def(py::init<const std::string&>())
         .def(py::init<const int64_t, const int64_t, const double>(),
-             py::arg("gid"),
+             py::arg("node_id"),
              py::arg("section_index"),
              py::arg("offset"))
-        .def_property_readonly("gid", &CompartmentLocation::gid, DOC_COMPARTMENTLOCATION(gid))
+        .def_property_readonly("node_id", &CompartmentLocation::nodeId, DOC_COMPARTMENTLOCATION(nodeId))
         .def_property_readonly("section_index",
                                &CompartmentLocation::sectionIndex,
                                DOC_COMPARTMENTLOCATION(sectionIndex))
@@ -564,7 +564,7 @@ PYBIND11_MODULE(_libsonata, m) {
         .def("toJSON", &CompartmentLocation::toJSON, DOC_COMPARTMENTLOCATION(toJSON))
         .def("__iter__",
              [](const CompartmentLocation& self) {
-                 return py::iter(py::make_tuple(self.gid(), self.sectionIndex(), self.offset()));
+                 return py::iter(py::make_tuple(self.nodeId(), self.sectionIndex(), self.offset()));
              })
         .def("__eq__", &CompartmentLocation::operator==)
         .def("__ne__", &CompartmentLocation::operator!=)
@@ -576,7 +576,7 @@ PYBIND11_MODULE(_libsonata, m) {
         .def("__repr__",
              [](const CompartmentLocation& self) {
                  return py::str("CompartmentLocation({}, {}, {})")
-                     .format(self.gid(), self.sectionIndex(), self.offset());
+                     .format(self.nodeId(), self.sectionIndex(), self.offset());
              })
         .def("__str__",
              [](const CompartmentLocation& self) { return py::str(py::repr(py::cast(self))); });
@@ -590,7 +590,7 @@ PYBIND11_MODULE(_libsonata, m) {
              py::overload_cast<const bbp::sonata::Selection&>(&CompartmentSet::size, py::const_),
              py::arg("selection") = bbp::sonata::Selection({}),
              DOC_COMPARTMENTSET(size))
-        .def("gids", &CompartmentSet::gids, DOC_COMPARTMENTSET(gids))
+        .def("node_ids", &CompartmentSet::nodeIds, DOC_COMPARTMENTSET(nodeIds))
         .def("filter",
              &CompartmentSet::filter,
              py::arg("selection") = bbp::sonata::Selection({}),

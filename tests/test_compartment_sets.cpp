@@ -9,9 +9,9 @@ using json = nlohmann::json;
 
 TEST_CASE("CompartmentLocation public API") {
 
-    SECTION("Construct from valid gid, section_idx, offset") {
+    SECTION("Construct from valid nodeId, section_idx, offset") {
         CompartmentLocation loc(1, 10, 0.5);
-        REQUIRE(loc.gid() == 1);
+        REQUIRE(loc.nodeId() == 1);
         REQUIRE(loc.sectionIndex() == 10);
         REQUIRE(loc.offset() == Approx(0.5));
     }
@@ -19,13 +19,13 @@ TEST_CASE("CompartmentLocation public API") {
     SECTION("Construct from valid JSON string") {
         std::string json_str = "[1, 10, 0.5]";
         CompartmentLocation loc(json_str);
-        REQUIRE(loc.gid() == 1);
+        REQUIRE(loc.nodeId() == 1);
         REQUIRE(loc.sectionIndex() == 10);
         REQUIRE(loc.offset() == Approx(0.5));
     }
 
     SECTION("Invalid JSON string throws") {
-        REQUIRE_THROWS_AS(CompartmentLocation("{\"gid\": 1}"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentLocation("{\"nodeId\": 1}"), SonataError);
         REQUIRE_THROWS_AS(CompartmentLocation("[1, 2]"), SonataError);
         REQUIRE_THROWS_AS(CompartmentLocation("[1, 2, 0.1, 1]"), SonataError);
         REQUIRE_THROWS_AS(CompartmentLocation("[\"a\", 2, 0.5]"), SonataError);
@@ -63,14 +63,14 @@ TEST_CASE("CompartmentLocation public API") {
         CompartmentLocation original(3, 30, 0.8);
         CompartmentLocation moved_constructed(std::move(original));
 
-        REQUIRE(moved_constructed.gid() == 3);
+        REQUIRE(moved_constructed.nodeId() == 3);
         REQUIRE(moved_constructed.sectionIndex() == 30);
         REQUIRE(moved_constructed.offset() == Approx(0.8));
 
         CompartmentLocation another(0, 0, 0);
         another = std::move(moved_constructed);
 
-        REQUIRE(another.gid() == 3);
+        REQUIRE(another.nodeId() == 3);
         REQUIRE(another.sectionIndex() == 30);
         REQUIRE(another.offset() == Approx(0.8));
     }
@@ -161,19 +161,19 @@ TEST_CASE("CompartmentSet public API") {
 
         auto pp = cs.filtered_crange();
 
-        std::vector<int> gids;
+        std::vector<int> nodeIds;
         for (auto it = pp.first; it != pp.second; ++it) {
-            gids.push_back((*it).gid());
+            nodeIds.push_back((*it).nodeId());
         }
 
-        REQUIRE(gids.size() == 4);
-        REQUIRE((gids == std::vector<int>{1, 2, 3, 2}));
-        gids.clear();
+        REQUIRE(nodeIds.size() == 4);
+        REQUIRE((nodeIds == std::vector<int>{1, 2, 3, 2}));
+        nodeIds.clear();
         for (auto it = cs.filtered_crange(Selection::fromValues({2, 3})).first; it != pp.second; ++it) {
-            gids.push_back((*it).gid());
+            nodeIds.push_back((*it).nodeId());
         }
-        REQUIRE(gids.size() == 3);
-        REQUIRE((gids == std::vector<int>{2, 3, 2}));
+        REQUIRE(nodeIds.size() == 3);
+        REQUIRE((nodeIds == std::vector<int>{2, 3, 2}));
     }
 
     SECTION("Filter returns subset") {
@@ -182,13 +182,13 @@ TEST_CASE("CompartmentSet public API") {
 
         REQUIRE(filtered.size() == 3);
 
-        // Check filtered compartments only contain gids 1 and 2
-        auto gids = filtered.gids().flatten();
-        REQUIRE(gids == std::vector<uint64_t>({2, 3}));
+        // Check filtered compartments only contain nodeIds 1 and 2
+        auto nodeIds = filtered.nodeIds().flatten();
+        REQUIRE(nodeIds == std::vector<uint64_t>({2, 3}));
         auto no_filtered = cs.filter();
         REQUIRE(no_filtered.size() == 4);
-        auto no_filtered_gids = no_filtered.gids().flatten();
-        REQUIRE(no_filtered_gids == std::vector<uint64_t>({1, 2, 3}));
+        auto no_filtered_nodeIds = no_filtered.nodeIds().flatten();
+        REQUIRE(no_filtered_nodeIds == std::vector<uint64_t>({1, 2, 3}));
     }
 
     SECTION("Equality and inequality operators") {

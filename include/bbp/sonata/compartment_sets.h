@@ -13,9 +13,9 @@ class CompartmentSets;
 /**
  * CompartmentLocation public API.
  *
- * This class uniquely identifies a compartment by a set of gid, section_index and offset:
+ * This class uniquely identifies a compartment by a set of node_id, section_index and offset:
  *
- * - gid: Global ID of the cell (Neuron) to which the compartment belongs. No
+ * - node_id: Global ID of the cell (Neuron) to which the compartment belongs. No
  * overlaps among populations.
  * - section_index: Absolute section index. Progressive index that uniquely identifies the section.
  *  There is a mapping between neuron section names (i.e. dend[10]) and this index.
@@ -25,7 +25,7 @@ class SONATA_API CompartmentLocation
 {
   public:
     CompartmentLocation();
-    CompartmentLocation(const int64_t gid, const int64_t section_index, const double offset);
+    CompartmentLocation(const int64_t node_id, const int64_t section_index, const double offset);
     explicit CompartmentLocation(const std::string& content);
     explicit CompartmentLocation(std::unique_ptr<detail::CompartmentLocation>&& impl);
     CompartmentLocation(const CompartmentLocation& other);
@@ -37,7 +37,7 @@ class SONATA_API CompartmentLocation
     bool operator==(const CompartmentLocation& other) const noexcept;
     bool operator!=(const CompartmentLocation& other) const noexcept;
 
-    uint64_t gid() const;
+    uint64_t nodeId() const;
     uint64_t sectionIndex() const;
     double offset() const;
 
@@ -79,8 +79,8 @@ private:
  * CompartmentSet public API.
  *
  * This class represents a set of compartment locations associated with a neuron population.
- * Each compartment is uniquely defined by a (gid, section_index, offset) triplet.
- * This API supports filtering based on a gid selection.
+ * Each compartment is uniquely defined by a (node_id, section_index, offset) triplet.
+ * This API supports filtering based on a node_id selection.
  */
 class SONATA_API CompartmentSet
 {
@@ -106,7 +106,7 @@ class SONATA_API CompartmentSet
     /// Access element by index. It returns a copy!
     CompartmentLocation operator[](std::size_t index) const;
 
-    bbp::sonata::Selection gids() const;
+    bbp::sonata::Selection nodeIds() const;
 
     CompartmentSet filter(const bbp::sonata::Selection& selection = bbp::sonata::Selection({})) const;
 

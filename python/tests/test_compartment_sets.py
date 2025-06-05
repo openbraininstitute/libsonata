@@ -15,13 +15,13 @@ PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),
 class TestCompartmentLocation(unittest.TestCase):
     def test_constructor_from_values(self):
         loc = CompartmentLocation(4, 40, 0.9)
-        self.assertEqual(loc.gid, 4)
+        self.assertEqual(loc.node_id, 4)
         self.assertEqual(loc.section_index, 40)
         self.assertAlmostEqual(loc.offset, 0.9)
 
     def test_constructor_from_string(self):
         loc = CompartmentLocation("[4, 40, 0.9]")
-        self.assertEqual(loc.gid, 4)
+        self.assertEqual(loc.node_id, 4)
         self.assertEqual(loc.section_index, 40)
         self.assertAlmostEqual(loc.offset, 0.9)
 
@@ -44,8 +44,8 @@ class TestCompartmentLocation(unittest.TestCase):
 
     def test_iterable(self):
         loc = CompartmentLocation(4, 40, 0.9)
-        gid, section_index, offset = loc
-        self.assertEqual(gid, 4)
+        node_id, section_index, offset = loc
+        self.assertEqual(node_id, 4)
         self.assertEqual(section_index, 40)
         self.assertAlmostEqual(offset, 0.9)
 
@@ -98,11 +98,11 @@ class TestCompartmentSet(unittest.TestCase):
 
     def test_getitem(self):
         loc = self.cs[0]
-        self.assertEqual((loc.gid, loc.section_index, loc.offset), (1, 10, 0.5))
+        self.assertEqual((loc.node_id, loc.section_index, loc.offset), (1, 10, 0.5))
 
     def test_getitem_negative_index(self):
         loc = self.cs[-1]
-        self.assertEqual((loc.gid, loc.section_index, loc.offset), (2, 20, 0.25))
+        self.assertEqual((loc.node_id, loc.section_index, loc.offset), (2, 20, 0.25))
 
     def test_getitem_out_of_bounds_raises(self):
         with self.assertRaises(IndexError):
@@ -111,16 +111,16 @@ class TestCompartmentSet(unittest.TestCase):
             _ = self.cs[-10]
 
     def test_iterators(self):
-        gids = [loc.gid for loc in self.cs]
-        self.assertEqual(gids, [1, 2, 3, 2])
-        gids = [loc.gid for loc in self.cs.filtered_iter([2, 3])]
-        self.assertEqual(gids, [2, 3, 2])
+        node_ids = [loc.node_id for loc in self.cs]
+        self.assertEqual(node_ids, [1, 2, 3, 2])
+        node_ids = [loc.node_id for loc in self.cs.filtered_iter([2, 3])]
+        self.assertEqual(node_ids, [2, 3, 2])
         conv_to_list = list(self.cs.filtered_iter([2, 3]))
         self.assertTrue(all(isinstance(i, CompartmentLocation) for i in conv_to_list))
 
-    def test_gids(self):
-        gids = self.cs.gids()
-        self.assertEqual(gids, Selection([1, 2, 3]))
+    def test_node_ids(self):
+        node_ids = self.cs.node_ids()
+        self.assertEqual(node_ids, Selection([1, 2, 3]))
 
     def test_filter_identity(self):
         filtered = self.cs.filter()
