@@ -102,6 +102,58 @@ TEST_CASE("Selection", "[base]") {
         CHECK(Selection({{0, 10}}) == (even | odd));
     }
 
+    SECTION("union") {
+        const auto empty = Selection({});
+        CHECK(empty == (empty | empty));
+
+        // clang-format off
+        //              1         2
+        //    01234567890123456789012345
+        // a = xx   xxxxx   xxxxxxxxxx x
+        // b =  xxxxx  xxxxx  xxxxxxxx x
+        //     xxxxxxxxxxxxxxxxxxxxxxx x
+        // clang-format on
+        const auto a = Selection({{24, 25}, {13, 23}, {5, 10}, {0, 2}});
+        const auto b = Selection({{1, 6}, {8, 13}, {15, 23}, {24, 25}});
+        CHECK(b == (b | empty));  // need to use b since it's sorted
+        CHECK(b == (empty | b));
+
+        const auto expected = Selection({{0, 23}, {24, 25}});
+        CHECK(expected == (a | b));
+        CHECK(expected == (b | a));
+
+        const auto odd = Selection::fromValues({1, 3, 5, 7, 9});
+        const auto even = Selection::fromValues({0, 2, 4, 6, 8});
+        CHECK(Selection({{0, 10}}) == (odd | even));
+        CHECK(Selection({{0, 10}}) == (even | odd));
+    }
+
+    SECTION("contains") {
+        const auto sel = Selection({{2, 5}, {20, 21}, {10, 15}}); // unsorted ranges
+
+        // Inside ranges
+        CHECK(sel.contains(2));
+        CHECK(sel.contains(3));
+        CHECK(sel.contains(4));
+        CHECK(sel.contains(10));
+        CHECK(sel.contains(14));
+        CHECK(sel.contains(20));
+
+        // Outside ranges
+        CHECK_FALSE(sel.contains(1));
+        CHECK_FALSE(sel.contains(5));   // upper bound is exclusive
+        CHECK_FALSE(sel.contains(6));
+        CHECK_FALSE(sel.contains(9));
+        CHECK_FALSE(sel.contains(15));  // upper bound is exclusive
+        CHECK_FALSE(sel.contains(19));
+        CHECK_FALSE(sel.contains(21));  // upper bound is exclusive
+
+        // Edge case: empty selection
+        const auto empty = Selection({});
+        CHECK_FALSE(empty.contains(0));
+        CHECK_FALSE(empty.contains(100));
+    }
+
     /*  need a way to test un-exported stuff
     SECTION("_sortAndMerge") {
         const auto empty = Selection::Ranges({});

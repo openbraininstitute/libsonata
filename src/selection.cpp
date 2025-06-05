@@ -119,12 +119,15 @@ Selection operator|(const Selection& lhs, const Selection& rhs) {
 }
 
 bool Selection::contains(Value node_id) const {
+    Ranges ret;
+    std::copy(ranges_.begin(), ranges_.end(), std::back_inserter(ret));
+    ret = detail::_sortAndMerge(ret);
     auto it =
-        std::lower_bound(ranges_.begin(), ranges_.end(), node_id, [](const Range& range, Value v) {
+        std::lower_bound(ret.begin(), ret.end(), node_id, [](const Range& range, Value v) {
             return range[1] <= v;  // Keep searching if node_id >= end
         });
 
-    return it != ranges_.end() && (*it)[0] <= node_id && node_id < (*it)[1];
+    return it != ret.end() && (*it)[0] <= node_id && node_id < (*it)[1];
 }
 
 }  // namespace sonata
