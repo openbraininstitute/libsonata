@@ -92,10 +92,10 @@ class SONATA_API CompartmentSet
     explicit CompartmentSet(std::shared_ptr<detail::CompartmentSet>&& impl);
 
     std::pair<CompartmentSetFilteredIterator, CompartmentSetFilteredIterator>
-    filtered_crange(bbp::sonata::Selection selection = bbp::sonata::Selection({})) const;
+    filtered_crange(Selection selection = Selection({})) const;
 
     /// Size of the set, optionally filtered by selection
-    std::size_t size(const bbp::sonata::Selection& selection = bbp::sonata::Selection({})) const;
+    std::size_t size(const Selection& selection = Selection({})) const;
 
     // Is empty?
     bool empty() const;
@@ -106,9 +106,9 @@ class SONATA_API CompartmentSet
     /// Access element by index. It returns a copy!
     CompartmentLocation operator[](std::size_t index) const;
 
-    bbp::sonata::Selection nodeIds() const;
+    Selection nodeIds() const;
 
-    CompartmentSet filter(const bbp::sonata::Selection& selection = bbp::sonata::Selection({})) const;
+    CompartmentSet filter(const Selection& selection = Selection({})) const;
 
     /// Serialize to JSON string
     std::string toJSON() const;

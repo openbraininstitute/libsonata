@@ -478,7 +478,7 @@ PYBIND11_MODULE(_libsonata, m) {
         .def(
             "__contains__",
             [](const Selection& sel, uint64_t node_id) { return sel.contains(node_id); },
-            "Check if a node id is contained in the selection")
+            DOC_SEL(nodeId))
         .def(
             "__bool__",
             [](const Selection& obj) { return !obj.empty(); },

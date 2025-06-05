@@ -728,6 +728,8 @@ static const char *__doc_bbp_sonata_Selection_ranges = R"doc(Get a list of range
 
 static const char *__doc_bbp_sonata_Selection_ranges_2 = R"doc()doc";
 
+static const char *__doc_bbp_sonata_Selection_nodeId = R"doc(Check if a node id is contained in the selection)doc";
+
 static const char *__doc_bbp_sonata_SimulationConfig = R"doc(Read access to a SONATA simulation config file.)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_Conditions = R"doc(Parameters defining global experimental conditions.)doc";
