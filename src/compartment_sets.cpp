@@ -434,7 +434,7 @@ CompartmentLocation::CompartmentLocation() = default;
 CompartmentLocation::CompartmentLocation(const int64_t gid,
                                          const int64_t section_index,
                                          const double offset)
-    : impl_(new detail::CompartmentLocation(gid, section_index, offset)) {}
+    : impl_(new detail::CompartmentLocation(gid, section_index, offset)) { }
 CompartmentLocation::CompartmentLocation(const std::string& content)
     : impl_(new detail::CompartmentLocation(content)) {}
 CompartmentLocation::CompartmentLocation(std::unique_ptr<detail::CompartmentLocation>&& impl)

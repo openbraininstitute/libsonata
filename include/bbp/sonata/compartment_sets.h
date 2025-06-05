@@ -12,10 +12,10 @@ class CompartmentSets;
 }  // namespace detail
 /**
  * CompartmentLocation public API.
- * 
+ *
  * This class uniquely identifies a compartment by a set of gid, section_index and offset:
- * 
- * - gid: Global ID of the cell (Neuron) to which the compartment belongs. No 
+ *
+ * - gid: Global ID of the cell (Neuron) to which the compartment belongs. No
  * overlaps among populations.
  * - section_index: Absolute section index. Progressive index that uniquely identifies the section.
  *  There is a mapping between neuron section names (i.e. dend[10]) and this index.
@@ -141,8 +141,8 @@ public:
     CompartmentSets(const CompartmentSets& other) = delete;
     CompartmentSets& operator=(CompartmentSets&&) noexcept;
     ~CompartmentSets();
-    
-    /// Create new CompartmentSets from file. In this way we distinguish from 
+
+    /// Create new CompartmentSets from file. In this way we distinguish from
     /// the basic string constructor.
     static CompartmentSets fromFile(const std::string& path);
 

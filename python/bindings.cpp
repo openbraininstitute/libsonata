@@ -547,11 +547,13 @@ PYBIND11_MODULE(_libsonata, m) {
         .def("materialize", &NodeSets::materialize, DOC_NODESETS(materialize))
         .def("update", &NodeSets::update, "other"_a, DOC_NODESETS(update))
         .def("toJSON", &NodeSets::toJSON, DOC_NODESETS(toJSON));
-    
+
     py::class_<CompartmentLocation>(m, "CompartmentLocation")
         .def(py::init<const std::string&>())
         .def(py::init<const int64_t, const int64_t, const double>(),
-            py::arg("gid"), py::arg("section_index"), py::arg("offset"))
+             py::arg("gid"),
+             py::arg("section_index"),
+             py::arg("offset"))
         .def_property_readonly("gid", &CompartmentLocation::gid, DOC_COMPARTMENTLOCATION(gid))
         .def_property_readonly("section_index",
                                &CompartmentLocation::sectionIndex,
@@ -566,22 +568,18 @@ PYBIND11_MODULE(_libsonata, m) {
              })
         .def("__eq__", &CompartmentLocation::operator==)
         .def("__ne__", &CompartmentLocation::operator!=)
-        .def("__copy__", [](const CompartmentLocation& self) {
-            return CompartmentLocation(self);
-        })
+        .def("__copy__", [](const CompartmentLocation& self) { return CompartmentLocation(self); })
         .def("__deepcopy__",
-            [](const CompartmentLocation& self, py::dict /* memo */) {
-                return CompartmentLocation(self);
-            })
+             [](const CompartmentLocation& self, py::dict /* memo */) {
+                 return CompartmentLocation(self);
+             })
         .def("__repr__",
              [](const CompartmentLocation& self) {
                  return py::str("CompartmentLocation({}, {}, {})")
                      .format(self.gid(), self.sectionIndex(), self.offset());
              })
         .def("__str__",
-             [](const CompartmentLocation& self) {
-                 return py::str(py::repr(py::cast(self)));
-             });
+             [](const CompartmentLocation& self) { return py::str(py::repr(py::cast(self))); });
 
     py::class_<CompartmentSet>(m, "CompartmentSet")
         .def(py::init<const std::string&>())
