@@ -42,13 +42,6 @@ class TestCompartmentLocation(unittest.TestCase):
         self.assertEqual(repr(loc), expected)
         self.assertEqual(str(loc), repr(loc))  # str should delegate to repr
 
-    def test_iterable(self):
-        loc = CompartmentLocation(4, 40, 0.9)
-        node_id, section_index, offset = loc
-        self.assertEqual(node_id, 4)
-        self.assertEqual(section_index, 40)
-        self.assertAlmostEqual(offset, 0.9)
-
     def test_assignment_creates_copy(self):
         loc1 = CompartmentLocation(1, 2, 0.3)
         loc2 = loc1  # This is a reference assignment in Python
@@ -56,20 +49,6 @@ class TestCompartmentLocation(unittest.TestCase):
 
         # Now mutate loc1 and check if loc2 is affected — which it will be, unless toJSON etc. are implemented with deep semantics
         self.assertIs(loc1, loc2)  # They reference the same object
-
-    def test_explicit_copy(self):
-        import copy
-        loc1 = CompartmentLocation(1, 2, 0.3)
-        loc2 = copy.copy(loc1)
-        self.assertEqual(loc1, loc2)
-        self.assertIsNot(loc1, loc2)  # Ensure they’re distinct objects
-
-    def test_deepcopy(self):
-        import copy
-        loc1 = CompartmentLocation(1, 2, 0.3)
-        loc2 = copy.deepcopy(loc1)
-        self.assertEqual(loc1, loc2)
-        self.assertIsNot(loc1, loc2)
 
 class TestCompartmentSet(unittest.TestCase):
     def setUp(self):
@@ -131,9 +110,7 @@ class TestCompartmentSet(unittest.TestCase):
     def test_toJSON_roundtrip(self):
         json_out = self.cs.toJSON()
         cs2 = CompartmentSet(json_out)
-        self.assertEqual(len(cs2), 4)
-        self.assertEqual(cs2.population, self.cs.population)
-        self.assertEqual([tuple(loc) for loc in cs2], [tuple(loc) for loc in self.cs])
+        self.assertEqual(cs2, self.cs)
     
     def test_equality(self):
         cs1 = CompartmentSet(self.json)

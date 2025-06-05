@@ -564,17 +564,8 @@ PYBIND11_MODULE(_libsonata, m) {
                                &CompartmentLocation::offset,
                                DOC_COMPARTMENTLOCATION(offset))
         .def("toJSON", &CompartmentLocation::toJSON, DOC_COMPARTMENTLOCATION(toJSON))
-        .def("__iter__",
-             [](const CompartmentLocation& self) {
-                 return py::iter(py::make_tuple(self.nodeId(), self.sectionIndex(), self.offset()));
-             })
         .def("__eq__", &CompartmentLocation::operator==)
         .def("__ne__", &CompartmentLocation::operator!=)
-        .def("__copy__", [](const CompartmentLocation& self) { return CompartmentLocation(self); })
-        .def("__deepcopy__",
-             [](const CompartmentLocation& self, py::dict /* memo */) {
-                 return CompartmentLocation(self);
-             })
         .def("__repr__",
              [](const CompartmentLocation& self) {
                  return fmt::format("CompartmentLocation({}, {}, {})",
