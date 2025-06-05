@@ -654,7 +654,10 @@ PYBIND11_MODULE(_libsonata, m) {
         .def("__eq__", &CompartmentSets::operator==)
         .def("__ne__", &CompartmentSets::operator!=)
         .def("__len__", &CompartmentSets::size)
-        .def("__getitem__", &CompartmentSets::getCompartmentSet, py::arg("key"), DOC_COMPARTMENTSET(getitem))
+        .def("__getitem__",
+             &CompartmentSets::getCompartmentSet,
+             py::arg("key"),
+             DOC_COMPARTMENTSET(getitem))
         .def("__repr__",
              [](const CompartmentSets& self) {
                  auto items = self.items();
