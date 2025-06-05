@@ -655,7 +655,7 @@ PYBIND11_MODULE(_libsonata, m) {
              &CompartmentSets::contains,
              py::arg("key"),
              DOC_COMPARTMENTSETS(contains))
-        .def("keys", &CompartmentSets::keys)
+        .def("names", &CompartmentSets::names)
         .def("values", &CompartmentSets::values)
         .def("items", &CompartmentSets::items)
         .def("toJSON", &CompartmentSets::toJSON, DOC_COMPARTMENTSETS(toJSON))

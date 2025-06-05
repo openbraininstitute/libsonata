@@ -174,20 +174,20 @@ class TestCompartmentSets(unittest.TestCase):
 
 
     def test_contains(self):
-        keys = self.cs.keys()
+        keys = self.cs.names()
         for key in keys:
             self.assertIn(key, self.cs)
         self.assertNotIn('non_existing_key', self.cs)
 
     def test_getitem(self):
-        keys = self.cs.keys()
+        keys = self.cs.names()
         if keys:
             key = keys[0]
             val = self.cs[key]
             self.assertIsInstance(val, CompartmentSet)
 
     def test_keys_values_items(self):
-        keys = self.cs.keys()
+        keys = self.cs.names()
         values = self.cs.values()
         items = self.cs.items()
         self.assertEqual(len(keys), len(values))
@@ -228,5 +228,5 @@ class TestCompartmentSets(unittest.TestCase):
         self.assertTrue(r.startswith("CompartmentSets({"))
         self.assertEqual(s, r)  # str delegates to repr
         # repr should contain keys from the dict
-        for key in self.cs.keys():
+        for key in self.cs.names():
             self.assertIn(str(key), r)

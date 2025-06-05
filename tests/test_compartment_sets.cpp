@@ -288,8 +288,8 @@ TEST_CASE("CompartmentSets public API") {
         CHECK(sets.size() == 2);
         CHECK_FALSE(sets.empty());
 
-        auto keys = sets.keys();
-        REQUIRE(sets.keys() == std::vector<std::string>{"cs0", "cs1"});
+        auto keys = sets.names();
+        REQUIRE(sets.names() == std::vector<std::string>{"cs0", "cs1"});
 
         CHECK(sets.contains("cs0"));
         CHECK(sets.contains("cs1"));
@@ -370,7 +370,7 @@ TEST_CASE("CompartmentSets public API") {
 
     SECTION("Keys returns correct vector") {
         CompartmentSets sets(json);
-        auto keys = sets.keys();
+        auto keys = sets.names();
         CHECK(keys == std::vector<std::string>{"cs0", "cs1"});
     }
 

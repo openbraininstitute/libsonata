@@ -158,8 +158,8 @@ public:
     /// Check if key exists
     bool contains(const std::string& key) const;
 
-    /// Get keys as a vector (use vector here)
-    std::vector<std::string> keys() const;
+    /// Get names of CompartmentSet(s) as a vector
+    std::vector<std::string> names() const;
 
     /// Get all compartment sets as vector
     std::vector<CompartmentSet> values() const;

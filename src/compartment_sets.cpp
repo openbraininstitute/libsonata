@@ -363,7 +363,7 @@ public:
         return data_.empty();
     }
 
-    std::vector<std::string> keys() const {
+    std::vector<std::string> names() const {
         std::vector<std::string> result;
         result.reserve(data_.size());
         std::transform(data_.begin(), data_.end(), std::back_inserter(result),
@@ -622,8 +622,8 @@ bool CompartmentSets::contains(const std::string& key) const {
 }
 
 // Get keys as set or vector (use vector here)
-std::vector<std::string> CompartmentSets::keys() const {
-    return impl_->keys();
+std::vector<std::string> CompartmentSets::names() const {
+    return impl_->names();
 }
 
 // Get all compartment sets as vector
