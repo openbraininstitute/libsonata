@@ -292,10 +292,10 @@ TEST_CASE("CompartmentSets public API") {
         CHECK(sets.contains("cs0"));
         CHECK(sets.contains("cs1"));
 
-        const auto& cs0 = sets.at("cs0");
+        const auto& cs0 = sets.getCompartmentSet("cs0");
         CHECK(cs0.empty());
 
-        const auto& cs1 = sets.at("cs1");
+        const auto& cs1 = sets.getCompartmentSet("cs1");
         CHECK_FALSE(cs1.empty());
     }
 
@@ -354,7 +354,7 @@ TEST_CASE("CompartmentSets public API") {
 
     SECTION("Throws on missing key") {
         auto sets = CompartmentSets::fromFile("./data/compartment_sets.json");
-        CHECK_THROWS_AS(sets.at("not_there"), std::out_of_range);
+        CHECK_THROWS_AS(sets.getCompartmentSet("not_there"), std::out_of_range);
     }
 
     SECTION("JSON serialization round-trip") {
@@ -372,9 +372,9 @@ TEST_CASE("CompartmentSets public API") {
         CHECK(keys == std::vector<std::string>{"cs0", "cs1"});
     }
 
-    SECTION("Values returns vector of CompartmentSet") {
+    SECTION("GetAllCompartmentSets returns vector of CompartmentSet") {
         CompartmentSets sets(json);
-        CHECK(sets.values() == std::vector<CompartmentSet>{cs0, cs1});
+        CHECK(sets.getAllCompartmentSets() == std::vector<CompartmentSet>{cs0, cs1});
     }
 
     SECTION("Items returns vector of pairs (key, CompartmentSet)") {

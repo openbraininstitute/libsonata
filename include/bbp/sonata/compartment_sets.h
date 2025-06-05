@@ -175,7 +175,7 @@ public:
     static CompartmentSets fromFile(const std::string& path);
 
     /// Access element by key (throws if not found)
-    CompartmentSet at(const std::string& key) const;
+    CompartmentSet getCompartmentSet(const std::string& key) const;
 
     /// Number of compartment sets
     std::size_t size() const;
@@ -190,7 +190,7 @@ public:
     std::vector<std::string> names() const;
 
     /// Get all compartment sets as vector
-    std::vector<CompartmentSet> values() const;
+    std::vector<CompartmentSet> getAllCompartmentSets() const;
 
     /// Get items (key + compartment set) as vector of pairs
     std::vector<std::pair<std::string, CompartmentSet>> items() const;

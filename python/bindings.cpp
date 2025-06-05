@@ -643,19 +643,18 @@ PYBIND11_MODULE(_libsonata, m) {
     py::class_<CompartmentSets>(m, "CompartmentSets")
         .def(py::init<const std::string&>())
         .def_static("fromFile", &CompartmentSets::fromFile, py::arg("path"))
-        .def("at", &CompartmentSets::at, py::arg("key"))
         .def("__contains__",
              &CompartmentSets::contains,
              py::arg("key"),
              DOC_COMPARTMENTSETS(contains))
         .def("names", &CompartmentSets::names)
-        .def("values", &CompartmentSets::values)
+        .def("values", &CompartmentSets::getAllCompartmentSets)
         .def("items", &CompartmentSets::items)
         .def("toJSON", &CompartmentSets::toJSON, DOC_COMPARTMENTSETS(toJSON))
         .def("__eq__", &CompartmentSets::operator==)
         .def("__ne__", &CompartmentSets::operator!=)
         .def("__len__", &CompartmentSets::size)
-        .def("__getitem__", &CompartmentSets::at, py::arg("key"), DOC_COMPARTMENTSET(getitem))
+        .def("__getitem__", &CompartmentSets::getCompartmentSet, py::arg("key"), DOC_COMPARTMENTSET(getitem))
         .def("__repr__",
              [](const CompartmentSets& self) {
                  auto items = self.items();

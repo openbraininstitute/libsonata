@@ -259,7 +259,7 @@ public:
         : CompartmentSets(json::parse(content)) {}
 
 
-    std::shared_ptr<detail::CompartmentSet> at(const std::string& key) const {
+    std::shared_ptr<detail::CompartmentSet> getCompartmentSet(const std::string& key) const {
         return data_.at(key);
     }
 
@@ -283,7 +283,7 @@ public:
         return result;
     }
 
-    std::vector<std::shared_ptr<detail::CompartmentSet>> values() const {
+    std::vector<std::shared_ptr<detail::CompartmentSet>> getAllCompartmentSets() const {
         std::vector<std::shared_ptr<detail::CompartmentSet>> result;
         result.reserve(data_.size());
         std::transform(data_.begin(), data_.end(), std::back_inserter(result),
@@ -509,8 +509,8 @@ CompartmentSets CompartmentSets::fromFile(const std::string& path) {
     return detail::CompartmentSets::fromFile(path);
 }
 
-CompartmentSet CompartmentSets::at(const std::string& key) const {
-    return CompartmentSet(impl_->at(key));
+CompartmentSet CompartmentSets::getCompartmentSet(const std::string& key) const {
+    return CompartmentSet(impl_->getCompartmentSet(key));
 }
 
 // Number of compartment sets
@@ -534,8 +534,8 @@ std::vector<std::string> CompartmentSets::names() const {
 }
 
 // Get all compartment sets as vector
-std::vector<CompartmentSet> CompartmentSets::values() const {
-    const auto vals = impl_->values();
+std::vector<CompartmentSet> CompartmentSets::getAllCompartmentSets() const {
+    const auto vals = impl_->getAllCompartmentSets();
     std::vector<CompartmentSet> result;
     result.reserve(vals.size());
     std::transform(vals.begin(), vals.end(), std::back_inserter(result),
