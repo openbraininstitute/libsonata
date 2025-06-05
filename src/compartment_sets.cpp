@@ -16,102 +16,14 @@ namespace detail {
 
 using json = nlohmann::json;
 
-
-class CompartmentLocation
-{
-    private:
-      std::uint64_t node_id_;
-      std::uint64_t section_index_;
-      double offset_;
-
-      void setNodeId(int64_t node_id) {
-          if (node_id < 0) {
-              throw SonataError(fmt::format("Node id must be non-negative, got {}", node_id));
-          }
-          node_id_ = static_cast<uint64_t>(node_id);
-      }
-        void setSectionIndex(int64_t section_index) {
-            if (section_index < 0) {
-                throw SonataError(
-                    fmt::format("Section index must be non-negative, got {}", section_index));
-            }
-            section_index_ = static_cast<uint64_t>(section_index);
-        }
-        void setOffset(double offset) {
-            if (offset < 0.0 || offset > 1.0) {
-                throw SonataError(
-                    fmt::format("Offset must be between 0 and 1 inclusive, got {}", offset));
-            }
-            offset_ = offset;
-        }
-
-      public:
-        CompartmentLocation(const CompartmentLocation& other) = default;
-        CompartmentLocation(CompartmentLocation&&) noexcept = default;
-        CompartmentLocation& operator=(CompartmentLocation&&) noexcept = default;
-        CompartmentLocation(int64_t node_id, int64_t section_index, double offset) {
-            setNodeId(node_id);
-            setSectionIndex(section_index);
-            setOffset(offset);
-        }
-
-    CompartmentLocation(const std::string& content)
-        : CompartmentLocation(json::parse(content)) {}
-
-    CompartmentLocation(const nlohmann::json& j) {
-        if (!j.is_array() || j.size() != 3) {
-            throw SonataError(
-                "CompartmentLocation must be an array of exactly 3 elements: [node_id, "
-                "section_index, "
-                "offset]");
-        }
-
-        setNodeId(get_int64_or_throw(j[0]));
-        setSectionIndex(get_int64_or_throw(j[1]));
-
-        if (!j[2].is_number()) {
-            throw SonataError("Fourth element (offset) must be a number");
-        }
-        setOffset(j[2].get<double>());
-    }
-
-    uint64_t nodeId() const {
-        return node_id_;
-    }
-
-    uint64_t sectionIndex() const {
-        return section_index_;
-    }
-
-    double offset() const {
-        return offset_;
-    }
-
-    nlohmann::json to_json() const {
-        return nlohmann::json::array({node_id_, section_index_, offset_});
-    }
-
-    bool operator==(const CompartmentLocation& other) const {
-        return node_id_ == other.node_id_ && section_index_ == other.section_index_ &&
-               offset_ == other.offset_;
-    }
-    bool operator!=(const CompartmentLocation& other) const {
-        return !(*this == other);
-    }
-
-    std::unique_ptr<detail::CompartmentLocation> clone() const {
-        return std::unique_ptr<detail::CompartmentLocation>(new CompartmentLocation(*this));
-    }
-};
-
 class CompartmentSetFilteredIterator {
 public:
     using base_iterator = std::vector<CompartmentLocation>::const_iterator;
-    using value_type = detail::CompartmentLocation;
+    using value_type = CompartmentLocation;
     using reference = const value_type&;
     using pointer = const value_type*;
     using difference_type = std::ptrdiff_t;
-    using iterator_category = std::input_iterator_tag;
+    using iterator_category = std::forward_iterator_tag;
 private:
     base_iterator current_;
     base_iterator end_;
@@ -134,6 +46,8 @@ public:
         : current_(current), end_(end), selection_(std::move(selection)) {
         skip_to_valid();
     }
+    CompartmentSetFilteredIterator(base_iterator end)
+    : current_(end), end_(end), selection_({}) /* empty selection */ {}
 
     reference operator*() const {
         return *current_;
@@ -224,9 +138,7 @@ public:
         CompartmentSetFilteredIterator begin_it(compartment_locations_.cbegin(),
                                 compartment_locations_.cend(),
                                 selection);
-        CompartmentSetFilteredIterator end_it(compartment_locations_.cend(),
-                                compartment_locations_.cend(),
-                                std::move(selection));
+        CompartmentSetFilteredIterator end_it(compartment_locations_.cend());
         return {begin_it, end_it};
     }
 
@@ -247,8 +159,8 @@ public:
         return compartment_locations_.empty();
     }
 
-    std::unique_ptr<CompartmentLocation> operator[](std::size_t index) const {
-        return compartment_locations_.at(index).clone();
+    const CompartmentLocation& operator[](std::size_t index) const {
+        return compartment_locations_.at(index);
     }
 
     Selection nodeIds() const {
@@ -428,50 +340,43 @@ public:
 }  // namespace detail
 
 // CompartmentLocation public API
-CompartmentLocation::CompartmentLocation() = default;
-CompartmentLocation::CompartmentLocation(const int64_t node_id,
-                                         const int64_t section_index,
-                                         const double offset)
-    : impl_(new detail::CompartmentLocation(node_id, section_index, offset)) { }
-CompartmentLocation::CompartmentLocation(const std::string& content)
-    : impl_(new detail::CompartmentLocation(content)) {}
-CompartmentLocation::CompartmentLocation(std::unique_ptr<detail::CompartmentLocation>&& impl)
-    : impl_(std::move(impl)) {}
 
-CompartmentLocation::CompartmentLocation(const CompartmentLocation& other) : impl_(other.impl_->clone()){}
-CompartmentLocation& CompartmentLocation::operator=(const CompartmentLocation& other) {
-    if (this != &other) {
-        auto tmp = other.impl_->clone();  // create copy first, if it throws impl is not assigned
-        impl_ = std::move(tmp);           // then assign
+CompartmentLocation::CompartmentLocation(const nlohmann::json& j) {
+        if (!j.is_array() || j.size() != 3) {
+            throw SonataError(
+                "CompartmentLocation must be an array of exactly 3 elements: [node_id, "
+                "section_index, "
+                "offset]");
+        }
+
+        setNodeId(get_int64_or_throw(j[0]));
+        setSectionIndex(get_int64_or_throw(j[1]));
+
+        if (!j[2].is_number()) {
+            throw SonataError("Offset (third element) must be a number");
+        }
+        setOffset(j[2].get<double>());
     }
-    return *this;
-}
-CompartmentLocation::CompartmentLocation(CompartmentLocation&&) noexcept = default;
-CompartmentLocation& CompartmentLocation::operator=(CompartmentLocation&&) noexcept = default;
-CompartmentLocation::~CompartmentLocation() = default;
 
-bool CompartmentLocation::operator==(const CompartmentLocation& other) const noexcept {
-    return *impl_ == *(other.impl_);
+void CompartmentLocation::setNodeId(int64_t node_id) {
+    if (node_id < 0) {
+        throw SonataError(fmt::format("Node id must be non-negative, got {}", node_id));
+    }
+    node_id_ = static_cast<uint64_t>(node_id);
 }
-
-bool CompartmentLocation::operator!=(const CompartmentLocation& other) const noexcept {
-    return *impl_ != *(other.impl_);
+void CompartmentLocation::setSectionIndex(int64_t section_index) {
+    if (section_index < 0) {
+        throw SonataError(
+            fmt::format("Section index must be non-negative, got {}", section_index));
+    }
+    section_index_ = static_cast<uint64_t>(section_index);
 }
-
-uint64_t CompartmentLocation::nodeId() const {
-    return impl_->nodeId();
-}
-
-uint64_t CompartmentLocation::sectionIndex() const {
-    return impl_->sectionIndex();
-}
-
-double CompartmentLocation::offset() const {
-    return impl_->offset();
-}
-
-std::string CompartmentLocation::toJSON() const {
-    return impl_->to_json().dump();
+void CompartmentLocation::setOffset(double offset) {
+    if (offset < 0.0 || offset > 1.0) {
+        throw SonataError(
+            fmt::format("Offset must be between 0 and 1 inclusive, got {}", offset));
+    }
+    offset_ = offset;
 }
 
 // CompartmentSetFilteredIterator public API
@@ -501,8 +406,12 @@ CompartmentSetFilteredIterator& CompartmentSetFilteredIterator::operator=(Compar
 
 CompartmentSetFilteredIterator::~CompartmentSetFilteredIterator() = default;
 
-CompartmentLocation CompartmentSetFilteredIterator::operator*() const {
-    return CompartmentLocation(impl_->operator*().clone());
+const CompartmentLocation& CompartmentSetFilteredIterator::operator*() const {
+    return impl_->operator*();
+}
+
+const CompartmentLocation* CompartmentSetFilteredIterator::operator->() const {
+    return impl_->operator->();
 }
 
 CompartmentSetFilteredIterator& CompartmentSetFilteredIterator::operator++() {

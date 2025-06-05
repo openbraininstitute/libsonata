@@ -17,4 +17,5 @@ target_link_libraries(sonata_python
     PRIVATE HighFive
     PRIVATE fmt::fmt-header-only
     PRIVATE pybind11::module
+    PRIVATE nlohmann_json::nlohmann_json
 )

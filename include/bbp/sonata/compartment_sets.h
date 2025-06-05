@@ -2,10 +2,11 @@
 
 #include <bbp/sonata/nodes.h>
 
+#include <nlohmann/json.hpp>
+
 namespace bbp {
 namespace sonata {
 namespace detail {
-class CompartmentLocation;
 class CompartmentSetFilteredIterator;
 class CompartmentSet;
 class CompartmentSets;
@@ -23,37 +24,57 @@ class CompartmentSets;
  */
 class SONATA_API CompartmentLocation
 {
-  public:
-    CompartmentLocation();
-    CompartmentLocation(const int64_t node_id, const int64_t section_index, const double offset);
-    explicit CompartmentLocation(const std::string& content);
-    explicit CompartmentLocation(std::unique_ptr<detail::CompartmentLocation>&& impl);
-    CompartmentLocation(const CompartmentLocation& other);
-    CompartmentLocation& operator=(const CompartmentLocation& other);
-    CompartmentLocation(CompartmentLocation&&) noexcept;
-    CompartmentLocation& operator=(CompartmentLocation&&) noexcept;
-    ~CompartmentLocation();
+private:
+    uint64_t node_id_ = 0;
+    uint64_t section_index_ = 0;
+    double offset_ = 0.0;
 
-    bool operator==(const CompartmentLocation& other) const noexcept;
-    bool operator!=(const CompartmentLocation& other) const noexcept;
+    void setNodeId(int64_t node_id);
+    void setSectionIndex(int64_t section_index);
+    void setOffset(double offset);
 
-    uint64_t nodeId() const;
-    uint64_t sectionIndex() const;
-    double offset() const;
+public:
+    explicit CompartmentLocation(int64_t node_id, int64_t section_index, double offset) {
+        setNodeId(node_id);
+        setSectionIndex(section_index);
+        setOffset(offset);
+    }
+    explicit CompartmentLocation(const nlohmann::json& j);
+    explicit CompartmentLocation(const std::string& content) : CompartmentLocation(nlohmann::json::parse(content)) {}
+    explicit CompartmentLocation(const char* content) : CompartmentLocation(std::string(content)) {}
 
-    std::string toJSON() const;
+    bool operator==(const CompartmentLocation& other) const noexcept {
+        return node_id_ == other.node_id_ &&
+              section_index_ == other.section_index_ &&
+              offset_ == other.offset_;
+    }
 
-  private:
-    std::unique_ptr<detail::CompartmentLocation> impl_;
+    bool operator!=(const CompartmentLocation& other) const noexcept {
+        return !(*this == other);
+    }
+
+    uint64_t nodeId() const { return node_id_; }
+    uint64_t sectionIndex() const { return section_index_; }
+    double offset() const { return offset_; }
+
+    /// Convenience function to transform the class in a json object
+    nlohmann::json to_json() const {
+        return nlohmann::json::array({node_id_, section_index_, offset_});
+    }
+
+    /// Convenience function to transform the class in a json-formatted string
+    std::string toJSON() const {
+        return to_json().dump();
+    }
 };
 
 class SONATA_API CompartmentSetFilteredIterator {
 public:
-    using iterator_category = std::input_iterator_tag;
+    using iterator_category = std::forward_iterator_tag;
     using value_type = CompartmentLocation;
     using difference_type = std::ptrdiff_t;
-    using pointer = void;                // dereference returns by value
-    using reference = CompartmentLocation; // dereference returns by value
+    using pointer = const CompartmentLocation*;
+    using reference = const CompartmentLocation&;
 
     explicit CompartmentSetFilteredIterator(std::unique_ptr<detail::CompartmentSetFilteredIterator> impl);
     CompartmentSetFilteredIterator(const CompartmentSetFilteredIterator& other);
@@ -62,10 +83,9 @@ public:
     CompartmentSetFilteredIterator& operator=(CompartmentSetFilteredIterator&&) noexcept;
     ~CompartmentSetFilteredIterator();
 
-    /// Dereference operator. It makes a copy!
-    CompartmentLocation operator*() const;
-    /// Arrow operator is voluntarely disabled because we can only return copies of CompartmentLocation.
-    /// In any way we need to find a location to store a temp CompartmentLocation and memory leaks become possible.
+    const CompartmentLocation& operator*() const;
+    const CompartmentLocation* operator->() const;
+
     CompartmentSetFilteredIterator& operator++();            // prefix ++
     CompartmentSetFilteredIterator operator++(int);          // postfix ++
     bool operator==(const CompartmentSetFilteredIterator& other) const;
