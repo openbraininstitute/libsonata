@@ -576,10 +576,10 @@ PYBIND11_MODULE(_libsonata, m) {
                  return CompartmentLocation(self);
              })
         .def("__repr__",
-             [](const CompartmentLocation& self) {
-                 return py::str("CompartmentLocation({}, {}, {})")
-                     .format(self.nodeId(), self.sectionIndex(), self.offset());
-             })
+            [](const CompartmentLocation& self) {
+                return fmt::format("CompartmentLocation({}, {}, {})",
+                                    self.nodeId(), self.sectionIndex(), self.offset());
+            })
         .def("__str__",
              [](const CompartmentLocation& self) { return py::str(py::repr(py::cast(self))); });
 
