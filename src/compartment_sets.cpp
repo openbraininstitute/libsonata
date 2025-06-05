@@ -24,7 +24,8 @@ public:
     using pointer = const value_type*;
     using difference_type = std::ptrdiff_t;
     using iterator_category = std::forward_iterator_tag;
-private:
+
+  private:
     base_iterator current_;
     base_iterator end_;
     bbp::sonata::Selection selection_; // copied
@@ -47,7 +48,9 @@ public:
         skip_to_valid();
     }
     CompartmentSetFilteredIterator(base_iterator end)
-    : current_(end), end_(end), selection_({}) /* empty selection */ {}
+        : current_(end)
+        , end_(end)
+        , selection_({}) /* empty selection */ { }
 
     reference operator*() const {
         return *current_;
@@ -342,21 +345,21 @@ public:
 // CompartmentLocation public API
 
 CompartmentLocation::CompartmentLocation(const nlohmann::json& j) {
-        if (!j.is_array() || j.size() != 3) {
-            throw SonataError(
-                "CompartmentLocation must be an array of exactly 3 elements: [node_id, "
-                "section_index, "
-                "offset]");
-        }
-
-        setNodeId(get_int64_or_throw(j[0]));
-        setSectionIndex(get_int64_or_throw(j[1]));
-
-        if (!j[2].is_number()) {
-            throw SonataError("Offset (third element) must be a number");
-        }
-        setOffset(j[2].get<double>());
+    if (!j.is_array() || j.size() != 3) {
+        throw SonataError(
+            "CompartmentLocation must be an array of exactly 3 elements: [node_id, "
+            "section_index, "
+            "offset]");
     }
+
+    setNodeId(get_int64_or_throw(j[0]));
+    setSectionIndex(get_int64_or_throw(j[1]));
+
+    if (!j[2].is_number()) {
+        throw SonataError("Offset (third element) must be a number");
+    }
+    setOffset(j[2].get<double>());
+}
 
 void CompartmentLocation::setNodeId(int64_t node_id) {
     if (node_id < 0) {
@@ -366,15 +369,13 @@ void CompartmentLocation::setNodeId(int64_t node_id) {
 }
 void CompartmentLocation::setSectionIndex(int64_t section_index) {
     if (section_index < 0) {
-        throw SonataError(
-            fmt::format("Section index must be non-negative, got {}", section_index));
+        throw SonataError(fmt::format("Section index must be non-negative, got {}", section_index));
     }
     section_index_ = static_cast<uint64_t>(section_index);
 }
 void CompartmentLocation::setOffset(double offset) {
     if (offset < 0.0 || offset > 1.0) {
-        throw SonataError(
-            fmt::format("Offset must be between 0 and 1 inclusive, got {}", offset));
+        throw SonataError(fmt::format("Offset must be between 0 and 1 inclusive, got {}", offset));
     }
     offset_ = offset;
 }
