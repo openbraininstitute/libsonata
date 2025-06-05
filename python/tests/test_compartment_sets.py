@@ -16,13 +16,13 @@ class TestCompartmentLocation(unittest.TestCase):
     def test_constructor_from_values(self):
         loc = CompartmentLocation(4, 40, 0.9)
         self.assertEqual(loc.gid, 4)
-        self.assertEqual(loc.section_idx, 40)
+        self.assertEqual(loc.section_index, 40)
         self.assertAlmostEqual(loc.offset, 0.9)
 
     def test_constructor_from_string(self):
         loc = CompartmentLocation("[4, 40, 0.9]")
         self.assertEqual(loc.gid, 4)
-        self.assertEqual(loc.section_idx, 40)
+        self.assertEqual(loc.section_index, 40)
         self.assertAlmostEqual(loc.offset, 0.9)
 
     def test_toJSON(self):
@@ -44,9 +44,9 @@ class TestCompartmentLocation(unittest.TestCase):
 
     def test_iterable(self):
         loc = CompartmentLocation(4, 40, 0.9)
-        gid, section_idx, offset = loc
+        gid, section_index, offset = loc
         self.assertEqual(gid, 4)
-        self.assertEqual(section_idx, 40)
+        self.assertEqual(section_index, 40)
         self.assertAlmostEqual(offset, 0.9)
 
     def test_assignment_creates_copy(self):
@@ -98,11 +98,11 @@ class TestCompartmentSet(unittest.TestCase):
 
     def test_getitem(self):
         loc = self.cs[0]
-        self.assertEqual((loc.gid, loc.section_idx, loc.offset), (1, 10, 0.5))
+        self.assertEqual((loc.gid, loc.section_index, loc.offset), (1, 10, 0.5))
 
     def test_getitem_negative_index(self):
         loc = self.cs[-1]
-        self.assertEqual((loc.gid, loc.section_idx, loc.offset), (2, 20, 0.25))
+        self.assertEqual((loc.gid, loc.section_index, loc.offset), (2, 20, 0.25))
 
     def test_getitem_out_of_bounds_raises(self):
         with self.assertRaises(IndexError):

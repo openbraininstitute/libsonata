@@ -13,11 +13,11 @@ class CompartmentSets;
 /**
  * CompartmentLocation public API.
  * 
- * This class uniquely identifies a compartment by a set of gid, section_idx and offset:
+ * This class uniquely identifies a compartment by a set of gid, section_index and offset:
  * 
  * - gid: Global ID of the cell (Neuron) to which the compartment belongs. No 
  * overlaps among populations.
- * - section_idx: Absolute section index. Progressive index that uniquely identifies the section.
+ * - section_index: Absolute section index. Progressive index that uniquely identifies the section.
  *  There is a mapping between neuron section names (i.e. dend[10]) and this index.
  * - offset: Offset of the compartment along the section. The offset is a value between 0 and 1
  */
@@ -25,7 +25,7 @@ class SONATA_API CompartmentLocation
 {
   public:
     CompartmentLocation();
-    CompartmentLocation(const int64_t gid, const int64_t section_idx, const double offset);
+    CompartmentLocation(const int64_t gid, const int64_t section_index, const double offset);
     explicit CompartmentLocation(const std::string& content);
     explicit CompartmentLocation(std::unique_ptr<detail::CompartmentLocation>&& impl);
     CompartmentLocation(const CompartmentLocation& other);
@@ -38,7 +38,7 @@ class SONATA_API CompartmentLocation
     bool operator!=(const CompartmentLocation& other) const noexcept;
 
     uint64_t gid() const;
-    uint64_t sectionIdx() const;
+    uint64_t sectionIndex() const;
     double offset() const;
 
     std::string toJSON() const;
@@ -79,7 +79,7 @@ private:
  * CompartmentSet public API.
  *
  * This class represents a set of compartment locations associated with a neuron population.
- * Each compartment is uniquely defined by a (gid, section_idx, offset) triplet.
+ * Each compartment is uniquely defined by a (gid, section_index, offset) triplet.
  * This API supports filtering based on a gid selection.
  */
 class SONATA_API CompartmentSet
@@ -120,6 +120,16 @@ class SONATA_API CompartmentSet
     std::shared_ptr<detail::CompartmentSet> impl_;
 };
 
+/**
+ * @class CompartmentSets
+ * @brief A container class that manages a collection of named CompartmentSet objects.
+ *
+ * This class provides methods for accessing, querying, and serializing a collection of
+ * compartment sets identified by string keys. It supports construction from a JSON string
+ * or a file, and encapsulates its internal implementation using the PIMPL idiom.
+ *
+ * The class is non-copyable but movable, and offers value-style accessors for ease of use.
+ */
 class SONATA_API CompartmentSets
 {
 public:
@@ -132,30 +142,32 @@ public:
     CompartmentSets& operator=(CompartmentSets&&) noexcept;
     ~CompartmentSets();
     
+    /// Create new CompartmentSets from file. In this way we distinguish from 
+    /// the basic string constructor.
     static CompartmentSets fromFile(const std::string& path);
 
-    // Access element by key (throws if not found)
+    /// Access element by key (throws if not found)
     CompartmentSet at(const std::string& key) const;
 
-    // Number of compartment sets
+    /// Number of compartment sets
     std::size_t size() const;
 
-    // Is empty?
+    /// Is empty?
     bool empty() const;
 
-    // Check if key exists
+    /// Check if key exists
     bool contains(const std::string& key) const;
 
-    // Get keys as set or vector (use vector here)
+    /// Get keys as a vector (use vector here)
     std::vector<std::string> keys() const;
 
-    // Get all compartment sets as vector
+    /// Get all compartment sets as vector
     std::vector<CompartmentSet> values() const;
 
-    // Get items (key + compartment set) as vector of pairs
+    /// Get items (key + compartment set) as vector of pairs
     std::vector<std::pair<std::string, CompartmentSet>> items() const;
 
-    // Serialize all compartment sets to JSON string
+    /// Serialize all compartment sets to JSON string
     std::string toJSON() const;
 
     bool operator==(const CompartmentSets& other) const;

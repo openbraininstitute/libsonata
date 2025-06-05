@@ -383,7 +383,7 @@ static const char *__doc_bbp_sonata_NodeSets_toJSON = R"doc(Return the nodesets 
 
 static const char *__doc_bbp_sonata_CompartmentLocation_gid = R"doc(GID)doc";
 
-static const char *__doc_bbp_sonata_CompartmentLocation_sectionIdx = R"doc(Absolute section index. Progressive index that uniquely identifies the section. There is a mapping between neuron section names (i.e. dend[10]) and this index.)doc";
+static const char *__doc_bbp_sonata_CompartmentLocation_sectionIndex = R"doc(Absolute section index. Progressive index that uniquely identifies the section. There is a mapping between neuron section names (i.e. dend[10]) and this index.)doc";
 
 static const char *__doc_bbp_sonata_CompartmentLocation_offset = R"doc(Offset of the compartment along the section)doc";
 

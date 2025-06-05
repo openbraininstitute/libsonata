@@ -21,7 +21,7 @@ class CompartmentLocation
 {
     private:
         std::uint64_t gid_;
-        std::uint64_t section_idx_;
+        std::uint64_t section_index_;
         double offset_;
 
         void setGid(int64_t gid) {
@@ -30,12 +30,12 @@ class CompartmentLocation
             }
             gid_ = static_cast<uint64_t>(gid);
         }
-        void setSectionIdx(int64_t section_idx) {
-            if (section_idx < 0) {
+        void setSectionIndex(int64_t section_index) {
+            if (section_index < 0) {
                 throw SonataError(
-                    fmt::format("Section index must be non-negative, got {}", section_idx));
+                    fmt::format("Section index must be non-negative, got {}", section_index));
             }
-            section_idx_ = static_cast<uint64_t>(section_idx);
+            section_index_ = static_cast<uint64_t>(section_index);
         }
         void setOffset(double offset) {
             if (offset < 0.0 || offset > 1.0) {
@@ -52,9 +52,9 @@ class CompartmentLocation
     CompartmentLocation(const CompartmentLocation& other) = default;
     CompartmentLocation(CompartmentLocation&&) noexcept = default;
     CompartmentLocation& operator=(CompartmentLocation&&) noexcept = default;
-    CompartmentLocation(int64_t gid, int64_t section_idx, double offset) {
+    CompartmentLocation(int64_t gid, int64_t section_index, double offset) {
         setGid(gid);
-        setSectionIdx(section_idx);
+        setSectionIndex(section_index);
         setOffset(offset);
     }
 
@@ -64,12 +64,12 @@ class CompartmentLocation
     CompartmentLocation(const nlohmann::json& j) {
         if (!j.is_array() || j.size() != 3) {
             throw SonataError(
-                "CompartmentLocation must be an array of exactly 3 elements: [gid, section_idx, "
+                "CompartmentLocation must be an array of exactly 3 elements: [gid, section_index, "
                 "offset]");
         }
 
         setGid(get_int64_or_throw(j[0]));
-        setSectionIdx(get_int64_or_throw(j[1]));
+        setSectionIndex(get_int64_or_throw(j[1]));
 
         if (!j[2].is_number()) {
             throw SonataError("Fourth element (offset) must be a number");
@@ -81,8 +81,8 @@ class CompartmentLocation
         return gid_;
     }
 
-    uint64_t sectionIdx() const {
-        return section_idx_;
+    uint64_t sectionIndex() const {
+        return section_index_;
     }
 
     double offset() const {
@@ -90,11 +90,11 @@ class CompartmentLocation
     }
 
     nlohmann::json to_json() const {
-        return nlohmann::json::array({gid_, section_idx_, offset_});
+        return nlohmann::json::array({gid_, section_index_, offset_});
     }
 
     bool operator==(const CompartmentLocation& other) const {
-        return gid_ == other.gid_ && section_idx_ == other.section_idx_ &&
+        return gid_ == other.gid_ && section_index_ == other.section_index_ &&
                std::abs(offset_ - other.offset_) < offsetTolerance;
     }
     bool operator!=(const CompartmentLocation& other) const {
@@ -432,9 +432,9 @@ public:
 // CompartmentLocation public API
 CompartmentLocation::CompartmentLocation() = default;
 CompartmentLocation::CompartmentLocation(const int64_t gid,
-                                         const int64_t section_idx,
+                                         const int64_t section_index,
                                          const double offset)
-    : impl_(new detail::CompartmentLocation(gid, section_idx, offset)) {}
+    : impl_(new detail::CompartmentLocation(gid, section_index, offset)) {}
 CompartmentLocation::CompartmentLocation(const std::string& content)
     : impl_(new detail::CompartmentLocation(content)) {}
 CompartmentLocation::CompartmentLocation(std::unique_ptr<detail::CompartmentLocation>&& impl)
@@ -464,8 +464,8 @@ uint64_t CompartmentLocation::gid() const {
     return impl_->gid();
 }
 
-uint64_t CompartmentLocation::sectionIdx() const {
-    return impl_->sectionIdx();
+uint64_t CompartmentLocation::sectionIndex() const {
+    return impl_->sectionIndex();
 }
 
 double CompartmentLocation::offset() const {

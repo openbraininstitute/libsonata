@@ -551,18 +551,18 @@ PYBIND11_MODULE(_libsonata, m) {
     py::class_<CompartmentLocation>(m, "CompartmentLocation")
         .def(py::init<const std::string&>())
         .def(py::init<const int64_t, const int64_t, const double>(),
-            py::arg("gid"), py::arg("section_idx"), py::arg("offset"))
+            py::arg("gid"), py::arg("section_index"), py::arg("offset"))
         .def_property_readonly("gid", &CompartmentLocation::gid, DOC_COMPARTMENTLOCATION(gid))
-        .def_property_readonly("section_idx",
-                               &CompartmentLocation::sectionIdx,
-                               DOC_COMPARTMENTLOCATION(sectionIdx))
+        .def_property_readonly("section_index",
+                               &CompartmentLocation::sectionIndex,
+                               DOC_COMPARTMENTLOCATION(sectionIndex))
         .def_property_readonly("offset",
                                &CompartmentLocation::offset,
                                DOC_COMPARTMENTLOCATION(offset))
         .def("toJSON", &CompartmentLocation::toJSON, DOC_COMPARTMENTLOCATION(toJSON))
         .def("__iter__",
              [](const CompartmentLocation& self) {
-                 return py::iter(py::make_tuple(self.gid(), self.sectionIdx(), self.offset()));
+                 return py::iter(py::make_tuple(self.gid(), self.sectionIndex(), self.offset()));
              })
         .def("__eq__", &CompartmentLocation::operator==)
         .def("__ne__", &CompartmentLocation::operator!=)
@@ -576,7 +576,7 @@ PYBIND11_MODULE(_libsonata, m) {
         .def("__repr__",
              [](const CompartmentLocation& self) {
                  return py::str("CompartmentLocation({}, {}, {})")
-                     .format(self.gid(), self.sectionIdx(), self.offset());
+                     .format(self.gid(), self.sectionIndex(), self.offset());
              })
         .def("__str__",
              [](const CompartmentLocation& self) {

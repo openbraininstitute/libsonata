@@ -12,7 +12,7 @@ TEST_CASE("CompartmentLocation public API") {
     SECTION("Construct from valid gid, section_idx, offset") {
         CompartmentLocation loc(1, 10, 0.5);
         REQUIRE(loc.gid() == 1);
-        REQUIRE(loc.sectionIdx() == 10);
+        REQUIRE(loc.sectionIndex() == 10);
         REQUIRE(loc.offset() == Approx(0.5));
     }
 
@@ -20,7 +20,7 @@ TEST_CASE("CompartmentLocation public API") {
         std::string json_str = "[1, 10, 0.5]";
         CompartmentLocation loc(json_str);
         REQUIRE(loc.gid() == 1);
-        REQUIRE(loc.sectionIdx() == 10);
+        REQUIRE(loc.sectionIndex() == 10);
         REQUIRE(loc.offset() == Approx(0.5));
     }
 
@@ -64,14 +64,14 @@ TEST_CASE("CompartmentLocation public API") {
         CompartmentLocation moved_constructed(std::move(original));
 
         REQUIRE(moved_constructed.gid() == 3);
-        REQUIRE(moved_constructed.sectionIdx() == 30);
+        REQUIRE(moved_constructed.sectionIndex() == 30);
         REQUIRE(moved_constructed.offset() == Approx(0.8));
 
         CompartmentLocation another(0, 0, 0);
         another = std::move(moved_constructed);
 
         REQUIRE(another.gid() == 3);
-        REQUIRE(another.sectionIdx() == 30);
+        REQUIRE(another.sectionIndex() == 30);
         REQUIRE(another.offset() == Approx(0.8));
     }
 
