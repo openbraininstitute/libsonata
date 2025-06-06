@@ -18,7 +18,8 @@ class CompartmentSets;
 //  *
 //  * - node_id: Global ID of the cell (Neuron) to which the compartment belongs. No
 //  * overlaps among populations.
-//  * - section_index: Absolute section index. Progressive index that uniquely identifies the section.
+//  * - section_index: Absolute section index. Progressive index that uniquely identifies the
+//  section.
 //  *  There is a mapping between neuron section names (i.e. dend[10]) and this index.
 //  * - offset: Offset of the compartment along the section. The offset is a value between 0 and 1
 //  */
@@ -85,25 +86,27 @@ class CompartmentSets;
  * - section_index: Absolute section index. Progressive index that uniquely identifies the section.
  *  There is a mapping between neuron section names (i.e. dend[10]) and this index.
  * - offset: Offset of the compartment along the section. The offset is a value between 0 and 1
- * 
- * Note: it cannot go inside CompartmentSet because then CompartmentSetFilteredIterator needs the full definition of CompartmentSet and CompartmentSet needs the full definition of CompartmentSetFilteredIterator. 
+ *
+ * Note: it cannot go inside CompartmentSet because then CompartmentSetFilteredIterator needs the
+ * full definition of CompartmentSet and CompartmentSet needs the full definition of
+ * CompartmentSetFilteredIterator.
  */
 struct CompartmentLocation {
-    public:
-        uint64_t nodeId = 0;
-        uint64_t sectionIndex = 0;
-        double offset = 0.0;
+  public:
+    uint64_t nodeId = 0;
+    uint64_t sectionIndex = 0;
+    double offset = 0.0;
 
-        /// Comparator. Used to compare vectors in CompartmentSet. More idiomatic than defining a comaprator on the fly
-        bool operator==(const CompartmentLocation& other) const {
-            return nodeId == other.nodeId &&
-                sectionIndex == other.sectionIndex &&
-                offset == other.offset;
-        }
+    /// Comparator. Used to compare vectors in CompartmentSet. More idiomatic than defining a
+    /// comaprator on the fly
+    bool operator==(const CompartmentLocation& other) const {
+        return nodeId == other.nodeId && sectionIndex == other.sectionIndex &&
+               offset == other.offset;
+    }
 
-        bool operator!=(const CompartmentLocation& other) const {
-            return !(*this == other);
-        }
+    bool operator!=(const CompartmentLocation& other) const {
+        return !(*this == other);
+    }
 };
 
 /// Ostream << operator used by catch2 when there are problems for example
@@ -111,8 +114,7 @@ inline std::ostream& operator<<(std::ostream& os, const CompartmentLocation& cl)
     os << "CompartmentLocation("
        << "nodeId: " << cl.nodeId << ", "
        << "sectionIndex: " << cl.sectionIndex << ", "
-       << "offset: " << cl.offset
-       << ")";
+       << "offset: " << cl.offset << ")";
     return os;
 }
 
@@ -155,9 +157,6 @@ private:
 class SONATA_API CompartmentSet
 {
   public:
-
-
-
     CompartmentSet() = delete;
 
     explicit CompartmentSet(const std::string& json_content);

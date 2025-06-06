@@ -560,15 +560,11 @@ PYBIND11_MODULE(_libsonata, m) {
              })
         .def("__str__",
              [](const CompartmentLocation& self) { return py::str(py::repr(py::cast(self))); })
-        .def_readonly("node_id",
-                               &CompartmentLocation::nodeId,
-                               DOC_COMPARTMENTLOCATION(nodeId))
+        .def_readonly("node_id", &CompartmentLocation::nodeId, DOC_COMPARTMENTLOCATION(nodeId))
         .def_readonly("section_index",
-                               &CompartmentLocation::sectionIndex,
-                               DOC_COMPARTMENTLOCATION(sectionIndex))
-        .def_readonly("offset",
-                               &CompartmentLocation::offset,
-                               DOC_COMPARTMENTLOCATION(offset));
+                      &CompartmentLocation::sectionIndex,
+                      DOC_COMPARTMENTLOCATION(sectionIndex))
+        .def_readonly("offset", &CompartmentLocation::offset, DOC_COMPARTMENTLOCATION(offset));
 
     py::class_<CompartmentSet>(m, "CompartmentSet")
         .def(py::init<const std::string&>())

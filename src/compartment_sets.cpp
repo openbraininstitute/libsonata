@@ -17,8 +17,6 @@ namespace detail {
 using json = nlohmann::json;
 
 
-
-
 class CompartmentSetFilteredIterator {
 public:
     using base_iterator = std::vector<CompartmentLocation>::const_iterator;
@@ -120,7 +118,8 @@ private:
         }
         const double offset = j[2].get<double>();
         if (offset < 0.0 || offset > 1.0) {
-            throw SonataError(fmt::format("Offset must be between 0 and 1 inclusive, got {}", offset));
+            throw SonataError(
+                fmt::format("Offset must be between 0 and 1 inclusive, got {}", offset));
         }
 
         return {node_id, section_index, offset};
@@ -216,7 +215,8 @@ public:
 
         j["compartment_set"] = nlohmann::json::array();
         for (const auto& elem : compartment_locations_) {
-            j["compartment_set"].push_back(nlohmann::json::array({elem.nodeId, elem.sectionIndex, elem.offset}));
+            j["compartment_set"].push_back(
+                nlohmann::json::array({elem.nodeId, elem.sectionIndex, elem.offset}));
         }
 
         return j;
