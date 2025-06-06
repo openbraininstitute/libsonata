@@ -387,8 +387,6 @@ static const char *__doc_bbp_sonata_CompartmentLocation_sectionIndex = R"doc(Abs
 
 static const char *__doc_bbp_sonata_CompartmentLocation_offset = R"doc(Offset of the compartment along the section)doc";
 
-static const char *__doc_bbp_sonata_CompartmentLocation_toJSON = R"doc(Return the compartment set element as a JSON string.)doc";
-
 static const char *__doc_bbp_sonata_CompartmentSet_population = R"doc(Population name)doc";
 
 static const char *__doc_bbp_sonata_CompartmentSet_toJSON = R"doc(Return the compartment set as a JSON string.)doc";

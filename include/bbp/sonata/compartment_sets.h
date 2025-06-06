@@ -11,69 +11,110 @@ class CompartmentSetFilteredIterator;
 class CompartmentSet;
 class CompartmentSets;
 }  // namespace detail
+// /**
+//  * CompartmentLocation public API.
+//  *
+//  * This class uniquely identifies a compartment by a set of node_id, section_index and offset:
+//  *
+//  * - node_id: Global ID of the cell (Neuron) to which the compartment belongs. No
+//  * overlaps among populations.
+//  * - section_index: Absolute section index. Progressive index that uniquely identifies the section.
+//  *  There is a mapping between neuron section names (i.e. dend[10]) and this index.
+//  * - offset: Offset of the compartment along the section. The offset is a value between 0 and 1
+//  */
+
+// class SONATA_API CompartmentLocation
+// {
+//   private:
+//     uint64_t node_id_ = 0;
+//     uint64_t section_index_ = 0;
+//     double offset_ = 0.0;
+
+//     void setNodeId(int64_t node_id);
+//     void setSectionIndex(int64_t section_index);
+//     void setOffset(double offset);
+
+//   public:
+//     explicit CompartmentLocation(int64_t node_id, int64_t section_index, double offset) {
+//         setNodeId(node_id);
+//         setSectionIndex(section_index);
+//         setOffset(offset);
+//     }
+//     explicit CompartmentLocation(const nlohmann::json& j);
+//     explicit CompartmentLocation(const std::string& content)
+//         : CompartmentLocation(nlohmann::json::parse(content)) { }
+//     explicit CompartmentLocation(const char* content)
+//         : CompartmentLocation(std::string(content)) { }
+
+//     bool operator==(const CompartmentLocation& other) const noexcept {
+//         return node_id_ == other.node_id_ && section_index_ == other.section_index_ &&
+//                offset_ == other.offset_;
+//     }
+
+//     bool operator!=(const CompartmentLocation& other) const noexcept {
+//         return !(*this == other);
+//     }
+
+//     uint64_t nodeId() const {
+//         return node_id_;
+//     }
+//     uint64_t sectionIndex() const {
+//         return section_index_;
+//     }
+//     double offset() const {
+//         return offset_;
+//     }
+
+//     /// Convenience function to transform the class in a json object
+//     nlohmann::json to_json() const {
+//         return nlohmann::json::array({node_id_, section_index_, offset_});
+//     }
+
+//     /// Convenience function to transform the class in a json-formatted string
+//     std::string toJSON() const {
+//         return to_json().dump();
+//     }
+// };
 /**
- * CompartmentLocation public API.
+ * CompartmentLocation.
  *
- * This class uniquely identifies a compartment by a set of node_id, section_index and offset:
+ * This struct uniquely identifies a compartment by a set of node_id, section_index and offset:
  *
  * - node_id: Global ID of the cell (Neuron) to which the compartment belongs. No
  * overlaps among populations.
  * - section_index: Absolute section index. Progressive index that uniquely identifies the section.
  *  There is a mapping between neuron section names (i.e. dend[10]) and this index.
  * - offset: Offset of the compartment along the section. The offset is a value between 0 and 1
+ * 
+ * Note: it cannot go inside CompartmentSet because then CompartmentSetFilteredIterator needs the full definition of CompartmentSet and CompartmentSet needs the full definition of CompartmentSetFilteredIterator. 
  */
-class SONATA_API CompartmentLocation
-{
-  private:
-    uint64_t node_id_ = 0;
-    uint64_t section_index_ = 0;
-    double offset_ = 0.0;
+struct CompartmentLocation {
+    public:
+        uint64_t nodeId = 0;
+        uint64_t sectionIndex = 0;
+        double offset = 0.0;
 
-    void setNodeId(int64_t node_id);
-    void setSectionIndex(int64_t section_index);
-    void setOffset(double offset);
+        /// Comparator. Used to compare vectors in CompartmentSet. More idiomatic than defining a comaprator on the fly
+        bool operator==(const CompartmentLocation& other) const {
+            return nodeId == other.nodeId &&
+                sectionIndex == other.sectionIndex &&
+                offset == other.offset;
+        }
 
-  public:
-    explicit CompartmentLocation(int64_t node_id, int64_t section_index, double offset) {
-        setNodeId(node_id);
-        setSectionIndex(section_index);
-        setOffset(offset);
-    }
-    explicit CompartmentLocation(const nlohmann::json& j);
-    explicit CompartmentLocation(const std::string& content)
-        : CompartmentLocation(nlohmann::json::parse(content)) { }
-    explicit CompartmentLocation(const char* content)
-        : CompartmentLocation(std::string(content)) { }
-
-    bool operator==(const CompartmentLocation& other) const noexcept {
-        return node_id_ == other.node_id_ && section_index_ == other.section_index_ &&
-               offset_ == other.offset_;
-    }
-
-    bool operator!=(const CompartmentLocation& other) const noexcept {
-        return !(*this == other);
-    }
-
-    uint64_t nodeId() const {
-        return node_id_;
-    }
-    uint64_t sectionIndex() const {
-        return section_index_;
-    }
-    double offset() const {
-        return offset_;
-    }
-
-    /// Convenience function to transform the class in a json object
-    nlohmann::json to_json() const {
-        return nlohmann::json::array({node_id_, section_index_, offset_});
-    }
-
-    /// Convenience function to transform the class in a json-formatted string
-    std::string toJSON() const {
-        return to_json().dump();
-    }
+        bool operator!=(const CompartmentLocation& other) const {
+            return !(*this == other);
+        }
 };
+
+/// Ostream << operator used by catch2 when there are problems for example
+inline std::ostream& operator<<(std::ostream& os, const CompartmentLocation& cl) {
+    os << "CompartmentLocation("
+       << "nodeId: " << cl.nodeId << ", "
+       << "sectionIndex: " << cl.sectionIndex << ", "
+       << "offset: " << cl.offset
+       << ")";
+    return os;
+}
 
 class SONATA_API CompartmentSetFilteredIterator {
 public:
@@ -103,6 +144,7 @@ private:
     std::unique_ptr<detail::CompartmentSetFilteredIterator> impl_;
 };
 
+
 /**
  * CompartmentSet public API.
  *
@@ -113,6 +155,8 @@ private:
 class SONATA_API CompartmentSet
 {
   public:
+
+
 
     CompartmentSet() = delete;
 
@@ -147,6 +191,7 @@ class SONATA_API CompartmentSet
   private:
     std::shared_ptr<detail::CompartmentSet> impl_;
 };
+
 
 /**
  * @class CompartmentSets

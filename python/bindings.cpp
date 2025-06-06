@@ -549,32 +549,26 @@ PYBIND11_MODULE(_libsonata, m) {
         .def("toJSON", &NodeSets::toJSON, DOC_NODESETS(toJSON));
 
     py::class_<CompartmentLocation>(m, "CompartmentLocation")
-        .def(py::init<const std::string&>())
-        .def(py::init<const int64_t, const int64_t, const double>(),
-             py::arg("node_id"),
-             py::arg("section_index"),
-             py::arg("offset"))
-        .def_property_readonly("node_id",
-                               &CompartmentLocation::nodeId,
-                               DOC_COMPARTMENTLOCATION(nodeId))
-        .def_property_readonly("section_index",
-                               &CompartmentLocation::sectionIndex,
-                               DOC_COMPARTMENTLOCATION(sectionIndex))
-        .def_property_readonly("offset",
-                               &CompartmentLocation::offset,
-                               DOC_COMPARTMENTLOCATION(offset))
-        .def("toJSON", &CompartmentLocation::toJSON, DOC_COMPARTMENTLOCATION(toJSON))
         .def("__eq__", &CompartmentLocation::operator==)
         .def("__ne__", &CompartmentLocation::operator!=)
         .def("__repr__",
              [](const CompartmentLocation& self) {
                  return fmt::format("CompartmentLocation({}, {}, {})",
-                                    self.nodeId(),
-                                    self.sectionIndex(),
-                                    self.offset());
+                                    self.nodeId,
+                                    self.sectionIndex,
+                                    self.offset);
              })
         .def("__str__",
-             [](const CompartmentLocation& self) { return py::str(py::repr(py::cast(self))); });
+             [](const CompartmentLocation& self) { return py::str(py::repr(py::cast(self))); })
+        .def_readonly("node_id",
+                               &CompartmentLocation::nodeId,
+                               DOC_COMPARTMENTLOCATION(nodeId))
+        .def_readonly("section_index",
+                               &CompartmentLocation::sectionIndex,
+                               DOC_COMPARTMENTLOCATION(sectionIndex))
+        .def_readonly("offset",
+                               &CompartmentLocation::offset,
+                               DOC_COMPARTMENTLOCATION(offset));
 
     py::class_<CompartmentSet>(m, "CompartmentSet")
         .def(py::init<const std::string&>())

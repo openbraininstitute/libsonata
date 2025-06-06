@@ -16,6 +16,9 @@ namespace detail {
 
 using json = nlohmann::json;
 
+
+
+
 class CompartmentSetFilteredIterator {
 public:
     using base_iterator = std::vector<CompartmentLocation>::const_iterator;
@@ -32,7 +35,7 @@ public:
 
     void skip_to_valid() {
         while (current_ != end_) {
-            if (selection_.empty() || selection_.contains(current_->nodeId())) {
+            if (selection_.empty() || selection_.contains(current_->nodeId)) {
                 break;
             }
             ++current_;
@@ -84,6 +87,7 @@ public:
         return std::make_unique<CompartmentSetFilteredIterator>(*this);
     }
 };
+
 class CompartmentSet {
 public:
     using container_t = std::vector<CompartmentLocation>;
@@ -100,6 +104,27 @@ private:
      */
     CompartmentSet(const CompartmentSet& other) = default;
     CompartmentSet(const std::string& population, const container_t& compartment_locations): population_(population), compartment_locations_(compartment_locations) {}
+
+    static CompartmentLocation _parseCompartmentLocation(const nlohmann::json& j) {
+        if (!j.is_array() || j.size() != 3) {
+            throw SonataError(
+                "CompartmentLocation must be an array of exactly 3 elements: [node_id, "
+                "section_index, "
+                "offset]");
+        }
+
+        const uint64_t node_id = get_uint64_or_throw(j[0]);
+        const uint64_t section_index = get_uint64_or_throw(j[1]);
+        if (!j[2].is_number()) {
+            throw SonataError("Offset (third element) must be a number");
+        }
+        const double offset = j[2].get<double>();
+        if (offset < 0.0 || offset > 1.0) {
+            throw SonataError(fmt::format("Offset must be between 0 and 1 inclusive, got {}", offset));
+        }
+
+        return {node_id, section_index, offset};
+    }
 
 public:
     
@@ -126,7 +151,7 @@ public:
 
         compartment_locations_.reserve(comp_it->size());
         for (auto&& el : *comp_it) {
-            compartment_locations_.emplace_back(std::forward<decltype(el)>(el));
+            compartment_locations_.emplace_back(CompartmentSet::_parseCompartmentLocation(el));
         }
         compartment_locations_.shrink_to_fit();
     }
@@ -154,7 +179,7 @@ public:
         return static_cast<std::size_t>(std::count_if(compartment_locations_.begin(),
                                                       compartment_locations_.end(),
                                                       [&](const CompartmentLocation& loc) {
-                                                          return selection.contains(loc.nodeId());
+                                                          return selection.contains(loc.nodeId);
                                                       }));
     }
 
@@ -172,7 +197,7 @@ public:
 
         result.reserve(compartment_locations_.size());
         for (const auto& elem : compartment_locations_) {
-            uint64_t id = elem.nodeId();
+            uint64_t id = elem.nodeId;
             if (seen.insert(id).second) { // insert returns {iterator, bool}
                 result.push_back(id);
             }
@@ -191,7 +216,7 @@ public:
 
         j["compartment_set"] = nlohmann::json::array();
         for (const auto& elem : compartment_locations_) {
-            j["compartment_set"].push_back(elem.to_json());
+            j["compartment_set"].push_back(nlohmann::json::array({elem.nodeId, elem.sectionIndex, elem.offset}));
         }
 
         return j;
@@ -208,7 +233,7 @@ public:
         std::vector<CompartmentLocation> filtered;
         filtered.reserve(compartment_locations_.size());
         for (const auto& el : compartment_locations_) {
-            if (selection.contains(el.nodeId())) {
+            if (selection.contains(el.nodeId)) {
                 filtered.emplace_back(el);
             }
         }
@@ -341,44 +366,6 @@ public:
 };
 
 }  // namespace detail
-
-// CompartmentLocation public API
-
-CompartmentLocation::CompartmentLocation(const nlohmann::json& j) {
-    if (!j.is_array() || j.size() != 3) {
-        throw SonataError(
-            "CompartmentLocation must be an array of exactly 3 elements: [node_id, "
-            "section_index, "
-            "offset]");
-    }
-
-    setNodeId(get_int64_or_throw(j[0]));
-    setSectionIndex(get_int64_or_throw(j[1]));
-
-    if (!j[2].is_number()) {
-        throw SonataError("Offset (third element) must be a number");
-    }
-    setOffset(j[2].get<double>());
-}
-
-void CompartmentLocation::setNodeId(int64_t node_id) {
-    if (node_id < 0) {
-        throw SonataError(fmt::format("Node id must be non-negative, got {}", node_id));
-    }
-    node_id_ = static_cast<uint64_t>(node_id);
-}
-void CompartmentLocation::setSectionIndex(int64_t section_index) {
-    if (section_index < 0) {
-        throw SonataError(fmt::format("Section index must be non-negative, got {}", section_index));
-    }
-    section_index_ = static_cast<uint64_t>(section_index);
-}
-void CompartmentLocation::setOffset(double offset) {
-    if (offset < 0.0 || offset > 1.0) {
-        throw SonataError(fmt::format("Offset must be between 0 and 1 inclusive, got {}", offset));
-    }
-    offset_ = offset;
-}
 
 // CompartmentSetFilteredIterator public API
 

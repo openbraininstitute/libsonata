@@ -11,45 +11,32 @@ from libsonata import (
 
 PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                     '../../tests/data')
-
 class TestCompartmentLocation(unittest.TestCase):
+    def setUp(self):
+        self.json = '''{
+            "population": "pop0",
+            "compartment_set": [
+                [4, 40, 0.9],
+                [4, 40, 0.9],
+                [3, 30, 0.75]
+            ]
+        }'''
+        self.cs = CompartmentSet(self.json)
     def test_constructor_from_values(self):
-        loc = CompartmentLocation(4, 40, 0.9)
+        loc = self.cs[0]
         self.assertEqual(loc.node_id, 4)
         self.assertEqual(loc.section_index, 40)
         self.assertAlmostEqual(loc.offset, 0.9)
-
-    def test_constructor_from_string(self):
-        loc = CompartmentLocation("[4, 40, 0.9]")
-        self.assertEqual(loc.node_id, 4)
-        self.assertEqual(loc.section_index, 40)
-        self.assertAlmostEqual(loc.offset, 0.9)
-
-    def test_toJSON(self):
-        loc = CompartmentLocation(4, 40, 0.9)
-        self.assertEqual(loc.toJSON(), "[4,40,0.9]")
 
     def test_equality(self):
-        loc1 = CompartmentLocation(4, 40, 0.9)
-        loc2 = CompartmentLocation("[4, 40, 0.9]")
-        loc3 = CompartmentLocation(5, 40, 0.9)
-        self.assertEqual(loc1, loc2)
-        self.assertNotEqual(loc1, loc3)
+        self.assertEqual(self.cs[0], self.cs[1])
+        self.assertNotEqual(self.cs[0], self.cs[2])
 
     def test_repr_and_str(self):
-        loc = CompartmentLocation(4, 40, 0.9)
+        loc = self.cs[0]
         expected = "CompartmentLocation(4, 40, 0.9)"
         self.assertEqual(repr(loc), expected)
         self.assertEqual(str(loc), repr(loc))  # str should delegate to repr
-
-    def test_assignment_creates_copy(self):
-        loc1 = CompartmentLocation(1, 2, 0.3)
-        loc2 = loc1  # This is a reference assignment in Python
-        self.assertEqual(loc1, loc2)
-
-        # Now mutate loc1 and check if loc2 is affected — which it will be, unless toJSON etc. are implemented with deep semantics
-        self.assertIs(loc1, loc2)  # They reference the same object
-
 class TestCompartmentSet(unittest.TestCase):
     def setUp(self):
         self.json = '''{

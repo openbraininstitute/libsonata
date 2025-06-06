@@ -9,79 +9,45 @@ using json = nlohmann::json;
 
 TEST_CASE("CompartmentLocation public API") {
 
-    SECTION("Construct from valid nodeId, section_idx, offset") {
-        CompartmentLocation loc(1, 10, 0.5);
-        REQUIRE(loc.nodeId() == 1);
-        REQUIRE(loc.sectionIndex() == 10);
-        REQUIRE(loc.offset() == Approx(0.5));
-    }
+    std::string json_content = R"(
+        {
+            "population": "test_population",
+            "compartment_set": [
+                [1, 10, 0.5]
+            ]
+        }
+    )";
+    CompartmentSet cs(json_content);
 
-    SECTION("Construct from valid JSON string") {
-        std::string json_str = "[1, 10, 0.5]";
-        CompartmentLocation loc(json_str);
-        REQUIRE(loc.nodeId() == 1);
-        REQUIRE(loc.sectionIndex() == 10);
-        REQUIRE(loc.offset() == Approx(0.5));
+    SECTION("Construct from valid nodeId, section_idx, offset") {
+        const auto& loc = cs[0];
+        REQUIRE(loc.nodeId == 1);
+        REQUIRE(loc.sectionIndex == 10);
+        REQUIRE(loc.offset == Approx(0.5));
+        REQUIRE(cs[0] == CompartmentLocation{1, 10, 0.5});
     }
 
     SECTION("Invalid JSON string throws") {
-        REQUIRE_THROWS_AS(CompartmentLocation("{\"nodeId\": 1}"), SonataError);
-        REQUIRE_THROWS_AS(CompartmentLocation("[1, 2]"), SonataError);
-        REQUIRE_THROWS_AS(CompartmentLocation("[1, 2, 0.1, 1]"), SonataError);
-        REQUIRE_THROWS_AS(CompartmentLocation("[\"a\", 2, 0.5]"), SonataError);
-        REQUIRE_THROWS_AS(CompartmentLocation("[1, \"a\", 0.5]"), SonataError);
-        REQUIRE_THROWS_AS(CompartmentLocation("[1, 2, \"a\"]"), SonataError);
-        REQUIRE_THROWS_AS(CompartmentLocation("[1, 2, 2.0]"), SonataError);
-        REQUIRE_THROWS_AS(CompartmentLocation("[1, 2, -0.1]"), SonataError);
-        REQUIRE_THROWS_AS(CompartmentLocation("[-1, 2, 0.1]"), SonataError);
-        REQUIRE_THROWS_AS(CompartmentLocation("[1, -2, 0.1]"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ ["bla", 2, 0.1] ]})"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ [1, 2] ]})"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ [1, 2, 0.1, 1] ]})"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ ["a", 2, 0.5] ]})"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ [1, "a", 0.5] ]})"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ [1, 2, "a"] ]})"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ [1, 2, 2.0] ]})"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ [1, 2, -0.1] ]})"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ [-1, 2, 0.1] ]})"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ [1, -2, 0.1] ]})"), SonataError);
     }
 
     SECTION("Equality operators") {
-        CompartmentLocation loc1(1, 10, 0.5);
-        CompartmentLocation loc2(1, 10, 0.5);
-        CompartmentLocation loc3(1, 10, 0.6);
+        CompartmentLocation loc1{1, 10, 0.5};
+        CompartmentLocation loc2{1, 10, 0.5};
+        CompartmentLocation loc3{1, 10, 0.6};
 
         REQUIRE(loc1 == loc2);
         REQUIRE_FALSE(loc1 != loc2);
         REQUIRE(loc1 != loc3);
-    }
-
-    SECTION("Copy constructor and assignment") {
-        CompartmentLocation original(2, 20, 0.7);
-        CompartmentLocation copy_constructed(original);
-        CompartmentLocation copy_assigned(0, 0, 0);
-        copy_assigned = original;
-
-        REQUIRE(copy_constructed == original);
-        REQUIRE(copy_assigned == original);
-    }
-
-    SECTION("Move constructor and assignment") {
-        CompartmentLocation original(3, 30, 0.8);
-        CompartmentLocation moved_constructed(std::move(original));
-
-        REQUIRE(moved_constructed.nodeId() == 3);
-        REQUIRE(moved_constructed.sectionIndex() == 30);
-        REQUIRE(moved_constructed.offset() == Approx(0.8));
-
-        CompartmentLocation another(0, 0, 0);
-        another = std::move(moved_constructed);
-
-        REQUIRE(another.nodeId() == 3);
-        REQUIRE(another.sectionIndex() == 30);
-        REQUIRE(another.offset() == Approx(0.8));
-    }
-
-    SECTION("toJSON returns valid JSON string") {
-        CompartmentLocation loc(4, 40, 0.9);
-        auto json_str = loc.toJSON();
-
-        auto json = nlohmann::json::parse(json_str);
-        REQUIRE(json.is_array());
-        REQUIRE(json[0] == 4);
-        REQUIRE(json[1] == 40);
-        REQUIRE(json[2] == Approx(0.9));
     }
 }
 
@@ -108,10 +74,10 @@ TEST_CASE("CompartmentSet public API") {
         REQUIRE(cs.size() == 4);
 
         // Access elements by index
-        REQUIRE(cs[0] == CompartmentLocation(1, 10, 0.5));
-        REQUIRE(cs[1] == CompartmentLocation(2, 20, 0.25));
-        REQUIRE(cs[2] == CompartmentLocation(3, 30, 0.75));
-        REQUIRE(cs[3] == CompartmentLocation(2, 20, 0.25));
+        REQUIRE(cs[0] == CompartmentLocation{1, 10, 0.5});
+        REQUIRE(cs[1] == CompartmentLocation{2, 20, 0.25});
+        REQUIRE(cs[2] == CompartmentLocation{3, 30, 0.75});
+        REQUIRE(cs[3] == CompartmentLocation{2, 20, 0.25});
         REQUIRE_THROWS_AS(cs[4], std::out_of_range);
         REQUIRE(cs.toJSON() == json::parse(json_content).dump());
     }
@@ -161,14 +127,14 @@ TEST_CASE("CompartmentSet public API") {
 
         std::vector<int> nodeIds;
         for (auto it = pp.first; it != pp.second; ++it) {
-            nodeIds.push_back((*it).nodeId());
+            nodeIds.push_back((*it).nodeId);
         }
 
         REQUIRE(nodeIds.size() == 4);
         REQUIRE((nodeIds == std::vector<int>{1, 2, 3, 2}));
         nodeIds.clear();
         for (auto it = cs.filtered_crange(Selection::fromValues({2, 3})).first; it != pp.second; ++it) {
-            nodeIds.push_back((*it).nodeId());
+            nodeIds.push_back((*it).nodeId);
         }
         REQUIRE(nodeIds.size() == 3);
         REQUIRE((nodeIds == std::vector<int>{2, 3, 2}));
