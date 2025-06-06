@@ -11,71 +11,7 @@ class CompartmentSetFilteredIterator;
 class CompartmentSet;
 class CompartmentSets;
 }  // namespace detail
-// /**
-//  * CompartmentLocation public API.
-//  *
-//  * This class uniquely identifies a compartment by a set of node_id, section_index and offset:
-//  *
-//  * - node_id: Global ID of the cell (Neuron) to which the compartment belongs. No
-//  * overlaps among populations.
-//  * - section_index: Absolute section index. Progressive index that uniquely identifies the
-//  section.
-//  *  There is a mapping between neuron section names (i.e. dend[10]) and this index.
-//  * - offset: Offset of the compartment along the section. The offset is a value between 0 and 1
-//  */
 
-// class SONATA_API CompartmentLocation
-// {
-//   private:
-//     uint64_t node_id_ = 0;
-//     uint64_t section_index_ = 0;
-//     double offset_ = 0.0;
-
-//     void setNodeId(int64_t node_id);
-//     void setSectionIndex(int64_t section_index);
-//     void setOffset(double offset);
-
-//   public:
-//     explicit CompartmentLocation(int64_t node_id, int64_t section_index, double offset) {
-//         setNodeId(node_id);
-//         setSectionIndex(section_index);
-//         setOffset(offset);
-//     }
-//     explicit CompartmentLocation(const nlohmann::json& j);
-//     explicit CompartmentLocation(const std::string& content)
-//         : CompartmentLocation(nlohmann::json::parse(content)) { }
-//     explicit CompartmentLocation(const char* content)
-//         : CompartmentLocation(std::string(content)) { }
-
-//     bool operator==(const CompartmentLocation& other) const noexcept {
-//         return node_id_ == other.node_id_ && section_index_ == other.section_index_ &&
-//                offset_ == other.offset_;
-//     }
-
-//     bool operator!=(const CompartmentLocation& other) const noexcept {
-//         return !(*this == other);
-//     }
-
-//     uint64_t nodeId() const {
-//         return node_id_;
-//     }
-//     uint64_t sectionIndex() const {
-//         return section_index_;
-//     }
-//     double offset() const {
-//         return offset_;
-//     }
-
-//     /// Convenience function to transform the class in a json object
-//     nlohmann::json to_json() const {
-//         return nlohmann::json::array({node_id_, section_index_, offset_});
-//     }
-
-//     /// Convenience function to transform the class in a json-formatted string
-//     std::string toJSON() const {
-//         return to_json().dump();
-//     }
-// };
 /**
  * CompartmentLocation.
  *
