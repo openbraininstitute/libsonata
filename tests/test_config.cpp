@@ -1025,6 +1025,48 @@ TEST_CASE("SimulationConfig") {
             })";
             CHECK_THROWS_AS(SimulationConfig(contents, "./"), SonataError);
         }
+        {  // The "compartments" key is not allowed in a report of type compartment_set
+            auto contents = R"({
+              "run": {
+                "dt": 0.05,
+                "tstop": 1000,
+                "random_seed": 0
+              },
+              "reports": {
+                "test": {
+                   "cells": "nodesetstring",
+                   "compartments": "center",
+                   "type": "compartment_set",
+                   "variable_name": "variablestring",
+                   "dt": 0.05,
+                   "start_time": 0,
+                   "end_time": 500
+                }
+              }
+            })";
+            CHECK_THROWS_AS(SimulationConfig(contents, "./"), SonataError);
+        }
+        {  // The "sections" key is not allowed in a report of type compartment_set
+            auto contents = R"({
+              "run": {
+                "dt": 0.05,
+                "tstop": 1000,
+                "random_seed": 0
+              },
+              "reports": {
+                "test": {
+                   "cells": "nodesetstring",
+                   "sections": "soma",
+                   "type": "compartment_set",
+                   "variable_name": "variablestring",
+                   "dt": 0.05,
+                   "start_time": 0,
+                   "end_time": 500
+                }
+              }
+            })";
+            CHECK_THROWS_AS(SimulationConfig(contents, "./"), SonataError);
+        }
         {  // Invalid compartments in a report object
             auto contents = R"({
               "run": {
@@ -1035,7 +1077,7 @@ TEST_CASE("SimulationConfig") {
                 "test": {
                    "cells": "nodesetstring",
                    "compartments": "middle",
-                   "type": "compartment",
+                   "type": "compartment_set",
                    "variable_name": "variablestring",
                    "dt": 0.05,
                    "start_time": 0,
