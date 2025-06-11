@@ -1,5 +1,3 @@
-
-
 #include "../extlib/filesystem.hpp"
 
 #include "utils.h"  // readFile
@@ -101,9 +99,7 @@ class CompartmentSet
     container_t compartment_locations_;
 
 
-    /**
-     * Copy-construction is private. Used only for cloning.
-     */
+    //Copy-construction is private. Used only for cloning.
     CompartmentSet(const CompartmentSet& other) = default;
     CompartmentSet(const std::string& population, const container_t& compartment_locations)
         : population_(population)
@@ -376,19 +372,14 @@ class CompartmentSets
 
 }  // namespace detail
 
-// CompartmentSetFilteredIterator public API
-
-// Constructor
 CompartmentSetFilteredIterator::CompartmentSetFilteredIterator(
     std::unique_ptr<detail::CompartmentSetFilteredIterator> impl)
     : impl_(std::move(impl)) { }
 
-// Copy constructor
 CompartmentSetFilteredIterator::CompartmentSetFilteredIterator(
     const CompartmentSetFilteredIterator& other)
     : impl_(other.impl_ ? other.impl_->clone() : nullptr) { }
 
-// Copy assignment operator
 CompartmentSetFilteredIterator& CompartmentSetFilteredIterator::operator=(
     const CompartmentSetFilteredIterator& other) {
     if (this != &other) {
@@ -397,11 +388,9 @@ CompartmentSetFilteredIterator& CompartmentSetFilteredIterator::operator=(
     return *this;
 }
 
-// Move constructor
 CompartmentSetFilteredIterator::CompartmentSetFilteredIterator(
     CompartmentSetFilteredIterator&&) noexcept = default;
 
-// Move assignment operator
 CompartmentSetFilteredIterator& CompartmentSetFilteredIterator::operator=(
     CompartmentSetFilteredIterator&&) noexcept = default;
 
@@ -435,8 +424,6 @@ bool CompartmentSetFilteredIterator::operator==(const CompartmentSetFilteredIter
 bool CompartmentSetFilteredIterator::operator!=(const CompartmentSetFilteredIterator& other) const {
     return !(*this == other);
 }
-
-// CompartmentSet public API
 
 CompartmentSet::CompartmentSet(const std::string& json_content)
     : impl_(std::make_shared<detail::CompartmentSet>(json_content)) { }
@@ -490,8 +477,6 @@ std::string CompartmentSet::toJSON() const {
     return impl_->to_json().dump();
 }
 
-// CompartmentSets public API
-
 CompartmentSets::CompartmentSets(const std::string& content)
     : impl_(new detail::CompartmentSets(content)) { }
 CompartmentSets::CompartmentSets(std::unique_ptr<detail::CompartmentSets>&& impl)
@@ -512,27 +497,22 @@ CompartmentSet CompartmentSets::getCompartmentSet(const std::string& key) const 
     return CompartmentSet(impl_->getCompartmentSet(key));
 }
 
-// Number of compartment sets
 std::size_t CompartmentSets::size() const {
     return impl_->size();
 }
 
-// is empty?
 bool CompartmentSets::empty() const {
     return impl_->empty();
 }
 
-// Check if key exists
 bool CompartmentSets::contains(const std::string& key) const {
     return impl_->contains(key);
 }
 
-// Get keys as set or vector (use vector here)
 std::vector<std::string> CompartmentSets::names() const {
     return impl_->names();
 }
 
-// Get all compartment sets as vector
 std::vector<CompartmentSet> CompartmentSets::getAllCompartmentSets() const {
     const auto vals = impl_->getAllCompartmentSets();
     std::vector<CompartmentSet> result;
@@ -547,7 +527,6 @@ std::vector<CompartmentSet> CompartmentSets::getAllCompartmentSets() const {
     return result;
 }
 
-// Get items (key + compartment set) as vector of pairs
 std::vector<std::pair<std::string, CompartmentSet>> CompartmentSets::items() const {
     auto items_vec = impl_->items();
 
@@ -564,7 +543,7 @@ std::vector<std::pair<std::string, CompartmentSet>> CompartmentSets::items() con
 
     return result;
 }
-// Serialize all compartment sets to JSON string
+
 std::string CompartmentSets::toJSON() const {
     return impl_->to_json().dump();
 }
