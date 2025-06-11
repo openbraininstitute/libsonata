@@ -1148,7 +1148,7 @@ class SimulationConfig::Parser
 
             parseOptional(valueIt, "cells", report.cells, parseNodeSet());
             parseMandatory(valueIt, "type", debugStr, report.type);
-            if (report.type == Report::Type::compartment_set){
+            if (report.type == Report::Type::compartment_set) {
                 parseMandatory(valueIt, "compartment_set", debugStr, report.compartment_set);
                 if (valueIt.find("sections") != valueIt.end()) {
                     throw SonataError(
@@ -1157,12 +1157,14 @@ class SimulationConfig::Parser
                 if (report.type == Report::Type::compartment_set &&
                     valueIt.find("compartments") != valueIt.end()) {
                     throw SonataError(
-                        "Field 'compartments' is not allowed for reports of type 'compartment_set'.");
+                        "Field 'compartments' is not allowed for reports of type "
+                        "'compartment_set'.");
                 }
             } else {
                 if (valueIt.find("compartment_set") != valueIt.end()) {
                     throw SonataError(
-                        "Field 'compartment_set' is not allowed for reports of type 'compartment_set'.");
+                        "Field 'compartment_set' is not allowed for reports of type "
+                        "'compartment_set'.");
                 }
             }
             parseOptional(valueIt,
