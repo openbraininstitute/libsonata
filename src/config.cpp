@@ -1148,18 +1148,29 @@ class SimulationConfig::Parser
 
             parseOptional(valueIt, "cells", report.cells, parseNodeSet());
             parseMandatory(valueIt, "type", debugStr, report.type);
-            if (report.type == Report::Type::compartment_set && valueIt.find("sections") != valueIt.end()) {
-                throw SonataError("Field 'sections' is not allowed for reports of type 'compartment_set'.");
+            if (report.type == Report::Type::compartment_set &&
+                valueIt.find("sections") != valueIt.end()) {
+                throw SonataError(
+                    "Field 'sections' is not allowed for reports of type 'compartment_set'.");
             }
-            parseOptional(valueIt, "sections", report.sections, {report.type == Report::Type::compartment_set ? Report::Sections::invalid : Report::Sections::soma});
-            if (report.type == Report::Type::compartment_set && valueIt.find("compartments") != valueIt.end()) {
-                throw SonataError("Field 'compartments' is not allowed for reports of type 'compartment_set'.");
+            parseOptional(valueIt,
+                          "sections",
+                          report.sections,
+                          {report.type == Report::Type::compartment_set ? Report::Sections::invalid
+                                                                        : Report::Sections::soma});
+            if (report.type == Report::Type::compartment_set &&
+                valueIt.find("compartments") != valueIt.end()) {
+                throw SonataError(
+                    "Field 'compartments' is not allowed for reports of type 'compartment_set'.");
             }
             parseOptional(valueIt,
                           "compartments",
                           report.compartments,
-                                                    {report.type == Report::Type::compartment_set ? Report::Compartments::invalid : (report.sections == Report::Sections::soma ? Report::Compartments::center
-                                                                     : Report::Compartments::all)});
+                          {report.type == Report::Type::compartment_set
+                               ? Report::Compartments::invalid
+                               : (report.sections == Report::Sections::soma
+                                      ? Report::Compartments::center
+                                      : Report::Compartments::all)});
             parseOptional(valueIt, "scaling", report.scaling, {Report::Scaling::area});
             parseMandatory(valueIt, "variable_name", debugStr, report.variableName);
             parseOptional(valueIt, "unit", report.unit, {"mV"});
