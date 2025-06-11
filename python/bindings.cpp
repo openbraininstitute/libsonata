@@ -869,6 +869,9 @@ PYBIND11_MODULE(_libsonata, m) {
         .def_readonly("cells",
                       &SimulationConfig::Report::cells,
                       DOC_SIMULATIONCONFIG(Report, cells))
+        .def_readonly("compartment_set",
+                      &SimulationConfig::Report::compartment_set,
+                      DOC_SIMULATIONCONFIG(Report, compartmentSet))
         .def_readonly("sections",
                       &SimulationConfig::Report::sections,
                       DOC_SIMULATIONCONFIG(Report, sections))
@@ -898,6 +901,7 @@ PYBIND11_MODULE(_libsonata, m) {
                       DOC_SIMULATIONCONFIG(Report, enabled));
 
     py::enum_<SimulationConfig::Report::Sections>(report, "Sections")
+        .value("invalid", SimulationConfig::Report::Sections::invalid)
         .value("soma",
                SimulationConfig::Report::Sections::soma,
                DOC_SIMULATIONCONFIG(Report, Sections, soma))
@@ -926,6 +930,7 @@ PYBIND11_MODULE(_libsonata, m) {
         .value("area", SimulationConfig::Report::Scaling::area);
 
     py::enum_<SimulationConfig::Report::Compartments>(report, "Compartments")
+        .value("invalid", SimulationConfig::Report::Compartments::invalid)
         .value("center", SimulationConfig::Report::Compartments::center)
         .value("all", SimulationConfig::Report::Compartments::all);
 

@@ -468,6 +468,10 @@ class TestSimulationConfig(unittest.TestCase):
         self.assertEqual(self.config.report('cell_imembrane').type.name, 'summation')
         self.assertEqual(self.config.report('cell_imembrane').variable_name, 'i_membrane, IClamp')
         self.assertEqual(self.config.report('lfp').type, Report.Type.lfp)
+        self.assertEqual(self.config.report('compartment_set_v').type, Report.Type.compartment_set)
+        self.assertEqual(self.config.report('compartment_set_v').sections, Report.Sections.invalid)
+        self.assertEqual(self.config.report('compartment_set_v').compartments, Report.Compartments.invalid)
+        self.assertEqual(self.config.report('compartment_set_v').compartment_set, "cs0")
 
         self.assertEqual(self.config.network,
                          os.path.abspath(os.path.join(PATH, 'config/circuit_config.json')))

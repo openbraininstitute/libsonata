@@ -388,6 +388,10 @@ TEST_CASE("SimulationConfig") {
         CHECK(config.getReport("cell_imembrane").endTime == 500.);
         CHECK(config.getReport("cell_imembrane").variableName == "i_membrane, IClamp");
         CHECK(config.getReport("lfp").type == SimulationConfig::Report::Type::lfp);
+        CHECK(config.getReport("compartment_set_v").type == SimulationConfig::Report::Type::compartment_set);
+        CHECK(config.getReport("compartment_set_v").sections == SimulationConfig::Report::Sections::invalid);
+        CHECK(config.getReport("compartment_set_v").compartments == SimulationConfig::Report::Compartments::invalid);
+        CHECK(config.getReport("compartment_set_v").compartment_set == "cs0");
 
         CHECK_NOTHROW(nlohmann::json::parse(config.getExpandedJSON()));
         CHECK(config.getBasePath() == basePath.lexically_normal());
@@ -1034,6 +1038,7 @@ TEST_CASE("SimulationConfig") {
               },
               "reports": {
                 "test": {
+                   "compartment_set": "cs0",
                    "cells": "nodesetstring",
                    "compartments": "center",
                    "type": "compartment_set",
@@ -1055,9 +1060,51 @@ TEST_CASE("SimulationConfig") {
               },
               "reports": {
                 "test": {
+                   "compartment_set": "cs0",
                    "cells": "nodesetstring",
                    "sections": "soma",
                    "type": "compartment_set",
+                   "variable_name": "variablestring",
+                   "dt": 0.05,
+                   "start_time": 0,
+                   "end_time": 500
+                }
+              }
+            })";
+            CHECK_THROWS_AS(SimulationConfig(contents, "./"), SonataError);
+        }
+        {  // The "compartment_set" key is necessary in a report of type compartment_set
+            auto contents = R"({
+              "run": {
+                "dt": 0.05,
+                "tstop": 1000,
+                "random_seed": 0
+              },
+              "reports": {
+                "test": {
+                   "cells": "nodesetstring",
+                   "type": "compartment_set",
+                   "variable_name": "variablestring",
+                   "dt": 0.05,
+                   "start_time": 0,
+                   "end_time": 500
+                }
+              }
+            })";
+            CHECK_THROWS_AS(SimulationConfig(contents, "./"), SonataError);
+        }
+        {  // The "compartment_set" key is not allowed when the report is not of type compartment_set
+            auto contents = R"({
+              "run": {
+                "dt": 0.05,
+                "tstop": 1000,
+                "random_seed": 0
+              },
+              "reports": {
+                "test": {
+                   "compartment_set": "cs0",
+                   "cells": "nodesetstring",
+                   "type": "compartment",
                    "variable_name": "variablestring",
                    "dt": 0.05,
                    "start_time": 0,
