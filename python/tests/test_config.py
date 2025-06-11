@@ -446,7 +446,7 @@ class TestSimulationConfig(unittest.TestCase):
         self.assertEqual(modifications["no_SK_E2"].section_configure, "%s.gSK_E2bar_SK_E2 = 0")
 
         self.assertEqual(self.config.list_report_names,
-                         { "axonal_comp_centers", "cell_imembrane", "compartment", "soma", "lfp" })
+                         { "axonal_comp_centers", "cell_imembrane", "compartment", "soma", "lfp", "compartment_set_v" })
 
         Report = SimulationConfig.Report
         self.assertEqual(self.config.report('soma').cells, 'Column')

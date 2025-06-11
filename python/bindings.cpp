@@ -918,7 +918,8 @@ PYBIND11_MODULE(_libsonata, m) {
         .value("compartment", SimulationConfig::Report::Type::compartment)
         .value("lfp", SimulationConfig::Report::Type::lfp)
         .value("summation", SimulationConfig::Report::Type::summation)
-        .value("synapse", SimulationConfig::Report::Type::synapse);
+        .value("synapse", SimulationConfig::Report::Type::synapse)
+        .value("compartment_set", SimulationConfig::Report::Type::compartment_set);
 
     py::enum_<SimulationConfig::Report::Scaling>(report, "Scaling")
         .value("none", SimulationConfig::Report::Scaling::none)

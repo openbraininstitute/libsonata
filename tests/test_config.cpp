@@ -365,7 +365,8 @@ TEST_CASE("SimulationConfig") {
               "cell_imembrane",
               "compartment",
               "soma",
-              "lfp"
+              "lfp",
+              "compartment_set_v"
               });
 
         CHECK(config.getReport("soma").cells == "Column");
