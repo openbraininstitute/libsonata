@@ -183,7 +183,7 @@ class TestCompartmentSets(unittest.TestCase):
         self.assertEqual(self.cs, cs2)
 
     def test_static_fromFile(self):
-        cs_file = CompartmentSets.fromFile(os.path.join(PATH, 'compartment_sets.json'))
+        cs_file = CompartmentSets.from_file(os.path.join(PATH, 'compartment_sets.json'))
         self.assertEqual(cs_file, self.cs)
 
     def test_repr_and_str(self):
