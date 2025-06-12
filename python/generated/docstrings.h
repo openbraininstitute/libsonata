@@ -1156,6 +1156,8 @@ static const char *__doc_bbp_sonata_SimulationConfig_Report_Type_synapse = R"doc
 
 static const char *__doc_bbp_sonata_SimulationConfig_Report_cells = R"doc(Node sets on which to report)doc";
 
+static const char *__doc_bbp_sonata_SimulationConfig_Report_compartmentSet = R"doc(Compartment set on which to report)doc";
+
 static const char *__doc_bbp_sonata_SimulationConfig_Report_compartments =
 R"doc(For compartment type, select compartments to report. Default value:
 "center"(for sections: soma), "all"(for other sections))doc";
