@@ -24,17 +24,17 @@ class TestCompartmentLocation(unittest.TestCase):
         self.cs = CompartmentSet(self.json)
     def test_constructor_from_values(self):
         loc = self.cs[0]
-        self.assertEqual(loc.node_id, 4)
-        self.assertEqual(loc.section_index, 40)
-        self.assertAlmostEqual(loc.offset, 0.9)
+        self.assertEqual(loc.node_id, 3)
+        self.assertEqual(loc.section_index, 30)
+        self.assertAlmostEqual(loc.offset, 0.75)
 
     def test_equality(self):
-        self.assertEqual(self.cs[0], self.cs[1])
-        self.assertNotEqual(self.cs[0], self.cs[2])
+        self.assertEqual(self.cs[1], self.cs[2])
+        self.assertNotEqual(self.cs[0], self.cs[1])
 
     def test_repr_and_str(self):
         loc = self.cs[0]
-        expected = "CompartmentLocation(4, 40, 0.9)"
+        expected = "CompartmentLocation(3, 30, 0.75)"
         self.assertEqual(repr(loc), expected)
         self.assertEqual(str(loc), repr(loc))  # str should delegate to repr
 class TestCompartmentSet(unittest.TestCase):
@@ -68,7 +68,7 @@ class TestCompartmentSet(unittest.TestCase):
 
     def test_getitem_negative_index(self):
         loc = self.cs[-1]
-        self.assertEqual((loc.node_id, loc.section_index, loc.offset), (2, 20, 0.25))
+        self.assertEqual((loc.node_id, loc.section_index, loc.offset), (3, 30, 0.75))
 
     def test_getitem_out_of_bounds_raises(self):
         with self.assertRaises(IndexError):
@@ -78,9 +78,9 @@ class TestCompartmentSet(unittest.TestCase):
 
     def test_iterators(self):
         node_ids = [loc.node_id for loc in self.cs]
-        self.assertEqual(node_ids, [1, 2, 3, 2])
+        self.assertEqual(node_ids, [1, 2, 2, 3])
         node_ids = [loc.node_id for loc in self.cs.filtered_iter([2, 3])]
-        self.assertEqual(node_ids, [2, 3, 2])
+        self.assertEqual(node_ids, [2, 2, 3])
         conv_to_list = list(self.cs.filtered_iter([2, 3]))
         self.assertTrue(all(isinstance(i, CompartmentLocation) for i in conv_to_list))
 
