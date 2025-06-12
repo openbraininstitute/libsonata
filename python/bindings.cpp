@@ -632,7 +632,7 @@ PYBIND11_MODULE(_libsonata, m) {
 
     py::class_<CompartmentSets>(m, "CompartmentSets")
         .def(py::init<const std::string&>())
-        .def_static("fromFile", &CompartmentSets::fromFile, py::arg("path"))
+        .def_static("from_file", &CompartmentSets::fromFile, py::arg("path"))
         .def("__contains__",
              &CompartmentSets::contains,
              py::arg("key"),
