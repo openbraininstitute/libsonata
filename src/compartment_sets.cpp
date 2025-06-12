@@ -154,12 +154,11 @@ public:
         }
         compartment_locations_.shrink_to_fit();
         // sort by gid. Preserve relative ordering
-        std::stable_sort(
-            compartment_locations_.begin(), compartment_locations_.end(),
-            [](const CompartmentLocation& a, const CompartmentLocation& b) {
-                return a.nodeId < b.nodeId;
-            }
-        );
+        std::stable_sort(compartment_locations_.begin(),
+                         compartment_locations_.end(),
+                         [](const CompartmentLocation& a, const CompartmentLocation& b) {
+                             return a.nodeId < b.nodeId;
+                         });
     }
 
     ~CompartmentSet() = default;
