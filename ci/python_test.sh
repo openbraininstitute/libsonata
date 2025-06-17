@@ -16,6 +16,8 @@ set -u
 
 $BIN/pip -v install --upgrade pip setuptools wheel
 
+export CMAKE_ARGS="-DEXTLIB_FROM_SUBMODULES=ON"
+
 which python
 which pip
 pip debug

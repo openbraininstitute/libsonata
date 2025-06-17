@@ -155,14 +155,20 @@ public:
         compartment_locations_.shrink_to_fit();
         // check sort
         for (size_t i = 1; i < compartment_locations_.size(); ++i) {
-        const auto& prev = compartment_locations_[i - 1];
-        const auto& curr = compartment_locations_[i];
-        if (curr <= prev) {
-            throw SonataError(fmt::format(
-                "CompartmentSet 'compartment_set' must be strictly sorted. "
-                "Found CompartmentLocation({}, {}, {}) after CompartmentLocation({}, {}, {})", curr.nodeId, curr.sectionId, curr.offset, prev.nodeId, prev.sectionId, prev.offset));
+            const auto& prev = compartment_locations_[i - 1];
+            const auto& curr = compartment_locations_[i];
+            if (curr <= prev) {
+                throw SonataError(fmt::format(
+                    "CompartmentSet 'compartment_set' must be strictly sorted. "
+                    "Found CompartmentLocation({}, {}, {}) after CompartmentLocation({}, {}, {})",
+                    curr.nodeId,
+                    curr.sectionId,
+                    curr.offset,
+                    prev.nodeId,
+                    prev.sectionId,
+                    prev.offset));
+            }
         }
-    }
     }
 
     ~CompartmentSet() = default;

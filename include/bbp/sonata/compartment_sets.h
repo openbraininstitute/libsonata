@@ -36,8 +36,7 @@ struct CompartmentLocation {
     /// Comparator. Used to compare vectors in CompartmentSet. More idiomatic than defining a
     /// comaprator on the fly
     bool operator==(const CompartmentLocation& other) const {
-        return nodeId == other.nodeId && sectionId == other.sectionId &&
-               offset == other.offset;
+        return nodeId == other.nodeId && sectionId == other.sectionId && offset == other.offset;
     }
 
     bool operator!=(const CompartmentLocation& other) const {
@@ -45,8 +44,10 @@ struct CompartmentLocation {
     }
 
     bool operator<(const CompartmentLocation& other) const {
-        if (nodeId != other.nodeId) return nodeId < other.nodeId;
-        if (sectionId != other.sectionId) return sectionId < other.sectionId;
+        if (nodeId != other.nodeId)
+            return nodeId < other.nodeId;
+        if (sectionId != other.sectionId)
+            return sectionId < other.sectionId;
         return offset < other.offset;
     }
 
