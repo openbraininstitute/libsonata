@@ -58,7 +58,7 @@ class CMakeBuild(build_ext):
         cmake_args = [
             "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=" + extdir,
             "-DSONATA_TESTS={}".format(os.environ.get("SONATA_TESTS", "OFF")),
-            "-DEXTLIB_FROM_SUBMODULES=OFF",
+            "-DEXTLIB_FROM_SUBMODULES=ON",
             "-DSONATA_PYTHON=ON",
             "-DSONATA_VERSION=" + self.distribution.get_version(),
             "-DCMAKE_BUILD_TYPE={}".format(build_type),

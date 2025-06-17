@@ -551,19 +551,23 @@ PYBIND11_MODULE(_libsonata, m) {
     py::class_<CompartmentLocation>(m, "CompartmentLocation")
         .def("__eq__", &CompartmentLocation::operator==)
         .def("__ne__", &CompartmentLocation::operator!=)
+        .def("__lt__", &CompartmentLocation::operator<)
+        .def("__le__", &CompartmentLocation::operator<=)
+        .def("__gt__", &CompartmentLocation::operator>)
+        .def("__ge__", &CompartmentLocation::operator>=)
         .def("__repr__",
              [](const CompartmentLocation& self) {
                  return fmt::format("CompartmentLocation({}, {}, {})",
                                     self.nodeId,
-                                    self.sectionIndex,
+                                    self.sectionId,
                                     self.offset);
              })
         .def("__str__",
              [](const CompartmentLocation& self) { return py::str(py::repr(py::cast(self))); })
         .def_readonly("node_id", &CompartmentLocation::nodeId, DOC_COMPARTMENTLOCATION(nodeId))
-        .def_readonly("section_index",
-                      &CompartmentLocation::sectionIndex,
-                      DOC_COMPARTMENTLOCATION(sectionIndex))
+        .def_readonly("section_id",
+                      &CompartmentLocation::sectionId,
+                      DOC_COMPARTMENTLOCATION(sectionId))
         .def_readonly("offset", &CompartmentLocation::offset, DOC_COMPARTMENTLOCATION(offset));
 
     py::class_<CompartmentSet>(m, "CompartmentSet")
