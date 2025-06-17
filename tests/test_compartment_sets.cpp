@@ -22,7 +22,7 @@ TEST_CASE("CompartmentLocation public API") {
     SECTION("Construct from valid nodeId, section_idx, offset") {
         const auto& loc = cs[0];
         REQUIRE(loc.nodeId == 1);
-        REQUIRE(loc.sectionIndex == 10);
+        REQUIRE(loc.sectionId == 10);
         REQUIRE(loc.offset == Approx(0.5));
         REQUIRE(cs[0] == CompartmentLocation{1, 10, 0.5});
     }
@@ -38,6 +38,9 @@ TEST_CASE("CompartmentLocation public API") {
         REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ [1, 2, -0.1] ]})"), SonataError);
         REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ [-1, 2, 0.1] ]})"), SonataError);
         REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ [1, -2, 0.1] ]})"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ [1, 0, 0.5], [0, 0, 0.5] ]})"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ [0, 1, 0.5], [0, 0, 0.5] ]})"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ [0, 0, 0.6], [0, 0, 0.5] ]})"), SonataError);
     }
 
     SECTION("Equality operators") {
@@ -61,8 +64,8 @@ TEST_CASE("CompartmentSet public API") {
             "compartment_set": [
                 [1, 10, 0.5],
                 [2, 20, 0.25],
-                [3, 30, 0.75],
-                [2, 20, 0.25]
+                [2, 20, 0.250001],
+                [3, 30, 0.75]
             ]
         }
     )";
@@ -76,7 +79,7 @@ TEST_CASE("CompartmentSet public API") {
         // Access elements by index
         REQUIRE(cs[0] == CompartmentLocation{1, 10, 0.5});
         REQUIRE(cs[1] == CompartmentLocation{2, 20, 0.25});
-        REQUIRE(cs[2] == CompartmentLocation{2, 20, 0.25});
+        REQUIRE(cs[2] == CompartmentLocation{2, 20, 0.250001});
         REQUIRE(cs[3] == CompartmentLocation{3, 30, 0.75});
         REQUIRE_THROWS_AS(cs[4], std::out_of_range);
 
@@ -230,7 +233,7 @@ TEST_CASE("CompartmentSets public API") {
             "compartment_set": [
                 [0, 10, 0.1],
                 [0, 10, 0.2],
-                [0, 10, 0.1],
+                [0, 10, 0.3],
                 [2, 3, 0.1],
                 [3, 6, 0.3]
             ]
@@ -246,7 +249,7 @@ TEST_CASE("CompartmentSets public API") {
             "compartment_set": [
                 [0, 10, 0.1],
                 [0, 10, 0.2],
-                [0, 10, 0.1],
+                [0, 10, 0.3],
                 [2, 3, 0.1],
                 [3, 6, 0.3]
             ]
@@ -287,7 +290,7 @@ TEST_CASE("CompartmentSets public API") {
             "compartment_set": [
             [0, 10, 0.1],
             [0, 10, 0.2],
-            [0, 10, 0.1],
+            [0, 10, 0.3],
             [2, 3, 0.1],
             [3, 6, 0.3]
             ]
@@ -310,9 +313,9 @@ TEST_CASE("CompartmentSets public API") {
         "cs1": {
             "population": "pop1",
             "compartment_set": [
-            [0, 10, 0.8],
+            [0, 10, 0.15],
             [0, 10, 0.2],
-            [0, 10, 0.1],
+            [0, 10, 0.3],
             [2, 3, 0.1],
             [3, 6, 0.3]
             ]

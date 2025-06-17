@@ -30,18 +30,36 @@ class CompartmentSets;
 struct CompartmentLocation {
   public:
     uint64_t nodeId = 0;
-    uint64_t sectionIndex = 0;
+    uint64_t sectionId = 0;
     double offset = 0.0;
 
     /// Comparator. Used to compare vectors in CompartmentSet. More idiomatic than defining a
     /// comaprator on the fly
     bool operator==(const CompartmentLocation& other) const {
-        return nodeId == other.nodeId && sectionIndex == other.sectionIndex &&
+        return nodeId == other.nodeId && sectionId == other.sectionId &&
                offset == other.offset;
     }
 
     bool operator!=(const CompartmentLocation& other) const {
         return !(*this == other);
+    }
+
+    bool operator<(const CompartmentLocation& other) const {
+        if (nodeId != other.nodeId) return nodeId < other.nodeId;
+        if (sectionId != other.sectionId) return sectionId < other.sectionId;
+        return offset < other.offset;
+    }
+
+    bool operator>(const CompartmentLocation& other) const {
+        return other < *this;
+    }
+
+    bool operator<=(const CompartmentLocation& other) const {
+        return !(other < *this);
+    }
+
+    bool operator>=(const CompartmentLocation& other) const {
+        return !(*this < other);
     }
 };
 
@@ -49,7 +67,7 @@ struct CompartmentLocation {
 inline std::ostream& operator<<(std::ostream& os, const CompartmentLocation& cl) {
     os << "CompartmentLocation("
        << "nodeId: " << cl.nodeId << ", "
-       << "sectionIndex: " << cl.sectionIndex << ", "
+       << "sectionId: " << cl.sectionId << ", "
        << "offset: " << cl.offset << ")";
     return os;
 }
