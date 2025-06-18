@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-
-DIRS_TO_FORMAT='src include python'
+DIRS_TO_FORMAT="src include python"
 
 # Install the desired clang-format, check the lines
 # changed by this diff are formatted correctly
@@ -19,13 +18,11 @@ set +u  # ignore errors in virtualenv's activate
 source "$VENV/bin/activate"
 set -u
 
-git branch --all
-git merge-base HEAD remotes/origin/master
-
 changes_from="$(git merge-base HEAD remotes/origin/master)"
 echo "Changes from: $changes_from"
 
-changes=$(git-clang-format $changes_from $DIRS_TO_FORMAT)
+changes=$(git-clang-format $changes_from $DIRS_TO_FORMAT || true)
+echo $changes
 if [[ $(echo "$changes" | grep -n1 'changed files') ]]; then
     echo "The following files require changes to pass the current clang-format"
     echo "$changes"
