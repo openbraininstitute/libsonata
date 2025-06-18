@@ -19,7 +19,13 @@ set +u  # ignore errors in virtualenv's activate
 source "$VENV/bin/activate"
 set -u
 
-changes=$(git-clang-format --diff $(git merge-base HEAD master) HEAD $DIRS_TO_FORMAT)
+git branch --all
+git merge-base HEAD remotes/origin/master
+
+changes_from="$(git merge-base HEAD remotes/origin/master)"
+echo "Changes from: $changes_from"
+git-clang-format --diff $changes_from HEAD $DIRS_TO_FORMAT
+changes=$(git-clang-format --diff $changes_from HEAD $DIRS_TO_FORMAT)
 if [[ $(echo "$changes" | grep -n1 'changed files') ]]; then
     echo "The following files require changes to pass the current clang-format"
     echo "$changes"
