@@ -12,8 +12,11 @@ jobs:
         - name: Fetch repository
           uses: actions/checkout@v4
           with:
-            fetch-depth: 2
+            fetch-depth: 0
+
         - name: Install packages
           run: sudo apt-get update && sudo apt-get install python3-venv
+
         - name: check_clang_format
-          run: ci/check_clang_format.sh
+          run: |
+            ci/check_clang_format.sh

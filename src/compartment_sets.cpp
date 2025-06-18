@@ -99,7 +99,7 @@ class CompartmentSet
     container_t compartment_locations_;
 
 
-    //Copy-construction is private. Used only for cloning.
+    // Copy-construction is private. Used only for cloning.
     CompartmentSet(const CompartmentSet& other) = default;
     CompartmentSet(const std::string& population, const container_t& compartment_locations)
         : population_(population)
