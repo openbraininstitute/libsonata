@@ -382,9 +382,10 @@ class SONATA_API SimulationConfig
      */
     struct Report {
         enum class Sections { invalid = -1, soma, axon, dend, apic, all };
-        enum class Type { invalid = -1, compartment, lfp, summation, synapse };
+        enum class Type { invalid = -1, compartment, lfp, summation, synapse, compartment_set };
         enum class Scaling { invalid = -1, none, area };
         enum class Compartments { invalid = -1, center, all };
+
 
         /// Node sets on which to report
         std::string cells;
@@ -398,6 +399,8 @@ class SONATA_API SimulationConfig
         /// For compartment type, select compartments to report.
         /// Default value: "center"(for sections: soma), "all"(for other sections)
         Compartments compartments;
+        /// Name of the compartment set (from compartment_set.json) used for generating the report.
+        std::string compartment_set;
         /// The simulation variable to access. The variables available are model dependent. For
         /// summation type, it supports multiple variables by comma separated strings. E.g. “ina”,
         /// "AdEx.V_M, v", "i_membrane, IClamp".

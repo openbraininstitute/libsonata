@@ -551,19 +551,23 @@ PYBIND11_MODULE(_libsonata, m) {
     py::class_<CompartmentLocation>(m, "CompartmentLocation")
         .def("__eq__", &CompartmentLocation::operator==)
         .def("__ne__", &CompartmentLocation::operator!=)
+        .def("__lt__", &CompartmentLocation::operator<)
+        .def("__le__", &CompartmentLocation::operator<=)
+        .def("__gt__", &CompartmentLocation::operator>)
+        .def("__ge__", &CompartmentLocation::operator>=)
         .def("__repr__",
              [](const CompartmentLocation& self) {
                  return fmt::format("CompartmentLocation({}, {}, {})",
                                     self.nodeId,
-                                    self.sectionIndex,
+                                    self.sectionId,
                                     self.offset);
              })
         .def("__str__",
              [](const CompartmentLocation& self) { return py::str(py::repr(py::cast(self))); })
         .def_readonly("node_id", &CompartmentLocation::nodeId, DOC_COMPARTMENTLOCATION(nodeId))
-        .def_readonly("section_index",
-                      &CompartmentLocation::sectionIndex,
-                      DOC_COMPARTMENTLOCATION(sectionIndex))
+        .def_readonly("section_id",
+                      &CompartmentLocation::sectionId,
+                      DOC_COMPARTMENTLOCATION(sectionId))
         .def_readonly("offset", &CompartmentLocation::offset, DOC_COMPARTMENTLOCATION(offset));
 
     py::class_<CompartmentSet>(m, "CompartmentSet")
@@ -632,7 +636,7 @@ PYBIND11_MODULE(_libsonata, m) {
 
     py::class_<CompartmentSets>(m, "CompartmentSets")
         .def(py::init<const std::string&>())
-        .def_static("fromFile", &CompartmentSets::fromFile, py::arg("path"))
+        .def_static("from_file", &CompartmentSets::fromFile, py::arg("path"))
         .def("__contains__",
              &CompartmentSets::contains,
              py::arg("key"),
@@ -869,6 +873,9 @@ PYBIND11_MODULE(_libsonata, m) {
         .def_readonly("cells",
                       &SimulationConfig::Report::cells,
                       DOC_SIMULATIONCONFIG(Report, cells))
+        .def_readonly("compartment_set",
+                      &SimulationConfig::Report::compartment_set,
+                      DOC_SIMULATIONCONFIG(Report, compartmentSet))
         .def_readonly("sections",
                       &SimulationConfig::Report::sections,
                       DOC_SIMULATIONCONFIG(Report, sections))
@@ -898,6 +905,7 @@ PYBIND11_MODULE(_libsonata, m) {
                       DOC_SIMULATIONCONFIG(Report, enabled));
 
     py::enum_<SimulationConfig::Report::Sections>(report, "Sections")
+        .value("invalid", SimulationConfig::Report::Sections::invalid)
         .value("soma",
                SimulationConfig::Report::Sections::soma,
                DOC_SIMULATIONCONFIG(Report, Sections, soma))
@@ -918,13 +926,15 @@ PYBIND11_MODULE(_libsonata, m) {
         .value("compartment", SimulationConfig::Report::Type::compartment)
         .value("lfp", SimulationConfig::Report::Type::lfp)
         .value("summation", SimulationConfig::Report::Type::summation)
-        .value("synapse", SimulationConfig::Report::Type::synapse);
+        .value("synapse", SimulationConfig::Report::Type::synapse)
+        .value("compartment_set", SimulationConfig::Report::Type::compartment_set);
 
     py::enum_<SimulationConfig::Report::Scaling>(report, "Scaling")
         .value("none", SimulationConfig::Report::Scaling::none)
         .value("area", SimulationConfig::Report::Scaling::area);
 
     py::enum_<SimulationConfig::Report::Compartments>(report, "Compartments")
+        .value("invalid", SimulationConfig::Report::Compartments::invalid)
         .value("center", SimulationConfig::Report::Compartments::center)
         .value("all", SimulationConfig::Report::Compartments::all);
 

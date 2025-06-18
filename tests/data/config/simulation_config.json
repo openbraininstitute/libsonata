@@ -308,6 +308,15 @@
              "start_time": 0,
              "end_time": 500,
              "enabled": true
+         },
+         "compartment_set_v": {
+            "type": "compartment_set",
+            "compartment_set": "cs0",
+            "variable_name": "v",
+            "unit": "mV",
+            "dt": 0.1,
+            "start_time": 0.0,
+            "end_time": 100.0
          }
     }
 }

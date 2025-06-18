@@ -22,7 +22,7 @@ TEST_CASE("CompartmentLocation public API") {
     SECTION("Construct from valid nodeId, section_idx, offset") {
         const auto& loc = cs[0];
         REQUIRE(loc.nodeId == 1);
-        REQUIRE(loc.sectionIndex == 10);
+        REQUIRE(loc.sectionId == 10);
         REQUIRE(loc.offset == Approx(0.5));
         REQUIRE(cs[0] == CompartmentLocation{1, 10, 0.5});
     }
@@ -38,6 +38,9 @@ TEST_CASE("CompartmentLocation public API") {
         REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ [1, 2, -0.1] ]})"), SonataError);
         REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ [-1, 2, 0.1] ]})"), SonataError);
         REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ [1, -2, 0.1] ]})"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ [1, 0, 0.5], [0, 0, 0.5] ]})"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ [0, 1, 0.5], [0, 0, 0.5] ]})"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ [0, 0, 0.6], [0, 0, 0.5] ]})"), SonataError);
     }
 
     SECTION("Equality operators") {
@@ -61,8 +64,8 @@ TEST_CASE("CompartmentSet public API") {
             "compartment_set": [
                 [1, 10, 0.5],
                 [2, 20, 0.25],
-                [3, 30, 0.75],
-                [2, 20, 0.25]
+                [2, 20, 0.250001],
+                [3, 30, 0.75]
             ]
         }
     )";
@@ -76,10 +79,21 @@ TEST_CASE("CompartmentSet public API") {
         // Access elements by index
         REQUIRE(cs[0] == CompartmentLocation{1, 10, 0.5});
         REQUIRE(cs[1] == CompartmentLocation{2, 20, 0.25});
-        REQUIRE(cs[2] == CompartmentLocation{3, 30, 0.75});
-        REQUIRE(cs[3] == CompartmentLocation{2, 20, 0.25});
+        REQUIRE(cs[2] == CompartmentLocation{2, 20, 0.250001});
+        REQUIRE(cs[3] == CompartmentLocation{3, 30, 0.75});
         REQUIRE_THROWS_AS(cs[4], std::out_of_range);
-        REQUIRE(cs.toJSON() == json::parse(json_content).dump());
+
+        auto expected = json::parse(json_content);
+
+        std::stable_sort(
+            expected["compartment_set"].begin(),
+            expected["compartment_set"].end(),
+            [](const json& a, const json& b) {
+                return a[0] < b[0];
+            }
+        );
+
+        REQUIRE(cs.toJSON() == expected.dump());
     }
 
     SECTION("JSON constructor throws on invalid input") {
@@ -131,13 +145,13 @@ TEST_CASE("CompartmentSet public API") {
         }
 
         REQUIRE(nodeIds.size() == 4);
-        REQUIRE((nodeIds == std::vector<int>{1, 2, 3, 2}));
+        REQUIRE((nodeIds == std::vector<int>{1, 2, 2, 3}));
         nodeIds.clear();
         for (auto it = cs.filtered_crange(Selection::fromValues({2, 3})).first; it != pp.second; ++it) {
             nodeIds.push_back((*it).nodeId);
         }
         REQUIRE(nodeIds.size() == 3);
-        REQUIRE((nodeIds == std::vector<int>{2, 3, 2}));
+        REQUIRE((nodeIds == std::vector<int>{2, 2, 3}));
     }
 
     SECTION("Filter returns subset") {
@@ -219,7 +233,7 @@ TEST_CASE("CompartmentSets public API") {
             "compartment_set": [
                 [0, 10, 0.1],
                 [0, 10, 0.2],
-                [0, 10, 0.1],
+                [0, 10, 0.3],
                 [2, 3, 0.1],
                 [3, 6, 0.3]
             ]
@@ -235,7 +249,7 @@ TEST_CASE("CompartmentSets public API") {
             "compartment_set": [
                 [0, 10, 0.1],
                 [0, 10, 0.2],
-                [0, 10, 0.1],
+                [0, 10, 0.3],
                 [2, 3, 0.1],
                 [3, 6, 0.3]
             ]
@@ -276,7 +290,7 @@ TEST_CASE("CompartmentSets public API") {
             "compartment_set": [
             [0, 10, 0.1],
             [0, 10, 0.2],
-            [0, 10, 0.1],
+            [0, 10, 0.3],
             [2, 3, 0.1],
             [3, 6, 0.3]
             ]
@@ -299,9 +313,9 @@ TEST_CASE("CompartmentSets public API") {
         "cs1": {
             "population": "pop1",
             "compartment_set": [
-            [0, 10, 0.8],
+            [0, 10, 0.15],
             [0, 10, 0.2],
-            [0, 10, 0.1],
+            [0, 10, 0.3],
             [2, 3, 0.1],
             [3, 6, 0.3]
             ]
