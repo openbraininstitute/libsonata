@@ -11,6 +11,8 @@ from libsonata import (
 
 PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                     '../../tests/data')
+
+
 class TestCompartmentLocation(unittest.TestCase):
     def setUp(self):
         self.json = '''{
@@ -67,6 +69,8 @@ class TestCompartmentLocation(unittest.TestCase):
         expected = "CompartmentLocation(4, 40, 0.9)"
         self.assertEqual(repr(loc), expected)
         self.assertEqual(str(loc), repr(loc))  # str should delegate to repr
+
+
 class TestCompartmentSet(unittest.TestCase):
     def setUp(self):
         self.json = '''{
@@ -83,7 +87,7 @@ class TestCompartmentSet(unittest.TestCase):
     def test_population_property(self):
         self.assertIsInstance(self.cs.population, str)
         self.assertEqual(self.cs.population, "pop0")
-    
+
     def test_size(self):
         self.assertEqual(self.cs.size(), 4)
         self.assertEqual(self.cs.size([1, 2]), 3)
@@ -128,7 +132,7 @@ class TestCompartmentSet(unittest.TestCase):
         json_out = self.cs.toJSON()
         cs2 = CompartmentSet(json_out)
         self.assertEqual(cs2, self.cs)
-    
+
     def test_equality(self):
         cs1 = CompartmentSet(self.json)
         cs2 = CompartmentSet(self.json)
@@ -154,6 +158,7 @@ class TestCompartmentSet(unittest.TestCase):
         print(r)
         self.assertTrue(r.startswith("CompartmentSet(population"))
         self.assertEqual(s, r)
+
 
 class TestCompartmentSets(unittest.TestCase):
     def setUp(self):
@@ -189,7 +194,7 @@ class TestCompartmentSets(unittest.TestCase):
         for k, v in items:
             self.assertIn(k, keys)
             self.assertIn(v, values)
-            
+
     def test_equality(self):
         cs1 = CompartmentSets(self.json_str)
         cs2 = CompartmentSets(self.json_str)

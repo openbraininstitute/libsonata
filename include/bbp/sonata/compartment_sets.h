@@ -73,31 +73,32 @@ inline std::ostream& operator<<(std::ostream& os, const CompartmentLocation& cl)
     return os;
 }
 
-class SONATA_API CompartmentSetFilteredIterator {
-public:
-  using iterator_category = std::forward_iterator_tag;
-  using value_type = CompartmentLocation;
-  using difference_type = std::ptrdiff_t;
-  using pointer = const CompartmentLocation*;
-  using reference = const CompartmentLocation&;
+class SONATA_API CompartmentSetFilteredIterator
+{
+  public:
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = CompartmentLocation;
+    using difference_type = std::ptrdiff_t;
+    using pointer = const CompartmentLocation*;
+    using reference = const CompartmentLocation&;
 
-  explicit CompartmentSetFilteredIterator(
-      std::unique_ptr<detail::CompartmentSetFilteredIterator> impl);
-  CompartmentSetFilteredIterator(const CompartmentSetFilteredIterator& other);
-  CompartmentSetFilteredIterator& operator=(const CompartmentSetFilteredIterator& other);
-  CompartmentSetFilteredIterator(CompartmentSetFilteredIterator&&) noexcept;
-  CompartmentSetFilteredIterator& operator=(CompartmentSetFilteredIterator&&) noexcept;
-  ~CompartmentSetFilteredIterator();
+    explicit CompartmentSetFilteredIterator(
+        std::unique_ptr<detail::CompartmentSetFilteredIterator> impl);
+    CompartmentSetFilteredIterator(const CompartmentSetFilteredIterator& other);
+    CompartmentSetFilteredIterator& operator=(const CompartmentSetFilteredIterator& other);
+    CompartmentSetFilteredIterator(CompartmentSetFilteredIterator&&) noexcept;
+    CompartmentSetFilteredIterator& operator=(CompartmentSetFilteredIterator&&) noexcept;
+    ~CompartmentSetFilteredIterator();
 
-  const CompartmentLocation& operator*() const;
-  const CompartmentLocation* operator->() const;
+    const CompartmentLocation& operator*() const;
+    const CompartmentLocation* operator->() const;
 
-  CompartmentSetFilteredIterator& operator++();    // prefix ++
-  CompartmentSetFilteredIterator operator++(int);  // postfix ++
-  bool operator==(const CompartmentSetFilteredIterator& other) const;
-  bool operator!=(const CompartmentSetFilteredIterator& other) const;
+    CompartmentSetFilteredIterator& operator++();    // prefix ++
+    CompartmentSetFilteredIterator operator++(int);  // postfix ++
+    bool operator==(const CompartmentSetFilteredIterator& other) const;
+    bool operator!=(const CompartmentSetFilteredIterator& other) const;
 
-private:
+  private:
     std::unique_ptr<detail::CompartmentSetFilteredIterator> impl_;
 };
 
@@ -159,8 +160,7 @@ class SONATA_API CompartmentSet
  */
 class SONATA_API CompartmentSets
 {
-public:
-
+  public:
     CompartmentSets(const std::string& content);
     CompartmentSets(std::unique_ptr<detail::CompartmentSets>&& impl);
     CompartmentSets(detail::CompartmentSets&& impl);
@@ -200,7 +200,7 @@ public:
     bool operator==(const CompartmentSets& other) const;
     bool operator!=(const CompartmentSets& other) const;
 
-private:
+  private:
     std::unique_ptr<detail::CompartmentSets> impl_;
 };
 
