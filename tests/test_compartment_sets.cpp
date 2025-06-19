@@ -41,6 +41,7 @@ TEST_CASE("CompartmentLocation public API") {
         REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ [1, 0, 0.5], [0, 0, 0.5] ]})"), SonataError);
         REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ [0, 1, 0.5], [0, 0, 0.5] ]})"), SonataError);
         REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ [0, 0, 0.6], [0, 0, 0.5] ]})"), SonataError);
+        REQUIRE_THROWS_AS(CompartmentSet(R"({"population": "pop0", "compartment_set": [ [0, 0, 0.5], [0, 0, 0.5] ]})"), SonataError);
     }
 
     SECTION("Equality operators") {
