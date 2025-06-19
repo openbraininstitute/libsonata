@@ -155,15 +155,16 @@ public:
                 const auto& prev = compartment_locations_[compartment_locations_.size() - 2];
                 const auto& curr = compartment_locations_.back();
                 if (curr <= prev) {
-                    throw SonataError(fmt::format(
-                        "CompartmentSet 'compartment_set' must be strictly sorted. "
-                        "Found CompartmentLocation({}, {}, {}) after CompartmentLocation({}, {}, {})",
-                        curr.nodeId,
-                        curr.sectionId,
-                        curr.offset,
-                        prev.nodeId,
-                        prev.sectionId,
-                        prev.offset));
+                    throw SonataError(
+                        fmt::format("CompartmentSet 'compartment_set' must be strictly sorted. "
+                                    "Found CompartmentLocation({}, {}, {}) after "
+                                    "CompartmentLocation({}, {}, {})",
+                                    curr.nodeId,
+                                    curr.sectionId,
+                                    curr.offset,
+                                    prev.nodeId,
+                                    prev.sectionId,
+                                    prev.offset));
                 }
             }
         }
