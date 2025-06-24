@@ -182,7 +182,12 @@ py::class_<Population, std::shared_ptr<Population>> bindPopulationClass(py::modu
         return fmt::format(msg, fmt::arg("element", Population::ELEMENT));
     };
     return py::class_<Population, std::shared_ptr<Population>>(m, clsName, docString)
-        .def(py::init<const std::string&, const std::string&, const std::string&>())
+        .def(py::init([](py::object h5_filepath, py::object csv_filepath, std::string name) {
+                 return Population(py::str(h5_filepath), py::str(csv_filepath), name);
+             }),
+             "h5_filepath"_a,
+             "csv_filepath"_a,
+             "name"_a)
         .def_property_readonly("name", &Population::name, DOC_POP(name))
         .def_property_readonly("size", &Population::size, imbueElementName(DOC_POP(size)).c_str())
         .def_property_readonly("attribute_names",
@@ -541,8 +546,11 @@ PYBIND11_MODULE(_libsonata, m) {
     bindStorageClass<NodeStorage>(m, "NodeStorage", "NodePopulation");
 
     py::class_<NodeSets>(m, "NodeSets", "NodeSets")
-        .def(py::init<const std::string&>())
-        .def_static("from_file", [](py::object path) { return NodeSets::fromFile(py::str(path)); })
+        .def(py::init<const std::string&>(), "string of NodeSets JSON"_a)
+        .def_static(
+            "from_file",
+            [](py::object path) { return NodeSets::fromFile(py::str(path)); },
+            "path"_a)
         .def_property_readonly("names", &NodeSets::names, DOC_NODESETS(names))
         .def("materialize", &NodeSets::materialize, DOC_NODESETS(materialize))
         .def("update", &NodeSets::update, "other"_a, DOC_NODESETS(update))
@@ -571,7 +579,7 @@ PYBIND11_MODULE(_libsonata, m) {
         .def_readonly("offset", &CompartmentLocation::offset, DOC_COMPARTMENTLOCATION(offset));
 
     py::class_<CompartmentSet>(m, "CompartmentSet")
-        .def(py::init<const std::string&>())
+        .def(py::init<const std::string&>(), "string of CompartmentSet JSON"_a)
         .def_property_readonly("population",
                                &CompartmentSet::population,
                                DOC_COMPARTMENTSET(population))
@@ -635,8 +643,11 @@ PYBIND11_MODULE(_libsonata, m) {
              [](const CompartmentSet& self) { return py::str(py::repr(py::cast(self))); });
 
     py::class_<CompartmentSets>(m, "CompartmentSets")
-        .def(py::init<const std::string&>())
-        .def_static("from_file", &CompartmentSets::fromFile, py::arg("path"))
+        .def(py::init<const std::string&>(), "string of CompartmentSets JSON"_a)
+        .def_static(
+            "from_file",
+            [](py::object path) { return CompartmentSets::fromFile(py::str(path)); },
+            "path"_a)
         .def("__contains__",
              &CompartmentSets::contains,
              py::arg("key"),
@@ -724,7 +735,9 @@ PYBIND11_MODULE(_libsonata, m) {
         .value("partial", CircuitConfig::ConfigStatus::partial);
 
     py::class_<CircuitConfig>(m, "CircuitConfig", "Circuit Configuration")
-        .def(py::init<const std::string&, const std::string&>())
+        .def(py::init<const std::string&, const std::string&>(),
+             "string of CircuitConfig JSON"_a,
+             "base_path"_a)
         .def_static("from_file",
                     [](py::object path) { return CircuitConfig::fromFile(py::str(path)); })
         .def_property_readonly("config_status", &CircuitConfig::getCircuitConfigStatus, "ibid")
@@ -1252,7 +1265,10 @@ PYBIND11_MODULE(_libsonata, m) {
                       &SimulationConfig::ConnectionOverride::neuromodulationStrength,
                       DOC_SIMULATIONCONFIG(ConnectionOverride, neuromodulationStrength));
 
-    simConf.def(py::init<const std::string&, const std::string&>())
+    simConf
+        .def(py::init<const std::string&, const std::string&>(),
+             "string of SimulationConfig JSON"_a,
+             "base_path"_a)
         .def_static(
             "from_file",
             [](py::object path) { return SimulationConfig::fromFile(py::str(path)); },

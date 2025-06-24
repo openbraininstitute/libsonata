@@ -4,17 +4,21 @@ import unittest
 
 import numpy as np
 
-from libsonata import (CircuitConfig,
-                       ElementReportReader,
-                       NodeSets,
-                       NodeStorage,
-                       Selection,
-                       SimulationConfig,
-                       SomaReportReader,
-                       SonataError,
-                       SpikeReader,
-                       EdgeStorage,
-                       )
+from libsonata import (
+    CircuitConfig,
+    CompartmentSets,
+    EdgePopulation,
+    EdgeStorage,
+    ElementReportReader,
+    NodePopulation,
+    NodeSets,
+    NodeStorage,
+    Selection,
+    SimulationConfig,
+    SomaReportReader,
+    SonataError,
+    SpikeReader,
+    )
 
 
 PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -296,3 +300,6 @@ class TestMisc(unittest.TestCase):
         NodeSets.from_file(path / 'node_sets.json')
         CircuitConfig.from_file(path / 'config/circuit_config.json')
         SimulationConfig.from_file(path / 'config/simulation_config.json')
+        NodePopulation(path / 'nodes1.h5', csv_filepath="", name="nodes-A")
+        EdgePopulation(path / 'edges1.h5', csv_filepath="", name="edges-AB")
+        CompartmentSets.from_file(path / 'compartment_sets.json')
