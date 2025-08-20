@@ -1234,11 +1234,11 @@ CHECK_THROWS_WITH(
                 }
               }
             })";
-CHECK_THROWS_WITH(
-    SimulationConfig(contents, "./"),
-    Catch::Matchers::Contains("node_set") &&
-    Catch::Matchers::Contains("compartment_set")
-);
+          CHECK_THROWS_WITH(
+              SimulationConfig(contents, "./"),
+              Catch::Matchers::Contains("node_set") &&
+              Catch::Matchers::Contains("compartment_set")
+          );
         }
         {  // Both node_set and compartment_set are missing in an input object
             auto contents = R"({
@@ -1257,11 +1257,11 @@ CHECK_THROWS_WITH(
                 }
               }
             })";
-CHECK_THROWS_WITH(
-    SimulationConfig(contents, "./"),
-    Catch::Matchers::Contains("node_set") &&
-    Catch::Matchers::Contains("compartment_set")
-);
+          CHECK_THROWS_WITH(
+              SimulationConfig(contents, "./"),
+              Catch::Matchers::Contains("node_set") &&
+              Catch::Matchers::Contains("compartment_set")
+          );
         }
         {  // Both mean and mean_percent are given in a noise input object
             auto contents = R"({
