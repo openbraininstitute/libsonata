@@ -805,7 +805,7 @@ class SONATA_API SimulationConfig
     /**
      * Returns the name of the compartment set to be instantiated for the simulation, default = None
      */
-    const nonstd::optional<std::string>& getComaprtmentSet() const noexcept;
+    const nonstd::optional<std::string>& getCompartmentSet() const noexcept;
 
     /**
      * Returns the metadata section
