@@ -419,7 +419,8 @@ SimulationConfig::Input parseInputModule(const nlohmann::json& valueIt,
         }
 
         if (input.nodeSet.has_value() && input.compartmentSet.has_value()) {
-            throw SonataError("`node_set` is not allowed if `compartment_set` is set in " + debugStr);
+            throw SonataError("`node_set` is not allowed if `compartment_set` is set in " +
+                              debugStr);
         } else if (!input.nodeSet.has_value() && !input.compartmentSet.has_value()) {
             throw SonataError("One of `node_set` or `compartment_set` need to have a value in " +
                               debugStr);
