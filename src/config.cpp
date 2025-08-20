@@ -404,6 +404,26 @@ SimulationConfig::Input parseInputModule(const nlohmann::json& valueIt,
         parseMandatory(valueIt, "delay", debugStr, input.delay);
         parseMandatory(valueIt, "duration", debugStr, input.duration);
         parseMandatory(valueIt, "node_set", debugStr, input.nodeSet);
+        parseOptional(valueIt, "node_set", input.nodeSet);
+        parseOptional(valueIt, "compartment_set", input.compartmentSet);
+
+        const auto nodeSet = valueIt.find("node_set");
+        const auto compartmentSet = valueIt.find("compartment_set");
+
+        if (nodeSet != valueIt.end()) {
+            parseOptional(valueIt, "node_set", input.nodeSet);
+        }
+
+        if (compartmentSet != valueIt.end()) {
+            parseOptional(valueIt, "compartment_set", input.compartmentSet);
+        }
+
+        if (input.nodeSet.has_value() && input.compartmentSet.has_value()) {
+            throw SonataError("`node_set` is not allowed if `compartment_set` is set in " + debugStr);
+        } else if (!input.nodeSet.has_value() && !input.compartmentSet.has_value()) {
+            throw SonataError("One of `node_set` or `compartment_set` need to have a value in " +
+                              debugStr);
+        }
     };
 
     switch (module) {

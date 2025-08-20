@@ -457,8 +457,10 @@ class SONATA_API SimulationConfig
         double delay{};
         /// Time duration for how long input is activated (ms)
         double duration{};
-        /// Node set which is affected by input
-        std::string nodeSet;
+        /// Node set which is affected by input. Not allowed in case of CompartmentSet
+        nonstd::optional<std::string> nodeSet{nonstd::nullopt};
+        /// CompartmentSet which is affected by the input. It has priority over nodeSet
+        nonstd::optional<std::string> compartmentSet{nonstd::nullopt};
     };
 
     struct InputLinear: public InputBase {
@@ -796,9 +798,14 @@ class SONATA_API SimulationConfig
     const std::string& getCompartmentSetsFile() const noexcept;
 
     /**
-     * Returns the name of node set to be instantiated for the simulation, default = None
+     * Returns the name of the node set to be instantiated for the simulation, default = None
      */
     const nonstd::optional<std::string>& getNodeSet() const noexcept;
+
+    /**
+     * Returns the name of the compartment set to be instantiated for the simulation, default = None
+     */
+    const nonstd::optional<std::string>& getComaprtmentSet() const noexcept;
 
     /**
      * Returns the metadata section
