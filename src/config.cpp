@@ -403,7 +403,7 @@ SimulationConfig::Input parseInputModule(const nlohmann::json& valueIt,
         parseMandatory(valueIt, "input_type", debugStr, input.inputType);
         parseMandatory(valueIt, "delay", debugStr, input.delay);
         parseMandatory(valueIt, "duration", debugStr, input.duration);
-        parseMandatory(valueIt, "node_set", debugStr, input.nodeSet);
+
         parseOptional(valueIt, "node_set", input.nodeSet);
         parseOptional(valueIt, "compartment_set", input.compartmentSet);
 

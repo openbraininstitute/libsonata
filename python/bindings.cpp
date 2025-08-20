@@ -967,7 +967,10 @@ PYBIND11_MODULE(_libsonata, m) {
                       DOC_SIMULATIONCONFIG(InputBase, duration))
         .def_readonly("node_set",
                       &SimulationConfig::InputBase::nodeSet,
-                      DOC_SIMULATIONCONFIG(InputBase, nodeSet));
+                      DOC_SIMULATIONCONFIG(InputBase, nodeSet))
+        .def_readonly("compartment_set",
+                      &SimulationConfig::InputBase::compartmentSet,
+                      DOC_SIMULATIONCONFIG(InputBase, compartmentSet));
 
     py::class_<SimulationConfig::InputLinear, SimulationConfig::InputBase>(simConf, "Linear")
         .def_readonly("amp_start",

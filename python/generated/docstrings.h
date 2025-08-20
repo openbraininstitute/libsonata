@@ -893,6 +893,8 @@ static const char *__doc_bbp_sonata_SimulationConfig_InputBase_module = R"doc(Ty
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputBase_nodeSet = R"doc(Node set which is affected by input)doc";
 
+static const char *__doc_bbp_sonata_SimulationConfig_InputBase_compartmentSet = R"doc(Compartment set which is affected by input)doc";
+
 static const char *__doc_bbp_sonata_SimulationConfig_InputHyperpolarizing = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputHyperpolarizing_representsPhysicalElectrode = R"doc(Whether this input represents a physical electrode. Default is false)doc";

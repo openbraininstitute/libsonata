@@ -73,6 +73,14 @@
             "duration": 15,
             "node_set":"Column"
         },
+        "ex_linear_compartment_set": {
+            "input_type": "current_clamp",
+            "module": "linear",
+            "amp_start": 0.15,
+            "delay": 0,
+            "duration": 15,
+            "compartment_set":"cs1"
+        },
         "ex_rel_linear": {
             "input_type": "current_clamp",
             "module": "relative_linear",

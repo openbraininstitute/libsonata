@@ -359,7 +359,6 @@ TEST_CASE("SimulationConfig") {
         CHECK(configAllSects.sectionConfigure == "%s.gSK_E2bar_SK_E2 = 0");
 
         CHECK_THROWS_AS(config.getReport("DoesNotExist"), SonataError);
-
         CHECK(config.listReportNames() == std::set<std::string>{
               "axonal_comp_centers",
               "cell_imembrane",
@@ -587,6 +586,7 @@ TEST_CASE("SimulationConfig") {
                                                                "ex_extracellular_stimulation",
                                                                "ex_hyperpolarizing",
                                                                "ex_linear",
+                                                               "ex_linear_compartment_set",
                                                                "ex_noise_mean",
                                                                "ex_noise_meanpercent",
                                                                "ex_OU",
@@ -1203,14 +1203,65 @@ TEST_CASE("SimulationConfig") {
               "inputs": {
                 "linear": {
                    "input_type": "current_clamp",
-                   "module": "spike_replay",
+                   "module": "linear",
                    "delay": 0,
                    "duration": 15,
                    "node_set":"Column"
                 }
               }
             })";
-            CHECK_THROWS_AS(SimulationConfig(contents, "./"), SonataError);
+CHECK_THROWS_WITH(
+    SimulationConfig(contents, "./"),
+    Catch::Matchers::Contains("amp_start")
+);
+        }                                                      
+        {  // Both node_set and compartment_set are given in an input object
+            auto contents = R"({
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs": {
+                "linear": {
+                   "input_type": "current_clamp",
+                   "module": "linear",
+                   "delay": 0,
+                   "duration": 15,
+                   "amp_start": 1,
+                   "node_set":"Column",
+                   "compartment_set":"cs1"
+                }
+              }
+            })";
+CHECK_THROWS_WITH(
+    SimulationConfig(contents, "./"),
+    Catch::Matchers::Contains("node_set") &&
+    Catch::Matchers::Contains("compartment_set")
+);
+        }
+        {  // Both node_set and compartment_set are missing in an input object
+            auto contents = R"({
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs": {
+                "linear": {
+                   "input_type": "current_clamp",
+                   "module": "linear",
+                   "delay": 0,
+                   "duration": 15,
+                   "amp_start": 1
+                }
+              }
+            })";
+CHECK_THROWS_WITH(
+    SimulationConfig(contents, "./"),
+    Catch::Matchers::Contains("node_set") &&
+    Catch::Matchers::Contains("compartment_set")
+);
         }
         {  // Both mean and mean_percent are given in a noise input object
             auto contents = R"({

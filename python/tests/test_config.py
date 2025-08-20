@@ -486,6 +486,7 @@ class TestSimulationConfig(unittest.TestCase):
                           "ex_extracellular_stimulation",
                           "ex_hyperpolarizing",
                           "ex_linear",
+                          "ex_linear_compartment_set",
                           "ex_noise_mean",
                           "ex_noise_meanpercent",
                           "ex_OU",
@@ -506,8 +507,12 @@ class TestSimulationConfig(unittest.TestCase):
         self.assertEqual(self.config.input('ex_linear').delay, 0)
         self.assertEqual(self.config.input('ex_linear').duration, 15)
         self.assertEqual(self.config.input('ex_linear').node_set, "Column")
+        self.assertEqual(self.config.input('ex_linear').compartment_set, None)
         self.assertEqual(self.config.input('ex_linear').amp_start, 0.15)
         self.assertEqual(self.config.input('ex_linear').amp_end, 0.15)
+
+        self.assertEqual(self.config.input('ex_linear_compartment_set').node_set, None)
+        self.assertEqual(self.config.input('ex_linear_compartment_set').compartment_set, "cs1")
 
         self.assertEqual(self.config.input('ex_rel_linear').input_type.name, 'current_clamp')
         self.assertEqual(self.config.input('ex_rel_linear').module.name, 'relative_linear')
@@ -723,3 +728,43 @@ class TestSimulationConfig(unittest.TestCase):
             """
             SimulationConfig(contents, "./")
         self.assertEqual(e.exception.args, ('Replay spike_file should be a SONATA h5 file', ))
+
+        with self.assertRaises(SonataError) as e:
+            contents = """
+            {
+                "run": { "random_seed": 12345, "dt": 0.05, "tstop": 1000 },
+                "inputs" : {
+                    "ex_linear": {
+                        "input_type": "current_clamp",
+                        "module": "linear",
+                        "amp_start": 0.15,
+                        "delay": 0,
+                        "duration": 15,
+                        "node_set":"Column",
+                        "compartment_set":"cs1"
+                    }
+                }
+            }
+            """
+            SimulationConfig(contents, "./")
+        self.assertEqual(e.exception.args, ('`node_set` is not allowed if `compartment_set` is set in input ex_linear', ))
+
+        with self.assertRaises(SonataError) as e:
+            contents = """
+            {
+                "run": { "random_seed": 12345, "dt": 0.05, "tstop": 1000 },
+                "inputs" : {
+                    "ex_linear": {
+                        "input_type": "current_clamp",
+                        "module": "linear",
+                        "amp_start": 0.15,
+                        "delay": 0,
+                        "duration": 15
+                    }
+                }
+            }
+            """
+            SimulationConfig(contents, "./")
+        self.assertEqual(e.exception.args, ('One of `node_set` or `compartment_set` need to have a value in input ex_linear', ))
+
+
