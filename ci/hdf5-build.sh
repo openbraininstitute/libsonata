@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e -x
 
-: "${UNIXY_HDF5_VERSION:=1.14.3}"
 : "${CIBW_ARCHS_MACOS:=$(uname -m)}"
 
 export INPUT=$(cd $(dirname "$1") && pwd -P)/$(basename "$1")
@@ -10,12 +9,13 @@ export OUTPUT="$INPUT/install-$CIBW_ARCHS_MACOS"
 
 function download_unpack_hdf5 {
     pushd "$INPUT"
-    local name=CMake-hdf5-$UNIXY_HDF5_VERSION.tar.gz
+    local name=hdf5_1.14.6.tar.gz
     if [[ ! -e $name ]]; then
-        echo "Downloading & unpacking HDF5 ${UNIXY_HDF5_VERSION}"
-        curl -fsSLO "https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${UNIXY_HDF5_VERSION%.*}/hdf5-$UNIXY_HDF5_VERSION/src/$name"
+        echo "Downloading & unpacking HDF5 ${name}"
+        curl -fsSLO "https://github.com/HDFGroup/hdf5/archive/refs/tags/${name}"
     fi
-    tar xzf "$name"
+    mkdir -p "${INPUT}/hdf5"
+    tar xzf "$name" -C "${INPUT}/hdf5"  --strip-components=1
     popd
 }
 
@@ -44,15 +44,19 @@ else
     cmake -B "$OUTPUT/build" -G'Unix Makefiles' \
         -DCMAKE_BUILD_TYPE=RelWithDebInfo \
         -DBUILD_SHARED_LIBS=OFF \
+        -DHDF5_ENABLE_NONSTANDARD_FEATURES=OFF \
+        -DHDF5_ENABLE_NONSTANDARD_FEATURE_FLOAT16=OFF \
+        -DHDF5_BUILD_STATIC_TOOLS=OFF \
         -DHDF5_BUILD_UTILS=OFF \
         -DHDF5_BUILD_HL_LIB=OFF \
         -DHDF5_BUILD_EXAMPLES=OFF \
         -DBUILD_TESTING=OFF \
         -DHDF5_BUILD_TOOLS=OFF \
         -DHDF5_ENABLE_SZIP_ENCODING=OFF \
+        -DHDF5_ENABLE_SZIP_SUPPORT=OFF \
         -DHDF5_ENABLE_Z_LIB_SUPPORT=OFF \
         -DCMAKE_INSTALL_PREFIX="$INSTALL" \
-        -S "$INPUT/CMake-hdf5-$UNIXY_HDF5_VERSION/hdf5-$UNIXY_HDF5_VERSION"
+        -S "$INPUT/hdf5"
 
     cmake --build "$OUTPUT/build" -j "$NPROC"
     cmake --install "$OUTPUT/build"

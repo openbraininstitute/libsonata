@@ -6,9 +6,8 @@ env:
 
   CIBW_BUILD_VERBOSITY: 3
   CIBW_BUILD: 'cp*'
-  CIBW_SKIP: 'cp35-* cp36-* cp37-* cp38-* *-musllinux_* *-manylinux_i686'
+  CIBW_SKIP: 'cp39-* *-musllinux_* *-manylinux_i686 "cp314t-*"'
   CIBW_TEST_COMMAND: ( cd {project}/python/tests; python -m unittest -v )
-  UNIXY_HDF5_VERSION: 1.14.3
 
 jobs:
   build_wheels:
@@ -19,8 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # macos-13 is an intel runner, macos-14 is apple silicon
-        os: [ubuntu-22.04, macos-13, macos-14]
+        os: [ubuntu-22.04, macos-14, macos-15-intel]
 
     steps:
       - uses: actions/checkout@v4
@@ -62,7 +60,6 @@ jobs:
           export STATIC_HDF5=True
           export CMAKE_PREFIX_PATH=/opt/hdf5-static/install-x86_64/install/
 
-          CIBW_MANYLINUX_X86_64_IMAGE=manylinux2014 python -m cibuildwheel --output-dir dist
           CIBW_MANYLINUX_X86_64_IMAGE=manylinux_2_28 python -m cibuildwheel --output-dir dist
 
       - name: Build wheels Mac OS
