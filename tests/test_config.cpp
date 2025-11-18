@@ -581,9 +581,16 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.sdPercent == 10);
             CHECK(input.randomSeed == 230522);
         }
+        {
+            const auto input = nonstd::get<SimulationConfig::InputUniformEField>(
+                config.getInput("ex_efields"));
+            CHECK(input.inputType == InputType::extracellular_stimulation);
+            CHECK(input.module == Module::uniform_e_field);
+            CHECK(input.rampUpTime == 100.);
+            CHECK(input.rampDownTime == 10.);
+        }
 
         CHECK(config.listInputNames() == std::set<std::string>{"ex_abs_shotnoise",
-                                                               "ex_extracellular_stimulation",
                                                                "ex_hyperpolarizing",
                                                                "ex_linear",
                                                                "ex_linear_compartment_set",
@@ -599,7 +606,8 @@ TEST_CASE("SimulationConfig") {
                                                                "ex_shotnoise",
                                                                "ex_sinusoidal",
                                                                "ex_sinusoidal_default_dt",
-                                                               "ex_subthreshold"});
+                                                               "ex_subthreshold",
+                                                               "ex_efields"});
 
         auto overrides = config.getConnectionOverrides();
         CHECK(overrides[0].name == "ConL3Exc-Uni");
@@ -1306,7 +1314,7 @@ TEST_CASE("SimulationConfig") {
             })";
             CHECK_THROWS_AS(SimulationConfig(contents, "./"), SonataError);
         }
-        { // mising input
+        {  // missing input
             const auto config = SimulationConfig::fromFile("./data/config/simulation_config.json");
             CHECK_THROWS_AS(config.getInput("does_not_exist"), SonataError);
         }
@@ -1325,6 +1333,123 @@ TEST_CASE("SimulationConfig") {
               }
             })";
             CHECK_THROWS_AS(SimulationConfig(contents, "./"), SonataError);
+        }
+        {  // wrong module for extracellular stimulation input
+            const auto* contents = R"({
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs": {
+                "extra": {
+                  "input_type": "extracellular_stimulation",
+                  "module": "synapse_replay",
+                  "delay": 0.0,
+                  "duration": 40000.0,
+                  "spike_file": "replay.h5",
+                  "node_set": "Column"
+                }
+              }
+            })";
+            CHECK_THROWS_MATCHES(SimulationConfig(contents, "./"),
+                                 SonataError,
+                                 Catch::Matchers::Message(
+                                     "An `input` has module `synapse_replay` and input_type "
+                                     "`extracellular_stimulation` which mismatch"));
+        }
+        {  // missing ramp_up_time in uniform_e_field
+            const auto* contents = R"({
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs": {
+                "efields": {
+                  "input_type": "extracellular_stimulation",
+                  "module": "uniform_e_field",
+                  "delay": 0.0,
+                  "duration": 40000.0,
+                  "node_set": "Column"
+                }
+              }
+            })";
+            CHECK_THROWS_MATCHES(SimulationConfig(contents, "./"),
+                                 SonataError,
+                                 Catch::Matchers::Message(
+                                     "Could not find 'ramp_up_time' in 'input efields'"));
+        }
+        {  // missing fields in uniform_e_field
+            const auto* contents = R"({
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs": {
+                "efields": {
+                  "input_type": "extracellular_stimulation",
+                  "module": "uniform_e_field",
+                  "delay": 0.0,
+                  "duration": 40000.0,
+                  "node_set": "Column",
+                  "ramp_up_time": 10.0
+                }
+              }
+            })";
+            CHECK_THROWS_MATCHES(SimulationConfig(contents, "./"),
+                                 SonataError,
+                                 Catch::Matchers::Message(
+                                     "Could not find 'fields' in 'input efields'"));
+        }
+        {  // fields must be an array in uniform_e_field
+            const auto* contents = R"({
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs": {
+                "efields": {
+                  "input_type": "extracellular_stimulation",
+                  "module": "uniform_e_field",
+                  "delay": 0.0,
+                  "duration": 40000.0,
+                  "node_set": "Column",
+                  "ramp_up_time": 10.0,
+                  "fields": {}
+                }
+              }
+            })";
+            CHECK_THROWS_MATCHES(SimulationConfig(contents, "./"),
+                                 SonataError,
+                                 Catch::Matchers::Message(
+                                     "'fields' must be an array in 'input efields'"));
+        }
+        {  // fields is empty in uniform_e_field
+            const auto* contents = R"({
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs": {
+                "efields": {
+                  "input_type": "extracellular_stimulation",
+                  "module": "uniform_e_field",
+                  "delay": 0.0,
+                  "duration": 40000.0,
+                  "node_set": "Column",
+                  "ramp_up_time": 10.0,
+                  "fields": []
+                }
+              }
+            })";
+            CHECK_THROWS_MATCHES(SimulationConfig(contents, "./"),
+                                 SonataError,
+                                 Catch::Matchers::Message(
+                                     "'fields' must be an array in 'input efields'"));
         }
         {  // Invalid spikes ordering in the output section
             auto contents = R"({

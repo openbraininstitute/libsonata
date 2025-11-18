@@ -111,7 +111,8 @@ NLOHMANN_JSON_SERIALIZE_ENUM(
      {SimulationConfig::InputBase::Module::absolute_shot_noise, "absolute_shot_noise"},
      {SimulationConfig::InputBase::Module::ornstein_uhlenbeck, "ornstein_uhlenbeck"},
      {SimulationConfig::InputBase::Module::relative_ornstein_uhlenbeck,
-      "relative_ornstein_uhlenbeck"}})
+      "relative_ornstein_uhlenbeck"},
+     {SimulationConfig::InputBase::Module::uniform_e_field, "uniform_e_field"}})
 
 NLOHMANN_JSON_SERIALIZE_ENUM(
     SimulationConfig::InputBase::InputType,
@@ -392,6 +393,36 @@ void parseVariantType(const nlohmann::json& it, variantValueType& var) {
     }
 }
 
+
+void parseInputsEFields(const nlohmann::json& it,
+                        const std::string& section_name,
+                        std::vector<SimulationConfig::EField>& buf) {
+    const auto sectionIt = it.find("fields");
+    if (sectionIt == it.end()) {
+        throw SonataError(fmt::format("Could not find 'fields' in '{}'", section_name));
+        return;
+    }
+    if (!sectionIt->is_array()) {
+        throw SonataError(fmt::format("'fields' must be an array in '{}'", section_name));
+    }
+    if (sectionIt->is_null()) {
+        throw SonataError(fmt::format("'fields' is empty in '{}'", section_name));
+    }
+    buf.reserve(sectionIt->size());
+
+    for (auto& mIt : sectionIt->items()) {
+        const auto valueIt = mIt.value();
+        const auto debugStr = fmt::format("Input uniform_e_field `fields` {}", mIt.key());
+
+        SimulationConfig::EField result;
+        parseMandatory(valueIt, "Ex", debugStr, result.ex);
+        parseMandatory(valueIt, "Ey", debugStr, result.ey);
+        parseMandatory(valueIt, "Ez", debugStr, result.ez);
+        parseOptional(valueIt, "frequency", result.frequency, {0.0});
+        buf.push_back(std::move(result));
+    }
+}
+
 SimulationConfig::Input parseInputModule(const nlohmann::json& valueIt,
                                          const SimulationConfig::InputBase::Module module,
                                          const std::string& basePath,
@@ -603,6 +634,14 @@ SimulationConfig::Input parseInputModule(const nlohmann::json& valueIt,
 
         parseMandatory(valueIt, "mean_percent", debugStr, ret.meanPercent);
         parseMandatory(valueIt, "sd_percent", debugStr, ret.sdPercent);
+        return ret;
+    }
+    case Module::uniform_e_field: {
+        SimulationConfig::InputUniformEField ret;
+        parseCommon(ret);
+        parseMandatory(valueIt, "ramp_up_time", debugStr, ret.rampUpTime);
+        parseOptional(valueIt, "ramp_down_time", ret.rampDownTime, {0.0});
+        parseInputsEFields(valueIt, debugStr, ret.fields);
         return ret;
     }
     default:
@@ -1313,6 +1352,9 @@ class SimulationConfig::Parser
                 }
                 break;
             case InputBase::InputType::extracellular_stimulation:
+                if (!nonstd::holds_alternative<SimulationConfig::InputUniformEField>(input)) {
+                    mismatchingModuleInputType();
+                }
                 break;
             case InputBase::InputType::conductance:
                 if (!(nonstd::holds_alternative<SimulationConfig::InputShotNoise>(input) ||
@@ -1481,6 +1523,11 @@ const SimulationConfig::Input& SimulationConfig::getInput(const std::string& nam
             fmt::format("The input '{}' is not present in the simulation config file", name));
     }
     return it->second;
+}
+
+const std::vector<SimulationConfig::EField>& SimulationConfig::InputUniformEField::getEFields()
+    const noexcept {
+    return fields;
 }
 
 const std::vector<SimulationConfig::ConnectionOverride>& SimulationConfig::getConnectionOverrides()

@@ -437,7 +437,8 @@ class SONATA_API SimulationConfig
             relative_shot_noise,
             absolute_shot_noise,
             ornstein_uhlenbeck,
-            relative_ornstein_uhlenbeck
+            relative_ornstein_uhlenbeck,
+            uniform_e_field
         };
 
         enum class InputType {
@@ -645,6 +646,30 @@ class SONATA_API SimulationConfig
         bool representsPhysicalElectrode = false;
     };
 
+    struct EField {
+        // Peak amplitude of the sinusoid in the x-direction, in V/m
+        double ex{};
+        // Peak amplitude of the sinusoid in the y-direction, in V/m
+        double ey{};
+        // Peak amplitude of the sinusoid in the z-direction, in V/m
+        double ez{};
+        // Frequency of the sinusoid, in Hz. Default is 0 Hz
+        double frequency{};
+    };
+
+    struct InputUniformEField: public InputBase {
+      public:
+        // A list of dicts, where each dict defines one of the fields which are summed to produce
+        // the total stimulus.
+        std::vector<EField> fields;
+        // Duration during which the signal ramps up linearly from 0, in ms. Default is 0 ms.
+        double rampUpTime;
+        // Duration during which the signal ramps down linearly from 0, in ms.
+        double rampDownTime;
+        // Method to return the full list of uniform E fields.
+        const std::vector<EField>& getEFields() const noexcept;
+    };
+
     using Input = nonstd::variant<InputLinear,
                                   InputRelativeLinear,
                                   InputPulse,
@@ -658,7 +683,8 @@ class SONATA_API SimulationConfig
                                   InputRelativeShotNoise,
                                   InputAbsoluteShotNoise,
                                   InputOrnsteinUhlenbeck,
-                                  InputRelativeOrnsteinUhlenbeck>;
+                                  InputRelativeOrnsteinUhlenbeck,
+                                  InputUniformEField>;
 
     using InputMap = std::unordered_map<std::string, Input>;
 
