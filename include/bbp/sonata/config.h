@@ -667,7 +667,7 @@ class SONATA_API SimulationConfig
         // Duration during which the signal ramps down linearly from 0, in ms.
         double rampDownTime;
         // Method to return the full list of uniform E fields.
-        const std::vector<EField>& getEFields() const noexcept;
+        const std::vector<EField>& getFields() const noexcept;
     };
 
     using Input = nonstd::variant<InputLinear,

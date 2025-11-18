@@ -937,6 +937,16 @@ static const char *__doc_bbp_sonata_SimulationConfig_ConnectionOverride_target =
 
 static const char *__doc_bbp_sonata_SimulationConfig_ConnectionOverride_weight = R"doc(Scalar to adjust synaptic strength, default = 1.)doc";
 
+static const char *__doc_bbp_sonata_SimulationConfig_EField = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_EField_ex = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_EField_ey = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_EField_ez = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_EField_frequency = R"doc()doc";
+
 static const char *__doc_bbp_sonata_SimulationConfig_InputAbsoluteShotNoise = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputAbsoluteShotNoise_decayTime = R"doc(The decay time of the bi-exponential shots (ms))doc";
@@ -1009,6 +1019,8 @@ static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_sinusoidal
 static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_subthreshold = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_synapse_replay = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_uniform_e_field = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputBase_compartmentSet =
 R"doc(CompartmentSet which is affected by the input. It has priority over
@@ -1192,6 +1204,16 @@ static const char *__doc_bbp_sonata_SimulationConfig_InputSynapseReplay = R"doc(
 static const char *__doc_bbp_sonata_SimulationConfig_InputSynapseReplay_spikeFile =
 R"doc(The location of the file with the spike info for injection, file
 extension must be .h5)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_InputUniformEField = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_InputUniformEField_fields = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_InputUniformEField_getFields = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_InputUniformEField_rampDownTime = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_InputUniformEField_rampUpTime = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase = R"doc()doc";
 
