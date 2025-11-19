@@ -34,7 +34,7 @@ Throws:
     entry is present - Multiple populations with the same name in
     different edge/node networks)doc";
 
-static const char *__doc_bbp_sonata_CircuitConfig_Components = R"doc(asdfasdf)doc";
+static const char *__doc_bbp_sonata_CircuitConfig_Components = R"doc()doc";
 
 static const char *__doc_bbp_sonata_CircuitConfig_Components_alternateMorphologiesDir = R"doc()doc";
 
