@@ -483,7 +483,7 @@ PYBIND11_MODULE(_libsonata, m) {
         .def(
             "__contains__",
             [](const Selection& sel, uint64_t node_id) { return sel.contains(node_id); },
-            DOC_SEL(nodeId))
+            DOC_SEL(contains))
         .def(
             "__bool__",
             [](const Selection& obj) { return !obj.empty(); },
@@ -600,7 +600,7 @@ PYBIND11_MODULE(_libsonata, m) {
             },
             py::arg("selection") = bbp::sonata::Selection({}),
             py::keep_alive<0, 1>(),
-            DOC_COMPARTMENTSET(filteredIter))
+            DOC_COMPARTMENTSET(filtered_crange))
         .def("__len__", [](const CompartmentSet& self) { return self.size(); })
         .def(
             "__getitem__",
@@ -614,7 +614,7 @@ PYBIND11_MODULE(_libsonata, m) {
                 return self[static_cast<std::size_t>(i)];
             },
             py::arg("index"),
-            DOC_COMPARTMENTSET(getitem))
+            DOC_COMPARTMENTSET(operator_array))
         .def(
             "__iter__",
             [](const CompartmentSet& self) {
@@ -662,7 +662,7 @@ PYBIND11_MODULE(_libsonata, m) {
         .def("__getitem__",
              &CompartmentSets::getCompartmentSet,
              py::arg("key"),
-             DOC_COMPARTMENTSET(getitem))
+             DOC_COMPARTMENTSETS(getCompartmentSet))
         .def("__repr__",
              [](const CompartmentSets& self) {
                  auto items = self.items();
@@ -888,7 +888,7 @@ PYBIND11_MODULE(_libsonata, m) {
                       DOC_SIMULATIONCONFIG(Report, cells))
         .def_readonly("compartment_set",
                       &SimulationConfig::Report::compartment_set,
-                      DOC_SIMULATIONCONFIG(Report, compartmentSet))
+                      DOC_SIMULATIONCONFIG(Report, compartment_set))
         .def_readonly("sections",
                       &SimulationConfig::Report::sections,
                       DOC_SIMULATIONCONFIG(Report, sections))
