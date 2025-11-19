@@ -245,10 +245,9 @@
                     "frequency": 10
                 },
                 {
-                    "Ex": 0.3,
-                    "Ey": 0.4,
-                    "Ez": 0.5,
-                    "frequency": 42
+                    "Ex": 0.4,
+                    "Ey": 0.5,
+                    "Ez": 0.6
                 }
             ],
             "ramp_up_time": 100.0,

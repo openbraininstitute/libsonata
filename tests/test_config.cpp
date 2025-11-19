@@ -588,6 +588,16 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.module == Module::uniform_e_field);
             CHECK(input.rampUpTime == 100.);
             CHECK(input.rampDownTime == 10.);
+            const auto fields = input.getFields();
+            CHECK(fields.size() == 2);
+            CHECK(fields[0].ex == 0.1);
+            CHECK(fields[0].ey == 0.2);
+            CHECK(fields[0].ez == 0.3);
+            CHECK(fields[0].frequency == 10.);
+            CHECK(fields[1].ex == 0.4);
+            CHECK(fields[1].ey == 0.5);
+            CHECK(fields[1].ez == 0.6);
+            CHECK(fields[1].frequency == 0.);
         }
 
         CHECK(config.listInputNames() == std::set<std::string>{"ex_abs_shotnoise",
@@ -1418,7 +1428,7 @@ TEST_CASE("SimulationConfig") {
                   "duration": 40000.0,
                   "node_set": "Column",
                   "ramp_up_time": 10.0,
-                  "fields": {}
+                  "fields": {"a":1, "b":2}
                 }
               }
             })";
@@ -1427,7 +1437,7 @@ TEST_CASE("SimulationConfig") {
                                  Catch::Matchers::Message(
                                      "'fields' must be an array in 'input efields'"));
         }
-        {  // fields is empty in uniform_e_field
+        {  // fields must not be empty in uniform_e_field
             const auto* contents = R"({
               "run": {
                 "random_seed": 12345,
@@ -1448,8 +1458,36 @@ TEST_CASE("SimulationConfig") {
             })";
             CHECK_THROWS_MATCHES(SimulationConfig(contents, "./"),
                                  SonataError,
+                                 Catch::Matchers::Message("'fields' is empty in 'input efields'"));
+        }
+        {  // Missing mandatory parameters in fields
+            const auto* contents = R"({
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs": {
+                "efields": {
+                  "input_type": "extracellular_stimulation",
+                  "module": "uniform_e_field",
+                  "delay": 0.0,
+                  "duration": 40000.0,
+                  "node_set": "Column",
+                  "ramp_up_time": 10.0,
+                  "fields": [
+                    {
+                      "Ex": 0.1,
+                      "frequency": 1.0
+                    }
+                  ]
+                }
+              }
+            })";
+            CHECK_THROWS_MATCHES(SimulationConfig(contents, "./"),
+                                 SonataError,
                                  Catch::Matchers::Message(
-                                     "'fields' must be an array in 'input efields'"));
+                                     "Could not find 'Ey' in 'input efields fields'"));
         }
         {  // Invalid spikes ordering in the output section
             auto contents = R"({

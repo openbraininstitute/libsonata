@@ -1205,8 +1205,8 @@ PYBIND11_MODULE(_libsonata, m) {
             "represents_physical_electrode",
             &SimulationConfig::InputRelativeOrnsteinUhlenbeck::representsPhysicalElectrode,
             DOC_SIMULATIONCONFIG(InputRelativeOrnsteinUhlenbeck, representsPhysicalElectrode));
-    py::class_<SimulationConfig::InputUniformEField, SimulationConfig::InputBase>(
-        simConf, "UniformEField")
+    py::class_<SimulationConfig::InputUniformEField, SimulationConfig::InputBase>(simConf,
+                                                                                  "UniformEField")
         .def_readonly("ramp_up_time",
                       &SimulationConfig::InputUniformEField::rampUpTime,
                       DOC_SIMULATIONCONFIG(InputUniformEField, rampUpTime))
@@ -1218,18 +1218,10 @@ PYBIND11_MODULE(_libsonata, m) {
              DOC_SIMULATIONCONFIG(InputUniformEField, getFields));
 
     py::class_<SimulationConfig::EField>(simConf, "EField")
-        .def_readonly("Ex",
-                      &SimulationConfig::EField::ex,
-                      DOC_SIMULATIONCONFIG(EField, ex))
-        .def_readonly("Ey",
-                      &SimulationConfig::EField::ey,
-                      DOC_SIMULATIONCONFIG(EField, ey))
-        .def_readonly("Ex",
-                      &SimulationConfig::EField::ex,
-                      DOC_SIMULATIONCONFIG(EField, ex))
-        .def_readonly("Ez",
-                      &SimulationConfig::EField::ez,
-                      DOC_SIMULATIONCONFIG(EField, ez))
+        .def_readonly("Ex", &SimulationConfig::EField::ex, DOC_SIMULATIONCONFIG(EField, ex))
+        .def_readonly("Ey", &SimulationConfig::EField::ey, DOC_SIMULATIONCONFIG(EField, ey))
+        .def_readonly("Ex", &SimulationConfig::EField::ex, DOC_SIMULATIONCONFIG(EField, ex))
+        .def_readonly("Ez", &SimulationConfig::EField::ez, DOC_SIMULATIONCONFIG(EField, ez))
         .def_readonly("frequency",
                       &SimulationConfig::EField::frequency,
                       DOC_SIMULATIONCONFIG(EField, frequency));
@@ -1250,8 +1242,7 @@ PYBIND11_MODULE(_libsonata, m) {
         .value("ornstein_uhlenbeck", SimulationConfig::InputBase::Module::ornstein_uhlenbeck)
         .value("relative_ornstein_uhlenbeck",
                SimulationConfig::InputBase::Module::relative_ornstein_uhlenbeck)
-        .value("uniform_e_field",
-               SimulationConfig::InputBase::Module::uniform_e_field);
+        .value("uniform_e_field", SimulationConfig::InputBase::Module::uniform_e_field);
 
     py::enum_<SimulationConfig::InputBase::InputType>(inputBase, "InputType")
         .value("spikes", SimulationConfig::InputBase::InputType::spikes)

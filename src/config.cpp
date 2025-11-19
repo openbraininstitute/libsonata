@@ -402,18 +402,17 @@ void parseInputsEFields(const nlohmann::json& it,
         throw SonataError(fmt::format("Could not find 'fields' in '{}'", section_name));
         return;
     }
+    if (sectionIt->empty()) {
+        throw SonataError(fmt::format("'fields' is empty in '{}'", section_name));
+    }
     if (!sectionIt->is_array()) {
         throw SonataError(fmt::format("'fields' must be an array in '{}'", section_name));
     }
-    if (sectionIt->is_null()) {
-        throw SonataError(fmt::format("'fields' is empty in '{}'", section_name));
-    }
     buf.reserve(sectionIt->size());
 
-    for (auto& mIt : sectionIt->items()) {
-        const auto valueIt = mIt.value();
-        const auto debugStr = fmt::format("Input uniform_e_field `fields` {}", mIt.key());
-
+    for (auto& fIt : sectionIt->items()) {
+        const auto valueIt = fIt.value();
+        const auto debugStr = fmt::format("{} fields", section_name);
         SimulationConfig::EField result;
         parseMandatory(valueIt, "Ex", debugStr, result.ex);
         parseMandatory(valueIt, "Ey", debugStr, result.ey);
