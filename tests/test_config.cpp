@@ -586,6 +586,9 @@ TEST_CASE("SimulationConfig") {
                 config.getInput("ex_efields"));
             CHECK(input.inputType == InputType::extracellular_stimulation);
             CHECK(input.module == Module::uniform_e_field);
+            CHECK(input.delay == 0);
+            CHECK(input.duration == 1000);
+            CHECK(input.nodeSet == "Mosaic");
             CHECK(input.rampUpTime == 100.);
             CHECK(input.rampDownTime == 10.);
             const auto fields = input.getFields();

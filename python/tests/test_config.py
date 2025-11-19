@@ -620,6 +620,9 @@ class TestSimulationConfig(unittest.TestCase):
 
         self.assertEqual(self.config.input('ex_efields').input_type.name, "extracellular_stimulation")
         self.assertEqual(self.config.input('ex_efields').module.name, "uniform_e_field")
+        self.assertEqual(self.config.input('ex_efields').delay, 0)
+        self.assertEqual(self.config.input('ex_efields').duration, 1000)
+        self.assertEqual(self.config.input('ex_efields').node_set, "Mosaic")
         self.assertEqual(self.config.input('ex_efields').ramp_up_time, 100)
         self.assertEqual(self.config.input('ex_efields').ramp_down_time, 10)
         fields = self.config.input('ex_efields').fields()
