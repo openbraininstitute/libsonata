@@ -46,6 +46,7 @@ $VENV/bin/python -m pybind11_mkdoc \
   -ferror-limit=100000 \
   -I/usr/include/hdf5/serial \
   -I./extlib/HighFive/include \
+  -I./extlib/nlohmann/ \
   -I./include
 
 # fail if there are diffs in the generated docstrings
