@@ -23,13 +23,16 @@ if [[ -z $LIBCLANG_PATH ]]; then
 fi
 
 VERSION=bd40db3b4e24cd14d0f02fc782c7fdae4e17d351
-PACKAGE=git+git://github.com/pybind/pybind11_mkdoc.git@$VERSION
+PACKAGE=git+https://github.com/pybind/pybind11_mkdoc.git@$VERSION
+
+# This version has to match which LIBCLANG_PATH is being set
+PYPI_CLANG="clang==14.0.0"
 
 VENV=build/venv-docstrings
 if [[ ! -d $VENV ]]; then
     python3 -mvenv "$VENV"
     $VENV/bin/pip install -U pip setuptools wheel
-    $VENV/bin/python -m pip install $PACKAGE
+    $VENV/bin/python -m pip install $PACKAGE $PYPI_CLANG
 fi
 
 DOCSTRING_PATH=./python/generated/docstrings.h
@@ -43,6 +46,7 @@ $VENV/bin/python -m pybind11_mkdoc \
   -ferror-limit=100000 \
   -I/usr/include/hdf5/serial \
   -I./extlib/HighFive/include \
+  -I./extlib/nlohmann/ \
   -I./include
 
 # fail if there are diffs in the generated docstrings

@@ -26,4 +26,4 @@ jobs:
         - name: Check docstrings
           run: |
             export LIBCLANG_PATH=/usr/lib/llvm-14/lib/libclang.so
-            ci/check_generated_docstrings.sh || true
+            ci/check_generated_docstrings.sh

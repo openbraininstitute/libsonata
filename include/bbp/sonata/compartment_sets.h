@@ -33,8 +33,7 @@ struct CompartmentLocation {
     uint64_t sectionId = 0;
     double offset = 0.0;
 
-    /// Comparator. Used to compare vectors in CompartmentSet. More idiomatic than defining a
-    /// comaprator on the fly
+    /// Comparator. Used to compare vectors in CompartmentSet.
     bool operator==(const CompartmentLocation& other) const {
         return nodeId == other.nodeId && sectionId == other.sectionId && offset == other.offset;
     }
@@ -64,7 +63,7 @@ struct CompartmentLocation {
     }
 };
 
-/// Ostream << operator used by catch2 when there are problems for example
+// Ostream << operator used by catch2 when there are problems for example
 inline std::ostream& operator<<(std::ostream& os, const CompartmentLocation& cl) {
     os << "CompartmentLocation("
        << "nodeId: " << cl.nodeId << ", "
@@ -169,8 +168,7 @@ class SONATA_API CompartmentSets
     CompartmentSets& operator=(CompartmentSets&&) noexcept;
     ~CompartmentSets();
 
-    /// Create new CompartmentSets from file. In this way we distinguish from
-    /// the basic string constructor.
+    /// Create new CompartmentSets from file. the basic string constructor.
     static CompartmentSets fromFile(const std::string& path);
 
     /// Access element by key (throws if not found)
