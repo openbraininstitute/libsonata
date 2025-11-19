@@ -19,4 +19,6 @@ jobs:
 
         - name: check_clang_format
           run: |
+            set -e
             ci/check_clang_format.sh
+            echo "Status: $?"

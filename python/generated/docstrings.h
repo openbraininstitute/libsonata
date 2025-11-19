@@ -87,6 +87,8 @@ static const char *__doc_bbp_sonata_CircuitConfig_getCircuitConfigStatus =
 R"doc(Returns the `completeness` of the checks that are performed for the
 circuit; see `ConfigStatus` for more information)doc";
 
+static const char *__doc_bbp_sonata_CircuitConfig_getCompartmentSetsPath = R"doc(Returns the path to the compartment sets file.)doc";
+
 static const char *__doc_bbp_sonata_CircuitConfig_getEdgePopulation =
 R"doc(Creates and returns an EdgePopulation object, initialized from the
 given population, and the edge network it belongs to.
@@ -164,6 +166,152 @@ static const char *__doc_bbp_sonata_CommonPopulationProperties_typesPath =
 R"doc(Path to underlying types csv file. It is discouraged to directly
 access the contents of the file. Instead use 'libsonata' to read this
 file.)doc";
+
+static const char *__doc_bbp_sonata_CompartmentLocation =
+R"doc(CompartmentLocation.
+
+This struct uniquely identifies a compartment by a set of node_id,
+section_index and offset:
+
+- node_id: Global ID of the cell (Neuron) to which the compartment
+belongs. No overlaps among populations. - section_index: Absolute
+section index. Progressive index that uniquely identifies the section.
+There is a mapping between neuron section names (i.e. dend[10]) and
+this index. - offset: Offset of the compartment along the section. The
+offset is a value between 0 and 1
+
+Note: it cannot go inside CompartmentSet because then
+CompartmentSetFilteredIterator needs the full definition of
+CompartmentSet and CompartmentSet needs the full definition of
+CompartmentSetFilteredIterator.)doc";
+
+static const char *__doc_bbp_sonata_CompartmentLocation_nodeId = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentLocation_offset = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentLocation_operator_eq = R"doc(Comparator. Used to compare vectors in CompartmentSet.)doc";
+
+static const char *__doc_bbp_sonata_CompartmentLocation_operator_ge = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentLocation_operator_gt = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentLocation_operator_le = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentLocation_operator_lt = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentLocation_operator_ne = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentLocation_sectionId = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSet =
+R"doc(CompartmentSet public API.
+
+This class represents a set of compartment locations associated with a
+neuron population. Each compartment is uniquely defined by a (node_id,
+section_index, offset) triplet. This API supports filtering based on a
+node_id selection.)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSetFilteredIterator = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSetFilteredIterator_CompartmentSetFilteredIterator = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSetFilteredIterator_CompartmentSetFilteredIterator_2 = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSetFilteredIterator_CompartmentSetFilteredIterator_3 = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSetFilteredIterator_impl = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSetFilteredIterator_operator_assign = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSetFilteredIterator_operator_assign_2 = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSetFilteredIterator_operator_eq = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSetFilteredIterator_operator_inc = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSetFilteredIterator_operator_inc_2 = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSetFilteredIterator_operator_mul = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSetFilteredIterator_operator_ne = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSetFilteredIterator_operator_sub = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSet_CompartmentSet = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSet_CompartmentSet_2 = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSet_CompartmentSet_3 = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSet_empty = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSet_filter = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSet_filtered_crange = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSet_impl = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSet_nodeIds = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSet_operator_array = R"doc(Access element by index. It returns a copy!)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSet_operator_eq = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSet_operator_ne = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSet_population = R"doc(Population name)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSet_size = R"doc(Size of the set, optionally filtered by selection)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSet_toJSON = R"doc(Serialize to JSON string)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets =
+R"doc(@class CompartmentSets A container class that manages a collection of
+named CompartmentSet objects.
+
+This class provides methods for accessing, querying, and serializing a
+collection of compartment sets identified by string keys. It supports
+construction from a JSON string or a file, and encapsulates its
+internal implementation using the PIMPL idiom.
+
+The class is non-copyable but movable, and offers value-style
+accessors for ease of use.)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets_CompartmentSets = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets_CompartmentSets_2 = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets_CompartmentSets_3 = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets_CompartmentSets_4 = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets_CompartmentSets_5 = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets_contains = R"doc(Check if key exists)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets_empty = R"doc(Is empty?)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets_fromFile = R"doc(Create new CompartmentSets from file. the basic string constructor.)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets_getAllCompartmentSets = R"doc(Get all compartment sets as vector)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets_getCompartmentSet = R"doc(Access element by key (throws if not found))doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets_impl = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets_items = R"doc(Get items (key + compartment set) as vector of pairs)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets_names = R"doc(Get names of CompartmentSet(s) as a vector)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets_operator_assign = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets_operator_eq = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets_operator_ne = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets_size = R"doc(Number of compartment sets)doc";
+
+static const char *__doc_bbp_sonata_CompartmentSets_toJSON = R"doc(Serialize all compartment sets to JSON string)doc";
 
 static const char *__doc_bbp_sonata_DataFrame = R"doc()doc";
 
@@ -380,38 +528,6 @@ static const char *__doc_bbp_sonata_NodeSets_names = R"doc(Names of the node set
 static const char *__doc_bbp_sonata_NodeSets_operator_assign = R"doc()doc";
 
 static const char *__doc_bbp_sonata_NodeSets_toJSON = R"doc(Return the nodesets as a JSON string.)doc";
-
-static const char *__doc_bbp_sonata_CompartmentLocation_nodeId = R"doc(Id of the node.)doc";
-
-static const char *__doc_bbp_sonata_CompartmentLocation_sectionId = R"doc(Absolute section id. Progressive index that uniquely identifies the section. It is different from the relative section index. There is a mapping between neuron section names (i.e. dend[10]) and this index.)doc";
-
-static const char *__doc_bbp_sonata_CompartmentLocation_offset = R"doc(Offset of the compartment along the section)doc";
-
-static const char *__doc_bbp_sonata_CompartmentSet_population = R"doc(Population name)doc";
-
-static const char *__doc_bbp_sonata_CompartmentSet_toJSON = R"doc(Return the compartment set as a JSON string.)doc";
-
-static const char *__doc_bbp_sonata_CompartmentSet_size = R"doc(Return the size of the set, optionally filtered by selection.)doc";
-
-static const char *__doc_bbp_sonata_CompartmentSet_getitem = R"doc("Get a CompartmentLocation by index. Creates a copy of the object.")doc";
-
-static const char *__doc_bbp_sonata_CompartmentSet_nodeIds = R"doc(Node ids in the list of CompartmentLocations.)doc";
-
-static const char *__doc_bbp_sonata_CompartmentSet_filter = R"doc(Filter the compartment set based on a selection.)doc";
-
-static const char *__doc_bbp_sonata_CompartmentSet_filteredIter = R"doc(Iterator over CompartmentLocations filtered by selection.)doc";
-
-static const char *__doc_bbp_sonata_CompartmentSets_keys = R"doc(Return the keys of the CompartmentSets)doc";
-
-static const char *__doc_bbp_sonata_CompartmentSets_values = R"doc(Return the values of the CompartmentSets)doc";
-
-static const char *__doc_bbp_sonata_CompartmentSets_items = R"doc(Return the (key, value) pairs of the CompartmentSets)doc";
-
-static const char *__doc_bbp_sonata_CompartmentSets_contains = R"doc(Check if key exists.)doc";
-
-static const char *__doc_bbp_sonata_CompartmentSets_getitem = R"doc("Get a CompartmentSet by key.")doc";
-
-static const char *__doc_bbp_sonata_CompartmentSets_toJSON = R"doc(Serialize CompartmentSets to a JSON string)doc";
 
 static const char *__doc_bbp_sonata_NodeSets_update =
 R"doc(Update `this` to include all nodesets from `this` and `other`.
@@ -710,7 +826,20 @@ static const char *__doc_bbp_sonata_ReportReader_populations = R"doc()doc";
 
 static const char *__doc_bbp_sonata_Selection = R"doc()doc";
 
-static const char *__doc_bbp_sonata_Selection_Selection = R"doc()doc";
+static const char *__doc_bbp_sonata_Selection_Selection =
+R"doc(Create Selection from a list of ranges
+
+Parameter ``ranges``:
+    is a list of ranges constituting Selection)doc";
+
+static const char *__doc_bbp_sonata_Selection_contains =
+R"doc(Check if Selection contains a given node id
+
+Parameter ``node``:
+    id to check
+
+Returns:
+    true if Selection contains the node id, false otherwise)doc";
 
 static const char *__doc_bbp_sonata_Selection_empty = R"doc()doc";
 
@@ -725,8 +854,6 @@ static const char *__doc_bbp_sonata_Selection_fromValues_2 = R"doc()doc";
 static const char *__doc_bbp_sonata_Selection_ranges = R"doc(Get a list of ranges constituting Selection)doc";
 
 static const char *__doc_bbp_sonata_Selection_ranges_2 = R"doc()doc";
-
-static const char *__doc_bbp_sonata_Selection_nodeId = R"doc(Check if a node id is contained in the selection)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig = R"doc(Read access to a SONATA simulation config file.)doc";
 
@@ -883,6 +1010,10 @@ static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_subthresho
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_synapse_replay = R"doc()doc";
 
+static const char *__doc_bbp_sonata_SimulationConfig_InputBase_compartmentSet =
+R"doc(CompartmentSet which is affected by the input. It has priority over
+nodeSet)doc";
+
 static const char *__doc_bbp_sonata_SimulationConfig_InputBase_delay = R"doc(Time when input is activated (ms))doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputBase_duration = R"doc(Time duration for how long input is activated (ms))doc";
@@ -891,9 +1022,9 @@ static const char *__doc_bbp_sonata_SimulationConfig_InputBase_inputType = R"doc
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputBase_module = R"doc(Type of stimulus)doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_InputBase_nodeSet = R"doc(Node set which is affected by input)doc";
-
-static const char *__doc_bbp_sonata_SimulationConfig_InputBase_compartmentSet = R"doc(Compartment set which is affected by input)doc";
+static const char *__doc_bbp_sonata_SimulationConfig_InputBase_nodeSet =
+R"doc(Node set which is affected by input. Not allowed in case of
+CompartmentSet)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputHyperpolarizing = R"doc()doc";
 
@@ -1148,6 +1279,8 @@ static const char *__doc_bbp_sonata_SimulationConfig_Report_Type = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_Report_Type_compartment = R"doc()doc";
 
+static const char *__doc_bbp_sonata_SimulationConfig_Report_Type_compartment_set = R"doc()doc";
+
 static const char *__doc_bbp_sonata_SimulationConfig_Report_Type_invalid = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_Report_Type_lfp = R"doc()doc";
@@ -1158,7 +1291,9 @@ static const char *__doc_bbp_sonata_SimulationConfig_Report_Type_synapse = R"doc
 
 static const char *__doc_bbp_sonata_SimulationConfig_Report_cells = R"doc(Node sets on which to report)doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_Report_compartmentSet = R"doc(Compartment set on which to report)doc";
+static const char *__doc_bbp_sonata_SimulationConfig_Report_compartment_set =
+R"doc(Name of the compartment set (from compartment_set.json) used for
+generating the report.)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_Report_compartments =
 R"doc(For compartment type, select compartments to report. Default value:
@@ -1252,6 +1387,8 @@ static const char *__doc_bbp_sonata_SimulationConfig_basePath = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_betaFeatures = R"doc()doc";
 
+static const char *__doc_bbp_sonata_SimulationConfig_compartmentSetsFile = R"doc()doc";
+
 static const char *__doc_bbp_sonata_SimulationConfig_conditions = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_connection_overrides = R"doc()doc";
@@ -1270,6 +1407,12 @@ Throws:
 static const char *__doc_bbp_sonata_SimulationConfig_getBasePath = R"doc(Returns the base path of the simulation config file)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_getBetaFeatures = R"doc(Returns the beta_features section)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_getCompartmentSet =
+R"doc(Returns the name of the compartment set to be instantiated for the
+simulation, default = None)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_getCompartmentSetsFile = R"doc(Returns the path of compartment sets file)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_getConditions = R"doc(Returns the Conditions section of the simulation configuration.)doc";
 
@@ -1292,15 +1435,12 @@ static const char *__doc_bbp_sonata_SimulationConfig_getMetaData = R"doc(Returns
 static const char *__doc_bbp_sonata_SimulationConfig_getNetwork = R"doc(Returns circuit config file associated with this simulation config)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_getNodeSet =
-R"doc(Returns the name of node set to be instantiated for the simulation,
-default = None)doc";
+R"doc(Returns the name of the node set to be instantiated for the
+simulation, default = None)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_getNodeSetsFile =
 R"doc(Returns the path of node sets file overriding node_sets_file provided
 in _network, default is empty in case of no setting in _network)doc";
-
-static const char *__doc_bbp_sonata_SimulationConfig_getCompartmentSetsFile =
-R"doc(Returns the path of compartment sets file, default is empty in case of no setting in _network)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_getOutput = R"doc(Returns the Output section of the simulation configuration.)doc";
 
@@ -1332,8 +1472,6 @@ static const char *__doc_bbp_sonata_SimulationConfig_network = R"doc()doc";
 static const char *__doc_bbp_sonata_SimulationConfig_nodeSet = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_nodeSetsFile = R"doc()doc";
-
-static const char *__doc_bbp_sonata_SimulationConfig_compartmentSetsFile = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_output = R"doc()doc";
 
@@ -1407,6 +1545,12 @@ static const char *__doc_bbp_sonata_SpikeTimes_node_ids = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SpikeTimes_timestamps = R"doc()doc";
 
+static const char *__doc_bbp_sonata_detail_CompartmentSet = R"doc()doc";
+
+static const char *__doc_bbp_sonata_detail_CompartmentSetFilteredIterator = R"doc()doc";
+
+static const char *__doc_bbp_sonata_detail_CompartmentSets = R"doc()doc";
+
 static const char *__doc_bbp_sonata_detail_NodeSets = R"doc()doc";
 
 static const char *__doc_bbp_sonata_fromValues = R"doc()doc";
@@ -1418,6 +1562,8 @@ static const char *__doc_bbp_sonata_operator_band = R"doc()doc";
 static const char *__doc_bbp_sonata_operator_bor = R"doc()doc";
 
 static const char *__doc_bbp_sonata_operator_eq = R"doc()doc";
+
+static const char *__doc_bbp_sonata_operator_lshift = R"doc()doc";
 
 static const char *__doc_bbp_sonata_operator_ne = R"doc()doc";
 
