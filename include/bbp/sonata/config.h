@@ -647,26 +647,26 @@ class SONATA_API SimulationConfig
     };
 
     struct EField {
-        // Peak amplitude of the sinusoid in the x-direction, in V/m
+        /// Peak amplitude of the sinusoid in the x-direction, in V/m
         double ex{};
-        // Peak amplitude of the sinusoid in the y-direction, in V/m
+        /// Peak amplitude of the sinusoid in the y-direction, in V/m
         double ey{};
-        // Peak amplitude of the sinusoid in the z-direction, in V/m
+        /// Peak amplitude of the sinusoid in the z-direction, in V/m
         double ez{};
-        // Frequency of the sinusoid, in Hz. Default is 0 Hz
+        /// Frequency of the sinusoid, in Hz. Default is 0 Hz
         double frequency{};
     };
 
     struct InputUniformEField: public InputBase {
       public:
-        // A list of dicts, where each dict defines one of the fields which are summed to produce
-        // the total stimulus.
+        /// A list of dicts, where each dict defines one of the fields which are summed to produce
+        /// the total stimulus.
         std::vector<EField> fields;
-        // Duration during which the signal ramps up linearly from 0, in ms. Default is 0 ms.
+        /// Duration during which the signal ramps up linearly from 0, in ms. Default is 0 ms.
         double rampUpTime;
-        // Duration during which the signal ramps down linearly from 0, in ms.
+        /// Duration during which the signal ramps down linearly from 0, in ms.
         double rampDownTime;
-        // Method to return the full list of uniform E fields.
+        /// Method to return the full list of uniform E fields.
         const std::vector<EField>& getFields() const noexcept;
     };
 

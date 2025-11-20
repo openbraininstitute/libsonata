@@ -939,13 +939,13 @@ static const char *__doc_bbp_sonata_SimulationConfig_ConnectionOverride_weight =
 
 static const char *__doc_bbp_sonata_SimulationConfig_EField = R"doc()doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_EField_ex = R"doc()doc";
+static const char *__doc_bbp_sonata_SimulationConfig_EField_ex = R"doc(Peak amplitude of the sinusoid in the x-direction, in V/m)doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_EField_ey = R"doc()doc";
+static const char *__doc_bbp_sonata_SimulationConfig_EField_ey = R"doc(Peak amplitude of the sinusoid in the y-direction, in V/m)doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_EField_ez = R"doc()doc";
+static const char *__doc_bbp_sonata_SimulationConfig_EField_ez = R"doc(Peak amplitude of the sinusoid in the z-direction, in V/m)doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_EField_frequency = R"doc()doc";
+static const char *__doc_bbp_sonata_SimulationConfig_EField_frequency = R"doc(Frequency of the sinusoid, in Hz. Default is 0 Hz)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputAbsoluteShotNoise = R"doc()doc";
 
@@ -1207,13 +1207,17 @@ extension must be .h5)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputUniformEField = R"doc()doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_InputUniformEField_fields = R"doc()doc";
+static const char *__doc_bbp_sonata_SimulationConfig_InputUniformEField_fields =
+R"doc(A list of dicts, where each dict defines one of the fields which are
+summed to produce the total stimulus.)doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_InputUniformEField_getFields = R"doc()doc";
+static const char *__doc_bbp_sonata_SimulationConfig_InputUniformEField_getFields = R"doc(Method to return the full list of uniform E fields.)doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_InputUniformEField_rampDownTime = R"doc()doc";
+static const char *__doc_bbp_sonata_SimulationConfig_InputUniformEField_rampDownTime = R"doc(Duration during which the signal ramps down linearly from 0, in ms.)doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_InputUniformEField_rampUpTime = R"doc()doc";
+static const char *__doc_bbp_sonata_SimulationConfig_InputUniformEField_rampUpTime =
+R"doc(Duration during which the signal ramps up linearly from 0, in ms.
+Default is 0 ms.)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase = R"doc()doc";
 
