@@ -1355,7 +1355,7 @@ TEST_CASE("SimulationConfig") {
                 "tstop": 1000
               },
               "inputs": {
-                "extra": {
+                "ex_replay": {
                   "input_type": "extracellular_stimulation",
                   "module": "synapse_replay",
                   "delay": 0.0,
@@ -1379,7 +1379,7 @@ TEST_CASE("SimulationConfig") {
                 "tstop": 1000
               },
               "inputs": {
-                "efields": {
+                "ex_efields": {
                   "input_type": "extracellular_stimulation",
                   "module": "uniform_e_field",
                   "delay": 0.0,
@@ -1391,7 +1391,7 @@ TEST_CASE("SimulationConfig") {
             CHECK_THROWS_MATCHES(SimulationConfig(contents, "./"),
                                  SonataError,
                                  Catch::Matchers::Message(
-                                     "Could not find 'ramp_up_time' in 'input efields'"));
+                                     "Could not find 'ramp_up_time' in 'input ex_efields'"));
         }
         {  // missing fields in uniform_e_field
             const auto* contents = R"({
@@ -1401,7 +1401,7 @@ TEST_CASE("SimulationConfig") {
                 "tstop": 1000
               },
               "inputs": {
-                "efields": {
+                "ex_efields": {
                   "input_type": "extracellular_stimulation",
                   "module": "uniform_e_field",
                   "delay": 0.0,
@@ -1414,7 +1414,7 @@ TEST_CASE("SimulationConfig") {
             CHECK_THROWS_MATCHES(SimulationConfig(contents, "./"),
                                  SonataError,
                                  Catch::Matchers::Message(
-                                     "Could not find 'fields' in 'input efields'"));
+                                     "Could not find 'fields' in 'input ex_efields'"));
         }
         {  // fields must be an array in uniform_e_field
             const auto* contents = R"({
@@ -1424,7 +1424,7 @@ TEST_CASE("SimulationConfig") {
                 "tstop": 1000
               },
               "inputs": {
-                "efields": {
+                "ex_efields": {
                   "input_type": "extracellular_stimulation",
                   "module": "uniform_e_field",
                   "delay": 0.0,
@@ -1438,7 +1438,7 @@ TEST_CASE("SimulationConfig") {
             CHECK_THROWS_MATCHES(SimulationConfig(contents, "./"),
                                  SonataError,
                                  Catch::Matchers::Message(
-                                     "'fields' must be an array in 'input efields'"));
+                                     "'fields' must be an array in 'input ex_efields'"));
         }
         {  // fields must not be empty in uniform_e_field
             const auto* contents = R"({
@@ -1448,7 +1448,7 @@ TEST_CASE("SimulationConfig") {
                 "tstop": 1000
               },
               "inputs": {
-                "efields": {
+                "ex_efields": {
                   "input_type": "extracellular_stimulation",
                   "module": "uniform_e_field",
                   "delay": 0.0,
@@ -1461,7 +1461,8 @@ TEST_CASE("SimulationConfig") {
             })";
             CHECK_THROWS_MATCHES(SimulationConfig(contents, "./"),
                                  SonataError,
-                                 Catch::Matchers::Message("'fields' is empty in 'input efields'"));
+                                 Catch::Matchers::Message(
+                                     "'fields' is empty in 'input ex_efields'"));
         }
         {  // Missing mandatory parameters in fields
             const auto* contents = R"({
@@ -1471,7 +1472,7 @@ TEST_CASE("SimulationConfig") {
                 "tstop": 1000
               },
               "inputs": {
-                "efields": {
+                "ex_efields": {
                   "input_type": "extracellular_stimulation",
                   "module": "uniform_e_field",
                   "delay": 0.0,
@@ -1490,7 +1491,39 @@ TEST_CASE("SimulationConfig") {
             CHECK_THROWS_MATCHES(SimulationConfig(contents, "./"),
                                  SonataError,
                                  Catch::Matchers::Message(
-                                     "Could not find 'Ey' in 'input efields fields'"));
+                                     "Could not find 'Ey' in 'input ex_efields fields'"));
+        }
+        {  // Must be non-negative frequency in fields
+            const auto* contents = R"({
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs": {
+                "ex_efields": {
+                  "input_type": "extracellular_stimulation",
+                  "module": "uniform_e_field",
+                  "delay": 0.0,
+                  "duration": 40000.0,
+                  "node_set": "Column",
+                  "ramp_up_time": 10.0,
+                  "fields": [
+                    {
+                      "Ex": 0.1,
+                      "Ey": 0.2,
+                      "Ez": 0.3,
+                      "frequency": -1.0
+                    }
+                  ]
+                }
+              }
+            })";
+            CHECK_THROWS_MATCHES(
+                SimulationConfig(contents, "./"),
+                SonataError,
+                Catch::Matchers::Message(
+                    "'frequency' must be non-negative in 'input ex_efields fields'"));
         }
         {  // Invalid spikes ordering in the output section
             auto contents = R"({

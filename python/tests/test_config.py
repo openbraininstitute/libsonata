@@ -795,7 +795,7 @@ class TestSimulationConfig(unittest.TestCase):
                 "tstop": 1000
               },
               "inputs": {
-                "extra": {
+                "ex_replay": {
                   "input_type": "extracellular_stimulation",
                   "module": "synapse_replay",
                   "delay": 0.0,
@@ -819,7 +819,7 @@ class TestSimulationConfig(unittest.TestCase):
                 "tstop": 1000
               },
               "inputs": {
-                "efields": {
+                "ex_efields": {
                   "input_type": "extracellular_stimulation",
                   "module": "uniform_e_field",
                   "delay": 0.0,
@@ -830,7 +830,7 @@ class TestSimulationConfig(unittest.TestCase):
             }
             """
             SimulationConfig(contents, "./")
-        self.assertEqual(e.exception.args, ("Could not find 'ramp_up_time' in 'input efields'", ))
+        self.assertEqual(e.exception.args, ("Could not find 'ramp_up_time' in 'input ex_efields'", ))
 
         # missing fields in uniform_e_field
         with self.assertRaises(SonataError) as e:
@@ -842,7 +842,7 @@ class TestSimulationConfig(unittest.TestCase):
                     "tstop": 1000
                 },
                 "inputs": {
-                    "efields": {
+                    "ex_efields": {
                     "input_type": "extracellular_stimulation",
                     "module": "uniform_e_field",
                     "delay": 0.0,
@@ -854,7 +854,7 @@ class TestSimulationConfig(unittest.TestCase):
                 }
                 """
             SimulationConfig(contents, "./")
-        self.assertEqual(e.exception.args, ("Could not find 'fields' in 'input efields'", ))
+        self.assertEqual(e.exception.args, ("Could not find 'fields' in 'input ex_efields'", ))
 
         # fields must be an array in uniform_e_field
         with self.assertRaises(SonataError) as e:
@@ -866,7 +866,7 @@ class TestSimulationConfig(unittest.TestCase):
                 "tstop": 1000
               },
               "inputs": {
-                "efields": {
+                "ex_efields": {
                   "input_type": "extracellular_stimulation",
                   "module": "uniform_e_field",
                   "delay": 0.0,
@@ -879,7 +879,7 @@ class TestSimulationConfig(unittest.TestCase):
             }
             """
             SimulationConfig(contents, "./")
-        self.assertEqual(e.exception.args, ("'fields' must be an array in 'input efields'", ))
+        self.assertEqual(e.exception.args, ("'fields' must be an array in 'input ex_efields'", ))
         
         # fields should not be empty in uniform_e_field
         with self.assertRaises(SonataError) as e:
@@ -891,7 +891,7 @@ class TestSimulationConfig(unittest.TestCase):
                 "tstop": 1000
               },
               "inputs": {
-                "efields": {
+                "ex_efields": {
                   "input_type": "extracellular_stimulation",
                   "module": "uniform_e_field",
                   "delay": 0.0,
@@ -904,7 +904,7 @@ class TestSimulationConfig(unittest.TestCase):
             }
             """
             SimulationConfig(contents, "./")
-        self.assertEqual(e.exception.args, ("'fields' is empty in 'input efields'", ))
+        self.assertEqual(e.exception.args, ("'fields' is empty in 'input ex_efields'", ))
     
         # Missing mandatory parameters in fields
         with self.assertRaises(SonataError) as e:
@@ -916,7 +916,7 @@ class TestSimulationConfig(unittest.TestCase):
                 "tstop": 1000
               },
               "inputs": {
-                "efields": {
+                "ex_efields": {
                   "input_type": "extracellular_stimulation",
                   "module": "uniform_e_field",
                   "delay": 0.0,
@@ -934,4 +934,36 @@ class TestSimulationConfig(unittest.TestCase):
             }
             """
             SimulationConfig(contents, "./")
-        self.assertEqual(e.exception.args, ("Could not find 'Ey' in 'input efields fields'", ))
+        self.assertEqual(e.exception.args, ("Could not find 'Ey' in 'input ex_efields fields'", ))
+
+        # Must be non-negative frequency in fields
+        with self.assertRaises(SonataError) as e:
+            contents = """
+            {
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs": {
+                "ex_efields": {
+                  "input_type": "extracellular_stimulation",
+                  "module": "uniform_e_field",
+                  "delay": 0.0,
+                  "duration": 40000.0,
+                  "node_set": "Column",
+                  "ramp_up_time": 10.0,
+                  "fields": [
+                    {
+                      "Ex": 0.1,
+                      "Ey": 0.2,
+                      "Ez": 0.3,
+                      "frequency": -1.0
+                    }
+                  ]
+                }
+              }
+            }
+            """
+            SimulationConfig(contents, "./")
+        self.assertEqual(e.exception.args, ("'frequency' must be non-negative in 'input ex_efields fields'", ))

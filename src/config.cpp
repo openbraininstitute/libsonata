@@ -418,6 +418,9 @@ void parseInputsEFields(const nlohmann::json& it,
         parseMandatory(valueIt, "Ey", debugStr, result.ey);
         parseMandatory(valueIt, "Ez", debugStr, result.ez);
         parseOptional(valueIt, "frequency", result.frequency, {0.0});
+        if (result.frequency < 0) {
+            throw SonataError(fmt::format("'frequency' must be non-negative in '{}'", debugStr));
+        }
         buf.push_back(std::move(result));
     }
 }

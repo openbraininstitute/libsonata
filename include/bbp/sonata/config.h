@@ -653,7 +653,7 @@ class SONATA_API SimulationConfig
         double ey{};
         /// Peak amplitude of the sinusoid in the z-direction, in V/m
         double ez{};
-        /// Frequency of the sinusoid, in Hz. Default is 0 Hz
+        /// Frequency of the sinusoid, in Hz. Must be non-negative. If not provided, assumed to be 0
         double frequency{};
     };
 
