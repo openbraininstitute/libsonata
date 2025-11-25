@@ -242,12 +242,19 @@
                     "Ex": 0.1,
                     "Ey": 0.2,
                     "Ez": 0.3,
-                    "frequency": 10
+                    "frequency": 10,
+                    "phase": 0.5
                 },
                 {
                     "Ex": 0.4,
                     "Ey": 0.5,
                     "Ez": 0.6
+                },
+                {
+                    "Ex": 0.7,
+                    "Ey": 0.8,
+                    "Ez": 0.9,
+                    "frequency": 100
                 }
             ],
             "ramp_up_time": 100.0,

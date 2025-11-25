@@ -945,9 +945,11 @@ static const char *__doc_bbp_sonata_SimulationConfig_EField_ey = R"doc(Peak ampl
 
 static const char *__doc_bbp_sonata_SimulationConfig_EField_ez = R"doc(Peak amplitude of the sinusoid in the z-direction, in V/m)doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_EField_frequency =
-R"doc(Frequency of the sinusoid, in Hz. Must be non-negative. If not
-provided, assumed to be 0)doc";
+static const char *__doc_bbp_sonata_SimulationConfig_EField_frequency = R"doc(Frequency of the sinusoid, in Hz. Must be non-negative. Default is 0.)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_EField_phase =
+R"doc(Phase of the sinusoid, in radians. Must be between -pi and pi. Default
+is 0 or pi/2 when frequency is 0)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputAbsoluteShotNoise = R"doc()doc";
 

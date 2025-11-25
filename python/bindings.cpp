@@ -1224,7 +1224,10 @@ PYBIND11_MODULE(_libsonata, m) {
         .def_readonly("Ez", &SimulationConfig::EField::ez, DOC_SIMULATIONCONFIG(EField, ez))
         .def_readonly("frequency",
                       &SimulationConfig::EField::frequency,
-                      DOC_SIMULATIONCONFIG(EField, frequency));
+                      DOC_SIMULATIONCONFIG(EField, frequency))
+        .def_readonly("phase",
+                      &SimulationConfig::EField::phase,
+                      DOC_SIMULATIONCONFIG(EField, phase));
 
     py::enum_<SimulationConfig::InputBase::Module>(inputBase, "Module")
         .value("linear", SimulationConfig::InputBase::Module::linear)

@@ -1,6 +1,7 @@
 import json
 import os
 import unittest
+import math
 
 from libsonata import (CircuitConfig, CircuitConfigStatus, SimulationConfig, SonataError,
                        )
@@ -625,16 +626,23 @@ class TestSimulationConfig(unittest.TestCase):
         self.assertEqual(self.config.input('ex_efields').node_set, "Mosaic")
         self.assertEqual(self.config.input('ex_efields').ramp_up_time, 100)
         self.assertEqual(self.config.input('ex_efields').ramp_down_time, 10)
-        fields = self.config.input('ex_efields').fields()
-        self.assertEqual(len(fields), 2)
+        fields = self.config.input('ex_efields').fields
+        self.assertEqual(len(fields), 3)
         self.assertEqual(fields[0].Ex, 0.1)
         self.assertEqual(fields[0].Ey, 0.2)
         self.assertEqual(fields[0].Ez, 0.3)
         self.assertEqual(fields[0].frequency, 10.)
+        self.assertEqual(fields[0].phase, 0.5)
         self.assertEqual(fields[1].Ex, 0.4)
         self.assertEqual(fields[1].Ey, 0.5)
         self.assertEqual(fields[1].Ez, 0.6)
         self.assertEqual(fields[1].frequency, 0.)
+        self.assertEqual(fields[1].phase, math.pi/2)
+        self.assertEqual(fields[2].Ex, 0.7)
+        self.assertEqual(fields[2].Ey, 0.8)
+        self.assertEqual(fields[2].Ez, 0.9)
+        self.assertEqual(fields[2].frequency, 100.)
+        self.assertEqual(fields[2].phase, 0.)
 
         overrides = {o.name: o for o in self.config.connection_overrides()}
         self.assertEqual(overrides['ConL3Exc-Uni'].source, 'Excitatory')
@@ -967,3 +975,69 @@ class TestSimulationConfig(unittest.TestCase):
             """
             SimulationConfig(contents, "./")
         self.assertEqual(e.exception.args, ("'frequency' must be non-negative in 'input ex_efields fields'", ))
+
+        # phase must be < pi in fields
+        with self.assertRaises(SonataError) as e:
+            contents = """
+            {
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs": {
+                "ex_efields": {
+                  "input_type": "extracellular_stimulation",
+                  "module": "uniform_e_field",
+                  "delay": 0.0,
+                  "duration": 40000.0,
+                  "node_set": "Column",
+                  "ramp_up_time": 10.0,
+                  "fields": [
+                    {
+                      "Ex": 0.1,
+                      "Ey": 0.2,
+                      "Ez": 0.3,
+                      "frequency": 1.0,
+                      "phase": 3.15
+                    }
+                  ]
+                }
+              }
+            }
+            """
+            SimulationConfig(contents, "./")
+            self.assertEqual(e.exception.args, ("'phase' must be between -pi and pi in 'input ex_efields fields'", ))
+
+        # phase must be > -pi in fields
+        with self.assertRaises(SonataError) as e:
+            contents = """
+            {
+            "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs": {
+                "ex_efields": {
+                  "input_type": "extracellular_stimulation",
+                  "module": "uniform_e_field",
+                  "delay": 0.0,
+                  "duration": 40000.0,
+                  "node_set": "Column",
+                  "ramp_up_time": 10.0,
+                  "fields": [
+                    {
+                      "Ex": 0.1,
+                      "Ey": 0.2,
+                      "Ez": 0.3,
+                      "frequency": 1.0,
+                      "phase": -3.15
+                    }
+                  ]
+                }
+              }
+            }
+            """
+            SimulationConfig(contents, "./")
+            self.assertEqual(e.exception.args, ("'phase' must be between -pi and pi in 'input ex_efields fields'", ))

@@ -592,15 +592,22 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.rampUpTime == 100.);
             CHECK(input.rampDownTime == 10.);
             const auto fields = input.fields;
-            CHECK(fields.size() == 2);
+            CHECK(fields.size() == 3);
             CHECK(fields[0].ex == 0.1);
             CHECK(fields[0].ey == 0.2);
             CHECK(fields[0].ez == 0.3);
             CHECK(fields[0].frequency == 10.);
+            CHECK(fields[0].phase == 0.5);
             CHECK(fields[1].ex == 0.4);
             CHECK(fields[1].ey == 0.5);
             CHECK(fields[1].ez == 0.6);
             CHECK(fields[1].frequency == 0.);
+            CHECK(fields[1].phase == M_PI / 2);
+            CHECK(fields[2].ex == 0.7);
+            CHECK(fields[2].ey == 0.8);
+            CHECK(fields[2].ez == 0.9);
+            CHECK(fields[2].frequency == 100.);
+            CHECK(fields[2].phase == 0.);
         }
 
         CHECK(config.listInputNames() == std::set<std::string>{"ex_abs_shotnoise",
@@ -1524,6 +1531,72 @@ TEST_CASE("SimulationConfig") {
                 SonataError,
                 Catch::Matchers::Message(
                     "'frequency' must be non-negative in 'input ex_efields fields'"));
+        }
+        {  // phase must be < pi in fields
+            const auto* contents = R"({
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs": {
+                "ex_efields": {
+                  "input_type": "extracellular_stimulation",
+                  "module": "uniform_e_field",
+                  "delay": 0.0,
+                  "duration": 40000.0,
+                  "node_set": "Column",
+                  "ramp_up_time": 10.0,
+                  "fields": [
+                    {
+                      "Ex": 0.1,
+                      "Ey": 0.2,
+                      "Ez": 0.3,
+                      "frequency": 1.0,
+                      "phase": 3.15
+                    }
+                  ]
+                }
+              }
+            })";
+            CHECK_THROWS_MATCHES(
+                SimulationConfig(contents, "./"),
+                SonataError,
+                Catch::Matchers::Message(
+                    "'phase' must be between -pi and pi in 'input ex_efields fields'"));
+        }
+        {  // phase must be > -pi in fields
+            const auto* contents = R"({
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs": {
+                "ex_efields": {
+                  "input_type": "extracellular_stimulation",
+                  "module": "uniform_e_field",
+                  "delay": 0.0,
+                  "duration": 40000.0,
+                  "node_set": "Column",
+                  "ramp_up_time": 10.0,
+                  "fields": [
+                    {
+                      "Ex": 0.1,
+                      "Ey": 0.2,
+                      "Ez": 0.3,
+                      "frequency": 1.0,
+                      "phase": -3.15
+                    }
+                  ]
+                }
+              }
+            })";
+            CHECK_THROWS_MATCHES(
+                SimulationConfig(contents, "./"),
+                SonataError,
+                Catch::Matchers::Message(
+                    "'phase' must be between -pi and pi in 'input ex_efields fields'"));
         }
         {  // Invalid spikes ordering in the output section
             auto contents = R"({

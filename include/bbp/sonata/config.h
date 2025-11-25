@@ -653,8 +653,11 @@ class SONATA_API SimulationConfig
         double ey{};
         /// Peak amplitude of the sinusoid in the z-direction, in V/m
         double ez{};
-        /// Frequency of the sinusoid, in Hz. Must be non-negative. If not provided, assumed to be 0
+        /// Frequency of the sinusoid, in Hz. Must be non-negative. Default is 0.
         double frequency{};
+        /// Phase of the sinusoid, in radians. Must be between -pi and pi. Default is 0 or pi/2 when
+        /// frequency is 0
+        double phase{};
     };
 
     struct InputUniformEField: public InputBase {
