@@ -1209,11 +1209,7 @@ extension must be .h5)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputUniformEField = R"doc()doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_InputUniformEField_fields =
-R"doc(A list of dicts, where each dict defines one of the fields which are
-summed to produce the total stimulus.)doc";
-
-static const char *__doc_bbp_sonata_SimulationConfig_InputUniformEField_getFields = R"doc(Method to return the full list of uniform E fields.)doc";
+static const char *__doc_bbp_sonata_SimulationConfig_InputUniformEField_fields = R"doc(A list of EFields which are summed to produce the total stimulus.)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputUniformEField_rampDownTime = R"doc(Duration during which the signal ramps down linearly from 0, in ms.)doc";
 

@@ -659,15 +659,12 @@ class SONATA_API SimulationConfig
 
     struct InputUniformEField: public InputBase {
       public:
-        /// A list of dicts, where each dict defines one of the fields which are summed to produce
-        /// the total stimulus.
+        /// A list of EFields which are summed to produce the total stimulus.
         std::vector<EField> fields;
         /// Duration during which the signal ramps up linearly from 0, in ms. Default is 0 ms.
         double rampUpTime;
         /// Duration during which the signal ramps down linearly from 0, in ms.
         double rampDownTime;
-        /// Method to return the full list of uniform E fields.
-        const std::vector<EField>& getFields() const noexcept;
     };
 
     using Input = nonstd::variant<InputLinear,

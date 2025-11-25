@@ -1527,11 +1527,6 @@ const SimulationConfig::Input& SimulationConfig::getInput(const std::string& nam
     return it->second;
 }
 
-const std::vector<SimulationConfig::EField>& SimulationConfig::InputUniformEField::getFields()
-    const noexcept {
-    return fields;
-}
-
 const std::vector<SimulationConfig::ConnectionOverride>& SimulationConfig::getConnectionOverrides()
     const noexcept {
     return _connection_overrides;

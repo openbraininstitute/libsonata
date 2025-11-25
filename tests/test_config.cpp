@@ -591,7 +591,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.nodeSet == "Mosaic");
             CHECK(input.rampUpTime == 100.);
             CHECK(input.rampDownTime == 10.);
-            const auto fields = input.getFields();
+            const auto fields = input.fields;
             CHECK(fields.size() == 2);
             CHECK(fields[0].ex == 0.1);
             CHECK(fields[0].ey == 0.2);

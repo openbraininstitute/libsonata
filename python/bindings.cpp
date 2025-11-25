@@ -1213,9 +1213,9 @@ PYBIND11_MODULE(_libsonata, m) {
         .def_readonly("ramp_down_time",
                       &SimulationConfig::InputUniformEField::rampDownTime,
                       DOC_SIMULATIONCONFIG(InputUniformEField, rampDownTime))
-        .def("fields",
-             &SimulationConfig::InputUniformEField::getFields,
-             DOC_SIMULATIONCONFIG(InputUniformEField, getFields));
+        .def_readonly("fields",
+                      &SimulationConfig::InputUniformEField::fields,
+                      DOC_SIMULATIONCONFIG(InputUniformEField, fields));
 
     py::class_<SimulationConfig::EField>(simConf, "EField")
         .def_readonly("Ex", &SimulationConfig::EField::ex, DOC_SIMULATIONCONFIG(EField, ex))
