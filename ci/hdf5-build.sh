@@ -31,6 +31,7 @@ if [[ -f "$INSTALL/lib/libhdf5.a" ]]; then
     echo "using cached build"
 else
     if [[ "$OSTYPE" == "darwin"* ]]; then
+        export MACOSX_DEPLOYMENT_TARGET="${MACOSX_DEPLOYMENT_TARGET:-11.0}"
         export CC="/usr/bin/clang"
         export CXX="/usr/bin/clang"
         export CFLAGS="$CFLAGS -arch $CIBW_ARCHS_MACOS"
