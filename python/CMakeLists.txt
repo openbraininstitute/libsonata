@@ -6,7 +6,7 @@ else()
     find_package(pybind11)
 endif()
 
-pybind11_add_module(sonata_python SYSTEM bindings.cpp)
+pybind11_add_module(sonata_python bindings.cpp)
 
 set_target_properties(sonata_python PROPERTIES
     OUTPUT_NAME "_libsonata"
