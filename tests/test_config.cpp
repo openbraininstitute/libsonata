@@ -585,7 +585,7 @@ TEST_CASE("SimulationConfig") {
             const auto input = nonstd::get<SimulationConfig::InputUniformEField>(
                 config.getInput("ex_efields"));
             CHECK(input.inputType == InputType::extracellular_stimulation);
-            CHECK(input.module == Module::uniform_e_field);
+            CHECK(input.module == Module::spatially_uniform_e_field);
             CHECK(input.delay == 0);
             CHECK(input.duration == 1000);
             CHECK(input.nodeSet == "Mosaic");
@@ -1378,7 +1378,7 @@ TEST_CASE("SimulationConfig") {
                                      "An `input` has module `synapse_replay` and input_type "
                                      "`extracellular_stimulation` which mismatch"));
         }
-        {  // missing ramp_up_time in uniform_e_field
+        {  // missing ramp_up_time in spatially_uniform_e_field
             const auto* contents = R"({
               "run": {
                 "random_seed": 12345,
@@ -1388,7 +1388,7 @@ TEST_CASE("SimulationConfig") {
               "inputs": {
                 "ex_efields": {
                   "input_type": "extracellular_stimulation",
-                  "module": "uniform_e_field",
+                  "module": "spatially_uniform_e_field",
                   "delay": 0.0,
                   "duration": 40000.0,
                   "node_set": "Column"
@@ -1400,7 +1400,7 @@ TEST_CASE("SimulationConfig") {
                                  Catch::Matchers::Message(
                                      "Could not find 'ramp_up_time' in 'input ex_efields'"));
         }
-        {  // missing fields in uniform_e_field
+        {  // missing fields in spatially_uniform_e_field
             const auto* contents = R"({
               "run": {
                 "random_seed": 12345,
@@ -1410,7 +1410,7 @@ TEST_CASE("SimulationConfig") {
               "inputs": {
                 "ex_efields": {
                   "input_type": "extracellular_stimulation",
-                  "module": "uniform_e_field",
+                  "module": "spatially_uniform_e_field",
                   "delay": 0.0,
                   "duration": 40000.0,
                   "node_set": "Column",
@@ -1423,7 +1423,7 @@ TEST_CASE("SimulationConfig") {
                                  Catch::Matchers::Message(
                                      "Could not find 'fields' in 'input ex_efields'"));
         }
-        {  // fields must be an array in uniform_e_field
+        {  // fields must be an array in spatially_uniform_e_field
             const auto* contents = R"({
               "run": {
                 "random_seed": 12345,
@@ -1433,7 +1433,7 @@ TEST_CASE("SimulationConfig") {
               "inputs": {
                 "ex_efields": {
                   "input_type": "extracellular_stimulation",
-                  "module": "uniform_e_field",
+                  "module": "spatially_uniform_e_field",
                   "delay": 0.0,
                   "duration": 40000.0,
                   "node_set": "Column",
@@ -1447,7 +1447,7 @@ TEST_CASE("SimulationConfig") {
                                  Catch::Matchers::Message(
                                      "'fields' must be an array in 'input ex_efields'"));
         }
-        {  // fields must not be empty in uniform_e_field
+        {  // fields must not be empty in spatially_uniform_e_field
             const auto* contents = R"({
               "run": {
                 "random_seed": 12345,
@@ -1457,7 +1457,7 @@ TEST_CASE("SimulationConfig") {
               "inputs": {
                 "ex_efields": {
                   "input_type": "extracellular_stimulation",
-                  "module": "uniform_e_field",
+                  "module": "spatially_uniform_e_field",
                   "delay": 0.0,
                   "duration": 40000.0,
                   "node_set": "Column",
@@ -1481,7 +1481,7 @@ TEST_CASE("SimulationConfig") {
               "inputs": {
                 "ex_efields": {
                   "input_type": "extracellular_stimulation",
-                  "module": "uniform_e_field",
+                  "module": "spatially_uniform_e_field",
                   "delay": 0.0,
                   "duration": 40000.0,
                   "node_set": "Column",
@@ -1510,7 +1510,7 @@ TEST_CASE("SimulationConfig") {
               "inputs": {
                 "ex_efields": {
                   "input_type": "extracellular_stimulation",
-                  "module": "uniform_e_field",
+                  "module": "spatially_uniform_e_field",
                   "delay": 0.0,
                   "duration": 40000.0,
                   "node_set": "Column",
@@ -1542,7 +1542,7 @@ TEST_CASE("SimulationConfig") {
               "inputs": {
                 "ex_efields": {
                   "input_type": "extracellular_stimulation",
-                  "module": "uniform_e_field",
+                  "module": "spatially_uniform_e_field",
                   "delay": 0.0,
                   "duration": 40000.0,
                   "node_set": "Column",
@@ -1575,7 +1575,7 @@ TEST_CASE("SimulationConfig") {
               "inputs": {
                 "ex_efields": {
                   "input_type": "extracellular_stimulation",
-                  "module": "uniform_e_field",
+                  "module": "spatially_uniform_e_field",
                   "delay": 0.0,
                   "duration": 40000.0,
                   "node_set": "Column",

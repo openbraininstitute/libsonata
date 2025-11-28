@@ -1245,7 +1245,8 @@ PYBIND11_MODULE(_libsonata, m) {
         .value("ornstein_uhlenbeck", SimulationConfig::InputBase::Module::ornstein_uhlenbeck)
         .value("relative_ornstein_uhlenbeck",
                SimulationConfig::InputBase::Module::relative_ornstein_uhlenbeck)
-        .value("uniform_e_field", SimulationConfig::InputBase::Module::uniform_e_field);
+        .value("spatially_uniform_e_field",
+               SimulationConfig::InputBase::Module::spatially_uniform_e_field);
 
     py::enum_<SimulationConfig::InputBase::InputType>(inputBase, "InputType")
         .value("spikes", SimulationConfig::InputBase::InputType::spikes)

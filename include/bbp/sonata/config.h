@@ -438,7 +438,7 @@ class SONATA_API SimulationConfig
             absolute_shot_noise,
             ornstein_uhlenbeck,
             relative_ornstein_uhlenbeck,
-            uniform_e_field
+            spatially_uniform_e_field
         };
 
         enum class InputType {
@@ -653,20 +653,20 @@ class SONATA_API SimulationConfig
         double ey{};
         /// Peak amplitude of the sinusoid in the z-direction, in V/m
         double ez{};
-        /// Frequency of the sinusoid, in Hz. Must be non-negative. Default is 0.
+        /// Frequency of the sinusoid, in Hz. Must be non-negative. Default is 0
         double frequency{};
-        /// Phase of the sinusoid, in radians. Must be between -pi and pi. Default is 0 or pi/2 when
-        /// frequency is 0
+        /// Phase of the sinusoid, in radians. Must be between -pi and pi.
+        /// Default is 0, and pi/2 when frequency is 0
         double phase{};
     };
 
-    struct InputUniformEField: public InputBase {
+    struct InputSpatiallyUniformEField: public InputBase {
       public:
         /// A list of EFields which are summed to produce the total stimulus.
         std::vector<EField> fields;
         /// Duration during which the signal ramps up linearly from 0, in ms. Default is 0 ms.
         double rampUpTime;
-        /// Duration during which the signal ramps down linearly from 0, in ms.
+        /// Duration during which the signal ramps down linearly to 0, in ms. Default is 0 ms.
         double rampDownTime;
     };
 
@@ -684,7 +684,7 @@ class SONATA_API SimulationConfig
                                   InputAbsoluteShotNoise,
                                   InputOrnsteinUhlenbeck,
                                   InputRelativeOrnsteinUhlenbeck,
-                                  InputUniformEField>;
+                                  InputSpatiallyUniformEField>;
 
     using InputMap = std::unordered_map<std::string, Input>;
 

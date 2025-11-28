@@ -233,7 +233,7 @@
         },
         "ex_efields": {
             "input_type": "extracellular_stimulation",
-            "module": "uniform_e_field",
+            "module": "spatially_uniform_e_field",
             "delay": 0,
             "duration": 1000,
             "node_set": "Mosaic",

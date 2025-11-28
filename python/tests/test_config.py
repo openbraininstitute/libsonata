@@ -620,7 +620,7 @@ class TestSimulationConfig(unittest.TestCase):
         self.assertEqual(self.config.input('ex_seclamp').series_resistance, 0.5)
 
         self.assertEqual(self.config.input('ex_efields').input_type.name, "extracellular_stimulation")
-        self.assertEqual(self.config.input('ex_efields').module.name, "uniform_e_field")
+        self.assertEqual(self.config.input('ex_efields').module.name, "spatially_uniform_e_field")
         self.assertEqual(self.config.input('ex_efields').delay, 0)
         self.assertEqual(self.config.input('ex_efields').duration, 1000)
         self.assertEqual(self.config.input('ex_efields').node_set, "Mosaic")
@@ -817,7 +817,7 @@ class TestSimulationConfig(unittest.TestCase):
             SimulationConfig(contents, "./")
         self.assertEqual(e.exception.args, ("An `input` has module `synapse_replay` and input_type `extracellular_stimulation` which mismatch", ))
 
-        # missing ramp_up_time in uniform_e_field
+        # missing ramp_up_time in spatially_uniform_e_field
         with self.assertRaises(SonataError) as e:
             contents = """
             {
@@ -829,7 +829,7 @@ class TestSimulationConfig(unittest.TestCase):
               "inputs": {
                 "ex_efields": {
                   "input_type": "extracellular_stimulation",
-                  "module": "uniform_e_field",
+                  "module": "spatially_uniform_e_field",
                   "delay": 0.0,
                   "duration": 40000.0,
                   "node_set": "Column"
@@ -840,7 +840,7 @@ class TestSimulationConfig(unittest.TestCase):
             SimulationConfig(contents, "./")
         self.assertEqual(e.exception.args, ("Could not find 'ramp_up_time' in 'input ex_efields'", ))
 
-        # missing fields in uniform_e_field
+        # missing fields in spatially_uniform_e_field
         with self.assertRaises(SonataError) as e:
             contents = """
             {
@@ -852,7 +852,7 @@ class TestSimulationConfig(unittest.TestCase):
                 "inputs": {
                     "ex_efields": {
                     "input_type": "extracellular_stimulation",
-                    "module": "uniform_e_field",
+                    "module": "spatially_uniform_e_field",
                     "delay": 0.0,
                     "duration": 40000.0,
                     "node_set": "Column",
@@ -864,7 +864,7 @@ class TestSimulationConfig(unittest.TestCase):
             SimulationConfig(contents, "./")
         self.assertEqual(e.exception.args, ("Could not find 'fields' in 'input ex_efields'", ))
 
-        # fields must be an array in uniform_e_field
+        # fields must be an array in spatially_uniform_e_field
         with self.assertRaises(SonataError) as e:
             contents = """
             {
@@ -876,7 +876,7 @@ class TestSimulationConfig(unittest.TestCase):
               "inputs": {
                 "ex_efields": {
                   "input_type": "extracellular_stimulation",
-                  "module": "uniform_e_field",
+                  "module": "spatially_uniform_e_field",
                   "delay": 0.0,
                   "duration": 40000.0,
                   "node_set": "Column",
@@ -889,7 +889,7 @@ class TestSimulationConfig(unittest.TestCase):
             SimulationConfig(contents, "./")
         self.assertEqual(e.exception.args, ("'fields' must be an array in 'input ex_efields'", ))
         
-        # fields should not be empty in uniform_e_field
+        # fields should not be empty in spatially_uniform_e_field
         with self.assertRaises(SonataError) as e:
             contents = """
             {
@@ -901,7 +901,7 @@ class TestSimulationConfig(unittest.TestCase):
               "inputs": {
                 "ex_efields": {
                   "input_type": "extracellular_stimulation",
-                  "module": "uniform_e_field",
+                  "module": "spatially_uniform_e_field",
                   "delay": 0.0,
                   "duration": 40000.0,
                   "node_set": "Column",
@@ -926,7 +926,7 @@ class TestSimulationConfig(unittest.TestCase):
               "inputs": {
                 "ex_efields": {
                   "input_type": "extracellular_stimulation",
-                  "module": "uniform_e_field",
+                  "module": "spatially_uniform_e_field",
                   "delay": 0.0,
                   "duration": 40000.0,
                   "node_set": "Column",
@@ -956,7 +956,7 @@ class TestSimulationConfig(unittest.TestCase):
               "inputs": {
                 "ex_efields": {
                   "input_type": "extracellular_stimulation",
-                  "module": "uniform_e_field",
+                  "module": "spatially_uniform_e_field",
                   "delay": 0.0,
                   "duration": 40000.0,
                   "node_set": "Column",
@@ -988,7 +988,7 @@ class TestSimulationConfig(unittest.TestCase):
               "inputs": {
                 "ex_efields": {
                   "input_type": "extracellular_stimulation",
-                  "module": "uniform_e_field",
+                  "module": "spatially_uniform_e_field",
                   "delay": 0.0,
                   "duration": 40000.0,
                   "node_set": "Column",
@@ -1021,7 +1021,7 @@ class TestSimulationConfig(unittest.TestCase):
               "inputs": {
                 "ex_efields": {
                   "input_type": "extracellular_stimulation",
-                  "module": "uniform_e_field",
+                  "module": "spatially_uniform_e_field",
                   "delay": 0.0,
                   "duration": 40000.0,
                   "node_set": "Column",

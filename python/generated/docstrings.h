@@ -945,11 +945,11 @@ static const char *__doc_bbp_sonata_SimulationConfig_EField_ey = R"doc(Peak ampl
 
 static const char *__doc_bbp_sonata_SimulationConfig_EField_ez = R"doc(Peak amplitude of the sinusoid in the z-direction, in V/m)doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_EField_frequency = R"doc(Frequency of the sinusoid, in Hz. Must be non-negative. Default is 0.)doc";
+static const char *__doc_bbp_sonata_SimulationConfig_EField_frequency = R"doc(Frequency of the sinusoid, in Hz. Must be non-negative. Default is 0)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_EField_phase =
 R"doc(Phase of the sinusoid, in radians. Must be between -pi and pi. Default
-is 0 or pi/2 when frequency is 0)doc";
+is 0, and pi/2 when frequency is 0)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputAbsoluteShotNoise = R"doc()doc";
 
@@ -1020,11 +1020,11 @@ static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_shot_noise
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_sinusoidal = R"doc()doc";
 
+static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_spatially_uniform_e_field = R"doc()doc";
+
 static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_subthreshold = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_synapse_replay = R"doc()doc";
-
-static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_uniform_e_field = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputBase_compartmentSet =
 R"doc(CompartmentSet which is affected by the input. It has priority over
@@ -1197,6 +1197,18 @@ static const char *__doc_bbp_sonata_SimulationConfig_InputSinusoidal_frequency =
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputSinusoidal_representsPhysicalElectrode = R"doc(Whether this input represents a physical electrode. Default is false)doc";
 
+static const char *__doc_bbp_sonata_SimulationConfig_InputSpatiallyUniformEField = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_InputSpatiallyUniformEField_fields = R"doc(A list of EFields which are summed to produce the total stimulus.)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_InputSpatiallyUniformEField_rampDownTime =
+R"doc(Duration during which the signal ramps down linearly to 0, in ms.
+Default is 0 ms.)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_InputSpatiallyUniformEField_rampUpTime =
+R"doc(Duration during which the signal ramps up linearly from 0, in ms.
+Default is 0 ms.)doc";
+
 static const char *__doc_bbp_sonata_SimulationConfig_InputSubthreshold = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputSubthreshold_percentLess = R"doc(A percentage adjusted from 100 of a cell's threshold current)doc";
@@ -1208,16 +1220,6 @@ static const char *__doc_bbp_sonata_SimulationConfig_InputSynapseReplay = R"doc(
 static const char *__doc_bbp_sonata_SimulationConfig_InputSynapseReplay_spikeFile =
 R"doc(The location of the file with the spike info for injection, file
 extension must be .h5)doc";
-
-static const char *__doc_bbp_sonata_SimulationConfig_InputUniformEField = R"doc()doc";
-
-static const char *__doc_bbp_sonata_SimulationConfig_InputUniformEField_fields = R"doc(A list of EFields which are summed to produce the total stimulus.)doc";
-
-static const char *__doc_bbp_sonata_SimulationConfig_InputUniformEField_rampDownTime = R"doc(Duration during which the signal ramps down linearly from 0, in ms.)doc";
-
-static const char *__doc_bbp_sonata_SimulationConfig_InputUniformEField_rampUpTime =
-R"doc(Duration during which the signal ramps up linearly from 0, in ms.
-Default is 0 ms.)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase = R"doc()doc";
 

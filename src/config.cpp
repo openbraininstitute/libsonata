@@ -113,7 +113,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(
      {SimulationConfig::InputBase::Module::ornstein_uhlenbeck, "ornstein_uhlenbeck"},
      {SimulationConfig::InputBase::Module::relative_ornstein_uhlenbeck,
       "relative_ornstein_uhlenbeck"},
-     {SimulationConfig::InputBase::Module::uniform_e_field, "uniform_e_field"}})
+     {SimulationConfig::InputBase::Module::spatially_uniform_e_field, "spatially_uniform_e_field"}})
 
 NLOHMANN_JSON_SERIALIZE_ENUM(
     SimulationConfig::InputBase::InputType,
@@ -648,8 +648,8 @@ SimulationConfig::Input parseInputModule(const nlohmann::json& valueIt,
         parseMandatory(valueIt, "sd_percent", debugStr, ret.sdPercent);
         return ret;
     }
-    case Module::uniform_e_field: {
-        SimulationConfig::InputUniformEField ret;
+    case Module::spatially_uniform_e_field: {
+        SimulationConfig::InputSpatiallyUniformEField ret;
         parseCommon(ret);
         parseMandatory(valueIt, "ramp_up_time", debugStr, ret.rampUpTime);
         parseOptional(valueIt, "ramp_down_time", ret.rampDownTime, {0.0});
@@ -1364,7 +1364,8 @@ class SimulationConfig::Parser
                 }
                 break;
             case InputBase::InputType::extracellular_stimulation:
-                if (!nonstd::holds_alternative<SimulationConfig::InputUniformEField>(input)) {
+                if (!nonstd::holds_alternative<SimulationConfig::InputSpatiallyUniformEField>(
+                        input)) {
                     mismatchingModuleInputType();
                 }
                 break;
