@@ -582,7 +582,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.randomSeed == 230522);
         }
         {
-            const auto input = nonstd::get<SimulationConfig::InputUniformEField>(
+            const auto input = nonstd::get<SimulationConfig::InputSpatiallyUniformEField>(
                 config.getInput("ex_efields"));
             CHECK(input.inputType == InputType::extracellular_stimulation);
             CHECK(input.module == Module::spatially_uniform_e_field);

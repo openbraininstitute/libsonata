@@ -1205,17 +1205,17 @@ PYBIND11_MODULE(_libsonata, m) {
             "represents_physical_electrode",
             &SimulationConfig::InputRelativeOrnsteinUhlenbeck::representsPhysicalElectrode,
             DOC_SIMULATIONCONFIG(InputRelativeOrnsteinUhlenbeck, representsPhysicalElectrode));
-    py::class_<SimulationConfig::InputUniformEField, SimulationConfig::InputBase>(simConf,
-                                                                                  "UniformEField")
+    py::class_<SimulationConfig::InputSpatiallyUniformEField, SimulationConfig::InputBase>(
+        simConf, "SpatiallyUniformEField")
         .def_readonly("ramp_up_time",
-                      &SimulationConfig::InputUniformEField::rampUpTime,
-                      DOC_SIMULATIONCONFIG(InputUniformEField, rampUpTime))
+                      &SimulationConfig::InputSpatiallyUniformEField::rampUpTime,
+                      DOC_SIMULATIONCONFIG(InputSpatiallyUniformEField, rampUpTime))
         .def_readonly("ramp_down_time",
-                      &SimulationConfig::InputUniformEField::rampDownTime,
-                      DOC_SIMULATIONCONFIG(InputUniformEField, rampDownTime))
+                      &SimulationConfig::InputSpatiallyUniformEField::rampDownTime,
+                      DOC_SIMULATIONCONFIG(InputSpatiallyUniformEField, rampDownTime))
         .def_readonly("fields",
-                      &SimulationConfig::InputUniformEField::fields,
-                      DOC_SIMULATIONCONFIG(InputUniformEField, fields));
+                      &SimulationConfig::InputSpatiallyUniformEField::fields,
+                      DOC_SIMULATIONCONFIG(InputSpatiallyUniformEField, fields));
 
     py::class_<SimulationConfig::EField>(simConf, "EField")
         .def_readonly("Ex", &SimulationConfig::EField::ex, DOC_SIMULATIONCONFIG(EField, ex))
