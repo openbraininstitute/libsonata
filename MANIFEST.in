@@ -5,14 +5,14 @@ include CMakeLists.txt
 include extlib/CMakeLists.txt
 
 # nlohman/json
-include extlib/nlohmann/json.hpp
+include extlib/nlohmann/nlohmann/json.hpp
 
 # fmt
 recursive-include extlib/fmt/include *
 recursive-include extlib/fmt/src *
 recursive-include extlib/fmt/support/cmake *
 include extlib/fmt/CMakeLists.txt
-include extlib/fmt/*.rst
+include extlib/fmt/LICENSE
 include extlib/fmt/README.md
 include extlib/fmt/ChangeLog.md
 
