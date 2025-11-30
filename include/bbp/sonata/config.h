@@ -653,7 +653,10 @@ class SONATA_API SimulationConfig
         double ey{};
         /// Peak amplitude of the sinusoid in the z-direction, in V/m
         double ez{};
-        /// Frequency of the sinusoid, in Hz. Must be non-negative. Default is 0
+        /// Frequency of the sinusoid, in Hz. Must be non-negative. Default is 0.
+        /// The signal will be generated with the same time step as the simulation, so frequency
+        /// should be less than the Nyquist frequency of the simulation (i.e., 1000/(2*dt), dt in
+        /// ms).
         double frequency{};
         /// Phase of the sinusoid, in radians. Must be between -pi and pi.
         /// Default is 0, and pi/2 when frequency is 0

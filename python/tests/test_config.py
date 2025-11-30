@@ -976,6 +976,46 @@ class TestSimulationConfig(unittest.TestCase):
             SimulationConfig(contents, "./")
         self.assertEqual(e.exception.args, ("'frequency' must be non-negative in 'input ex_efields fields'", ))
 
+        # Frequency should be < 1000/(2*dt) (dt in ms) in fields
+        with self.assertRaises(SonataError) as e:
+            contents = """
+            {  
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs": {
+                "ex_efields": {
+                  "input_type": "extracellular_stimulation",
+                  "module": "spatially_uniform_e_field",
+                  "delay": 0.0,
+                  "duration": 40000.0,
+                  "node_set": "Column",
+                  "ramp_up_time": 10.0,
+                  "fields": [
+                    {
+                      "Ex": 0.1,
+                      "Ey": 0.2,
+                      "Ez": 0.3,
+                      "frequency": 1.0
+                    },
+                    {
+                      "Ex": 0.1,
+                      "Ey": 0.2,
+                      "Ez": 0.3,
+                      "frequency": 200000
+                    }
+                  ]
+                }
+              }
+            }
+            """
+            SimulationConfig(contents, "./")
+            self.assertEqual(e.exception.args, (
+                "'frequency' must be less than the Nyquist frequency of the simulation (i.e. 1000/(2*dt)) in 'input ex_efields fields'", 
+                ));
+
         # phase must be < pi in fields
         with self.assertRaises(SonataError) as e:
             contents = """

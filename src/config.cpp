@@ -397,7 +397,8 @@ void parseVariantType(const nlohmann::json& it, variantValueType& var) {
 
 void parseInputsEFields(const nlohmann::json& it,
                         const std::string& section_name,
-                        std::vector<SimulationConfig::EField>& buf) {
+                        std::vector<SimulationConfig::EField>& buf,
+                        double simDt) {
     const auto sectionIt = it.find("fields");
     if (sectionIt == it.end()) {
         throw SonataError(fmt::format("Could not find 'fields' in '{}'", section_name));
@@ -423,6 +424,12 @@ void parseInputsEFields(const nlohmann::json& it,
         if (result.frequency < 0) {
             throw SonataError(fmt::format("'frequency' must be non-negative in '{}'", debugStr));
         }
+        if (result.frequency >= 1000 / (2 * simDt)) {
+            throw SonataError(
+                fmt::format("'frequency' must be less than the Nyquist frequency of the simulation "
+                            "(i.e. 1000/(2*dt)) in '{}'",
+                            debugStr));
+        }
         auto pi = M_PI;
         if (std::abs(result.phase) > pi) {
             throw SonataError(fmt::format("'phase' must be between -pi and pi in '{}'", debugStr));
@@ -438,7 +445,8 @@ void parseInputsEFields(const nlohmann::json& it,
 SimulationConfig::Input parseInputModule(const nlohmann::json& valueIt,
                                          const SimulationConfig::InputBase::Module module,
                                          const std::string& basePath,
-                                         const std::string& debugStr) {
+                                         const std::string& debugStr,
+                                         double simDt) {
     using Module = SimulationConfig::InputBase::Module;
 
     const auto parseCommon = [&](auto& input) {
@@ -653,7 +661,7 @@ SimulationConfig::Input parseInputModule(const nlohmann::json& valueIt,
         parseCommon(ret);
         parseMandatory(valueIt, "ramp_up_time", debugStr, ret.rampUpTime);
         parseOptional(valueIt, "ramp_down_time", ret.rampDownTime, {0.0});
-        parseInputsEFields(valueIt, debugStr, ret.fields);
+        parseInputsEFields(valueIt, debugStr, ret.fields, simDt);
         return ret;
     }
     default:
@@ -1307,7 +1315,7 @@ class SimulationConfig::Parser
         }
     }
 
-    InputMap parseInputs() const {
+    InputMap parseInputs(double simDt) const {
         InputMap result;
 
         const auto inputsIt = _json.find("inputs");
@@ -1322,7 +1330,7 @@ class SimulationConfig::Parser
             InputBase::Module module = InputBase::Module::invalid;
             parseMandatory(valueIt, "module", debugStr, module);
 
-            const auto input = parseInputModule(valueIt, module, _basePath, debugStr);
+            const auto input = parseInputModule(valueIt, module, _basePath, debugStr, simDt);
             result[it.key()] = input;
 
             auto mismatchingModuleInputType = [&it]() {
@@ -1472,7 +1480,7 @@ SimulationConfig::SimulationConfig(const std::string& content, const std::string
     _conditions = parser.parseConditions();
     _reports = parser.parseReports(_output);
     _network = parser.parseNetwork();
-    _inputs = parser.parseInputs();
+    _inputs = parser.parseInputs(_run.dt);
     _connection_overrides = parser.parseConnectionOverrides();
     _targetSimulator = parser.parseTargetSimulator();
     _nodeSetsFile = parser.parseNodeSetsFile();
