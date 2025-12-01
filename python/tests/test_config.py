@@ -627,7 +627,7 @@ class TestSimulationConfig(unittest.TestCase):
         self.assertEqual(self.config.input('ex_efields').ramp_up_time, 100)
         self.assertEqual(self.config.input('ex_efields').ramp_down_time, 10)
         fields = self.config.input('ex_efields').fields
-        self.assertEqual(len(fields), 3)
+        self.assertEqual(len(fields), 4)
         self.assertEqual(fields[0].Ex, 0.1)
         self.assertEqual(fields[0].Ey, 0.2)
         self.assertEqual(fields[0].Ez, 0.3)
@@ -643,6 +643,8 @@ class TestSimulationConfig(unittest.TestCase):
         self.assertEqual(fields[2].Ez, 0.9)
         self.assertEqual(fields[2].frequency, 100.)
         self.assertEqual(fields[2].phase, 0.)
+        self.assertEqual(fields[3].frequency, 0.)
+        self.assertEqual(fields[3].phase, -0.1)
 
         overrides = {o.name: o for o in self.config.connection_overrides()}
         self.assertEqual(overrides['ConL3Exc-Uni'].source, 'Excitatory')

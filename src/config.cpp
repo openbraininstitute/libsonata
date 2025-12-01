@@ -420,7 +420,6 @@ void parseInputsEFields(const nlohmann::json& it,
         parseMandatory(valueIt, "Ey", debugStr, result.ey);
         parseMandatory(valueIt, "Ez", debugStr, result.ez);
         parseOptional(valueIt, "frequency", result.frequency, {0.0});
-        parseOptional(valueIt, "phase", result.phase, {0.0});
         if (result.frequency < 0) {
             throw SonataError(fmt::format("'frequency' must be non-negative in '{}'", debugStr));
         }
@@ -431,12 +430,12 @@ void parseInputsEFields(const nlohmann::json& it,
                             debugStr));
         }
         auto pi = M_PI;
+        // if frequency is 0, default phase is pi/2 to ensure a constant field
+        auto default_phase = result.frequency > 0 ? nonstd::optional<double>(0)
+                                                  : nonstd::optional<double>(pi / 2);
+        parseOptional(valueIt, "phase", result.phase, default_phase);
         if (std::abs(result.phase) > pi) {
             throw SonataError(fmt::format("'phase' must be between -pi and pi in '{}'", debugStr));
-        }
-        if (result.frequency < 1e-12) {
-            // frequency is nearly 0, force phase to be pi/2 to ensure a constant field
-            result.phase = pi / 2;
         }
         buf.push_back(std::move(result));
     }

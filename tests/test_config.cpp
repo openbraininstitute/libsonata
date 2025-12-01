@@ -592,7 +592,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.rampUpTime == 100.);
             CHECK(input.rampDownTime == 10.);
             const auto fields = input.fields;
-            CHECK(fields.size() == 3);
+            CHECK(fields.size() == 4);
             CHECK(fields[0].ex == 0.1);
             CHECK(fields[0].ey == 0.2);
             CHECK(fields[0].ez == 0.3);
@@ -608,6 +608,8 @@ TEST_CASE("SimulationConfig") {
             CHECK(fields[2].ez == 0.9);
             CHECK(fields[2].frequency == 100.);
             CHECK(fields[2].phase == 0.);
+            CHECK(fields[3].frequency == 0);
+            CHECK(fields[3].phase == -0.1);
         }
 
         CHECK(config.listInputNames() == std::set<std::string>{"ex_abs_shotnoise",
