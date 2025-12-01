@@ -1566,11 +1566,12 @@ TEST_CASE("SimulationConfig") {
                 }
               }
             })";
-            CHECK_THROWS_MATCHES(SimulationConfig(contents, "./"),
-                                 SonataError,
-                                 Catch::Matchers::Message(
-                                     "'frequency' must be less than the Nyquist frequency of the "
-                                     "simulation (i.e. 1000/(2*dt)) in 'input ex_efields fields'"));
+            CHECK_THROWS_MATCHES(
+                SimulationConfig(contents, "./"),
+                SonataError,
+                Catch::Matchers::Message(
+                    "'frequency' must be less than the Nyquist frequency of the "
+                    "simulation (i.e. 1000/(2*dt) with dt in [ms]) in 'input ex_efields fields'"));
         }
         {  // phase must be < pi in fields
             const auto* contents = R"({

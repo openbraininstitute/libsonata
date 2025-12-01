@@ -937,7 +937,7 @@ static const char *__doc_bbp_sonata_SimulationConfig_ConnectionOverride_target =
 
 static const char *__doc_bbp_sonata_SimulationConfig_ConnectionOverride_weight = R"doc(Scalar to adjust synaptic strength, default = 1.)doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_EField = R"doc()doc";
+static const char *__doc_bbp_sonata_SimulationConfig_EField = R"doc(Data structure for an electric field)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_EField_ex = R"doc(Peak amplitude of the sinusoid in the x-direction, in V/m)doc";
 
@@ -1201,17 +1201,17 @@ static const char *__doc_bbp_sonata_SimulationConfig_InputSinusoidal_frequency =
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputSinusoidal_representsPhysicalElectrode = R"doc(Whether this input represents a physical electrode. Default is false)doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_InputSpatiallyUniformEField = R"doc()doc";
+static const char *__doc_bbp_sonata_SimulationConfig_InputSpatiallyUniformEField = R"doc(Data structure for spatially_uniform_e_field input)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputSpatiallyUniformEField_fields = R"doc(A list of EFields which are summed to produce the total stimulus.)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputSpatiallyUniformEField_rampDownTime =
-R"doc(Duration during which the signal ramps down linearly to 0, in ms.
-Default is 0 ms.)doc";
+R"doc(Duration during which the signal amplitude ramps down linearly to 0,
+in ms. Default is 0 ms.)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputSpatiallyUniformEField_rampUpTime =
-R"doc(Duration during which the signal ramps up linearly from 0, in ms.
-Default is 0 ms.)doc";
+R"doc(Duration during which the signal amplitude ramps up linearly from 0,
+in ms. Default is 0 ms.)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputSubthreshold = R"doc()doc";
 

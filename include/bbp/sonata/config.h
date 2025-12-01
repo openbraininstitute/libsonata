@@ -646,6 +646,7 @@ class SONATA_API SimulationConfig
         bool representsPhysicalElectrode = false;
     };
 
+    /// @brief Data structure for an electric field
     struct EField {
         /// Peak amplitude of the sinusoid in the x-direction, in V/m
         double ex{};
@@ -663,13 +664,16 @@ class SONATA_API SimulationConfig
         double phase{};
     };
 
+    /// @brief Data structure for spatially_uniform_e_field input
     struct InputSpatiallyUniformEField: public InputBase {
       public:
         /// A list of EFields which are summed to produce the total stimulus.
         std::vector<EField> fields;
-        /// Duration during which the signal ramps up linearly from 0, in ms. Default is 0 ms.
+        /// Duration during which the signal amplitude ramps up linearly from 0, in ms. Default is 0
+        /// ms.
         double rampUpTime;
-        /// Duration during which the signal ramps down linearly to 0, in ms. Default is 0 ms.
+        /// Duration during which the signal amplitude ramps down linearly to 0, in ms. Default is 0
+        /// ms.
         double rampDownTime;
     };
 

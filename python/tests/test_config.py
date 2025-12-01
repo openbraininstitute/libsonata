@@ -1015,7 +1015,7 @@ class TestSimulationConfig(unittest.TestCase):
             """
             SimulationConfig(contents, "./")
             self.assertEqual(e.exception.args, (
-                "'frequency' must be less than the Nyquist frequency of the simulation (i.e. 1000/(2*dt)) in 'input ex_efields fields'", 
+                "'frequency' must be less than the Nyquist frequency of the simulation (i.e. 1000/(2*dt) with dt in [ms]) in 'input ex_efields fields'", 
                 ));
 
         # phase must be < pi in fields
