@@ -602,7 +602,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(fields[1].ey == 0.5);
             CHECK(fields[1].ez == 0.6);
             CHECK(fields[1].frequency == 0.);
-            CHECK(fields[1].phase == M_PI / 2);
+            CHECK(fields[1].phase == 0);
             CHECK(fields[2].ex == 0.7);
             CHECK(fields[2].ey == 0.8);
             CHECK(fields[2].ez == 0.9);
@@ -1573,7 +1573,7 @@ TEST_CASE("SimulationConfig") {
                     "'frequency' must be less than the Nyquist frequency of the "
                     "simulation (i.e. 1000/(2*dt) with dt in [ms]) in 'input ex_efields fields'"));
         }
-        {  // phase must be < pi in fields
+        {  // phase must be <= pi/2 in fields
             const auto* contents = R"({
               "run": {
                 "random_seed": 12345,
@@ -1594,7 +1594,7 @@ TEST_CASE("SimulationConfig") {
                       "Ey": 0.2,
                       "Ez": 0.3,
                       "frequency": 1.0,
-                      "phase": 3.15
+                      "phase": 1.58
                     }
                   ]
                 }
@@ -1604,9 +1604,9 @@ TEST_CASE("SimulationConfig") {
                 SimulationConfig(contents, "./"),
                 SonataError,
                 Catch::Matchers::Message(
-                    "'phase' must be between -pi and pi in 'input ex_efields fields'"));
+                    "'phase' must be within (-pi/2, pi/2] in 'input ex_efields fields'"));
         }
-        {  // phase must be > -pi in fields
+        {  // phase must be > -pi/2 in fields
             const auto* contents = R"({
               "run": {
                 "random_seed": 12345,
@@ -1627,7 +1627,7 @@ TEST_CASE("SimulationConfig") {
                       "Ey": 0.2,
                       "Ez": 0.3,
                       "frequency": 1.0,
-                      "phase": -3.15
+                      "phase": -1.58
                     }
                   ]
                 }
@@ -1637,7 +1637,7 @@ TEST_CASE("SimulationConfig") {
                 SimulationConfig(contents, "./"),
                 SonataError,
                 Catch::Matchers::Message(
-                    "'phase' must be between -pi and pi in 'input ex_efields fields'"));
+                    "'phase' must be within (-pi/2, pi/2] in 'input ex_efields fields'"));
         }
         {  // Invalid spikes ordering in the output section
             auto contents = R"({

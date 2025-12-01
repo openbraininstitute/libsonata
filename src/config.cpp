@@ -430,12 +430,10 @@ void parseInputsEFields(const nlohmann::json& it,
                             debugStr));
         }
         auto pi = M_PI;
-        // if frequency is 0, default phase is pi/2 to ensure a constant field
-        auto default_phase = result.frequency > 0 ? nonstd::optional<double>(0)
-                                                  : nonstd::optional<double>(pi / 2);
-        parseOptional(valueIt, "phase", result.phase, default_phase);
-        if (std::abs(result.phase) > pi) {
-            throw SonataError(fmt::format("'phase' must be between -pi and pi in '{}'", debugStr));
+        parseOptional(valueIt, "phase", result.phase, {0.0});
+        if (result.phase > pi / 2 or result.phase <= -pi / 2) {
+            throw SonataError(
+                fmt::format("'phase' must be within (-pi/2, pi/2] in '{}'", debugStr));
         }
         buf.push_back(std::move(result));
     }

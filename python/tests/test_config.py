@@ -1,7 +1,6 @@
 import json
 import os
 import unittest
-import math
 
 from libsonata import (CircuitConfig, CircuitConfigStatus, SimulationConfig, SonataError,
                        )
@@ -637,7 +636,7 @@ class TestSimulationConfig(unittest.TestCase):
         self.assertEqual(fields[1].Ey, 0.5)
         self.assertEqual(fields[1].Ez, 0.6)
         self.assertEqual(fields[1].frequency, 0.)
-        self.assertEqual(fields[1].phase, math.pi/2)
+        self.assertEqual(fields[1].phase, 0.)
         self.assertEqual(fields[2].Ex, 0.7)
         self.assertEqual(fields[2].Ey, 0.8)
         self.assertEqual(fields[2].Ez, 0.9)
@@ -1014,11 +1013,11 @@ class TestSimulationConfig(unittest.TestCase):
             }
             """
             SimulationConfig(contents, "./")
-            self.assertEqual(e.exception.args, (
+        self.assertEqual(e.exception.args, (
                 "'frequency' must be less than the Nyquist frequency of the simulation (i.e. 1000/(2*dt) with dt in [ms]) in 'input ex_efields fields'", 
                 ));
 
-        # phase must be < pi in fields
+        # phase must be <=pi/2  in fields
         with self.assertRaises(SonataError) as e:
             contents = """
             {
@@ -1041,7 +1040,7 @@ class TestSimulationConfig(unittest.TestCase):
                       "Ey": 0.2,
                       "Ez": 0.3,
                       "frequency": 1.0,
-                      "phase": 3.15
+                      "phase": 1.58
                     }
                   ]
                 }
@@ -1049,9 +1048,9 @@ class TestSimulationConfig(unittest.TestCase):
             }
             """
             SimulationConfig(contents, "./")
-            self.assertEqual(e.exception.args, ("'phase' must be between -pi and pi in 'input ex_efields fields'", ))
+        self.assertEqual(e.exception.args, ("'phase' must be within (-pi/2, pi/2] in 'input ex_efields fields'", ))
 
-        # phase must be > -pi in fields
+        # phase must be > -pi/2 in fields
         with self.assertRaises(SonataError) as e:
             contents = """
             {
@@ -1074,7 +1073,7 @@ class TestSimulationConfig(unittest.TestCase):
                       "Ey": 0.2,
                       "Ez": 0.3,
                       "frequency": 1.0,
-                      "phase": -3.15
+                      "phase": -1.58
                     }
                   ]
                 }
@@ -1082,4 +1081,4 @@ class TestSimulationConfig(unittest.TestCase):
             }
             """
             SimulationConfig(contents, "./")
-            self.assertEqual(e.exception.args, ("'phase' must be between -pi and pi in 'input ex_efields fields'", ))
+        self.assertEqual(e.exception.args, ("'phase' must be within (-pi/2, pi/2] in 'input ex_efields fields'", ))

@@ -648,23 +648,25 @@ class SONATA_API SimulationConfig
 
     /// @brief Data structure for an electric field
     struct EField {
-        /// Peak amplitude of the sinusoid in the x-direction, in V/m
+        /// Peak amplitude of the cosinusoid in the x-direction, in V/m
         double ex{};
-        /// Peak amplitude of the sinusoid in the y-direction, in V/m
+        /// Peak amplitude of the cosinusoid in the y-direction, in V/m
         double ey{};
-        /// Peak amplitude of the sinusoid in the z-direction, in V/m
+        /// Peak amplitude of the cosinusoid in the z-direction, in V/m
         double ez{};
-        /// Frequency of the sinusoid, in Hz. Must be non-negative. Default is 0.
+        /// Frequency of the cosinusoid, in Hz. Must be non-negative. Default is 0.
         /// The signal will be generated with the same time step as the simulation, so frequency
         /// should be less than the Nyquist frequency of the simulation (i.e., 1000/(2*dt), dt in
         /// ms).
         double frequency{};
-        /// Phase of the sinusoid, in radians. Must be between -pi and pi.
-        /// Default is 0, and pi/2 when frequency is 0
+        /// Phase of the cosinusoid, in radians. Must be within the interval (-pi/2, pi/2]. Default
+        /// is 0.
         double phase{};
     };
 
-    /// @brief Data structure for spatially_uniform_e_field input
+    /// @brief Data structure for spatially_uniform_e_field input. The potential field is defined as
+    /// the sum of an arbitrary number of potential fields which vary cosinusoidally in time, and
+    /// whose gradient (i.e., E field) is constant.
     struct InputSpatiallyUniformEField: public InputBase {
       public:
         /// A list of EFields which are summed to produce the total stimulus.
