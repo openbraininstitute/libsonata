@@ -423,10 +423,13 @@ void parseInputsEFields(const nlohmann::json& it,
         if (result.frequency < 0) {
             throw SonataError(fmt::format("'frequency' must be non-negative in '{}'", debugStr));
         }
-        if (result.frequency >= 1000 / (2 * simDt)) {
+        auto ny_freq = 1000 / (2 * simDt);
+        if (result.frequency >= ny_freq) {
             throw SonataError(
-                fmt::format("'frequency' must be less than the Nyquist frequency of the simulation "
-                            "(i.e. 1000/(2*dt) with dt in [ms]) in '{}'",
+                fmt::format("'frequency {}' must be less than the Nyquist frequency of the "
+                            "simulation 1/(2*dt) = {} in '{}'",
+                            result.frequency,
+                            ny_freq,
                             debugStr));
         }
         auto pi = M_PI;

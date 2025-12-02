@@ -1560,7 +1560,7 @@ TEST_CASE("SimulationConfig") {
                       "Ex": 0.1,
                       "Ey": 0.2,
                       "Ez": 0.3,
-                      "frequency": 200000
+                      "frequency": 20000
                     }
                   ]
                 }
@@ -1570,8 +1570,8 @@ TEST_CASE("SimulationConfig") {
                 SimulationConfig(contents, "./"),
                 SonataError,
                 Catch::Matchers::Message(
-                    "'frequency' must be less than the Nyquist frequency of the "
-                    "simulation (i.e. 1000/(2*dt) with dt in [ms]) in 'input ex_efields fields'"));
+                    "'frequency 20000' must be less than the Nyquist frequency of the simulation "
+                    "1/(2*dt) = 10000 in 'input ex_efields fields'"));
         }
         {  // phase must be <= pi/2 in fields
             const auto* contents = R"({
