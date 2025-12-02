@@ -659,8 +659,7 @@ class SONATA_API SimulationConfig
         /// should be less than the Nyquist frequency of the simulation (i.e., 1000/(2*dt), dt in
         /// ms).
         double frequency{};
-        /// Phase of the cosinusoid, in radians. Must be within the interval (-pi/2, pi/2]. Default
-        /// is 0.
+        /// Phase of the cosinusoid, in radians. Default is 0.
         double phase{};
     };
 

@@ -951,9 +951,7 @@ R"doc(Frequency of the cosinusoid, in Hz. Must be non-negative. Default is
 simulation, so frequency should be less than the Nyquist frequency of
 the simulation (i.e., 1000/(2*dt), dt in ms).)doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_EField_phase =
-R"doc(Phase of the cosinusoid, in radians. Must be within the interval
-(-pi/2, pi/2]. Default is 0.)doc";
+static const char *__doc_bbp_sonata_SimulationConfig_EField_phase = R"doc(Phase of the cosinusoid, in radians. Default is 0.)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputAbsoluteShotNoise = R"doc()doc";
 

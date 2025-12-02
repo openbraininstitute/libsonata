@@ -12,7 +12,6 @@
 #include <bbp/sonata/config.h>
 
 #include <bbp/sonata/optional.hpp>
-#include <cmath>
 #include <regex>
 #include <set>
 #include <string>
@@ -432,12 +431,7 @@ void parseInputsEFields(const nlohmann::json& it,
                             ny_freq,
                             debugStr));
         }
-        auto pi = M_PI;
         parseOptional(valueIt, "phase", result.phase, {0.0});
-        if (result.phase > pi / 2 or result.phase <= -pi / 2) {
-            throw SonataError(
-                fmt::format("'phase' must be within (-pi/2, pi/2] in '{}'", debugStr));
-        }
         buf.push_back(std::move(result));
     }
 }
