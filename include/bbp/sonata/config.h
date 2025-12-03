@@ -437,7 +437,8 @@ class SONATA_API SimulationConfig
             relative_shot_noise,
             absolute_shot_noise,
             ornstein_uhlenbeck,
-            relative_ornstein_uhlenbeck
+            relative_ornstein_uhlenbeck,
+            spatially_uniform_e_field
         };
 
         enum class InputType {
@@ -645,6 +646,38 @@ class SONATA_API SimulationConfig
         bool representsPhysicalElectrode = false;
     };
 
+    /// @brief Data structure for an electric field
+    struct EField {
+        /// Peak amplitude of the cosinusoid in the x-direction, in V/m
+        double ex{};
+        /// Peak amplitude of the cosinusoid in the y-direction, in V/m
+        double ey{};
+        /// Peak amplitude of the cosinusoid in the z-direction, in V/m
+        double ez{};
+        /// Frequency of the cosinusoid, in Hz. Must be non-negative. Default is 0.
+        /// The signal will be generated with the same time step as the simulation, so frequency
+        /// should be less than the Nyquist frequency of the simulation (i.e., 1000/(2*dt), dt in
+        /// ms).
+        double frequency{};
+        /// Phase of the cosinusoid, in radians. Default is 0.
+        double phase{};
+    };
+
+    /// @brief Data structure for spatially_uniform_e_field input. The potential field is defined as
+    /// the sum of an arbitrary number of potential fields which vary cosinusoidally in time, and
+    /// whose gradient (i.e., E field) is constant.
+    struct InputSpatiallyUniformEField: public InputBase {
+      public:
+        /// A list of EFields which are summed to produce the total stimulus.
+        std::vector<EField> fields;
+        /// Duration during which the signal amplitude ramps up linearly from 0, in ms. Default is 0
+        /// ms.
+        double rampUpTime;
+        /// Duration during which the signal amplitude ramps down linearly to 0, in ms. Default is 0
+        /// ms.
+        double rampDownTime;
+    };
+
     using Input = nonstd::variant<InputLinear,
                                   InputRelativeLinear,
                                   InputPulse,
@@ -658,7 +691,8 @@ class SONATA_API SimulationConfig
                                   InputRelativeShotNoise,
                                   InputAbsoluteShotNoise,
                                   InputOrnsteinUhlenbeck,
-                                  InputRelativeOrnsteinUhlenbeck>;
+                                  InputRelativeOrnsteinUhlenbeck,
+                                  InputSpatiallyUniformEField>;
 
     using InputMap = std::unordered_map<std::string, Input>;
 

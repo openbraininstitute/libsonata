@@ -937,6 +937,22 @@ static const char *__doc_bbp_sonata_SimulationConfig_ConnectionOverride_target =
 
 static const char *__doc_bbp_sonata_SimulationConfig_ConnectionOverride_weight = R"doc(Scalar to adjust synaptic strength, default = 1.)doc";
 
+static const char *__doc_bbp_sonata_SimulationConfig_EField = R"doc(Data structure for an electric field)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_EField_ex = R"doc(Peak amplitude of the cosinusoid in the x-direction, in V/m)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_EField_ey = R"doc(Peak amplitude of the cosinusoid in the y-direction, in V/m)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_EField_ez = R"doc(Peak amplitude of the cosinusoid in the z-direction, in V/m)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_EField_frequency =
+R"doc(Frequency of the cosinusoid, in Hz. Must be non-negative. Default is
+0. The signal will be generated with the same time step as the
+simulation, so frequency should be less than the Nyquist frequency of
+the simulation (i.e., 1000/(2*dt), dt in ms).)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_EField_phase = R"doc(Phase of the cosinusoid, in radians. Default is 0.)doc";
+
 static const char *__doc_bbp_sonata_SimulationConfig_InputAbsoluteShotNoise = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputAbsoluteShotNoise_decayTime = R"doc(The decay time of the bi-exponential shots (ms))doc";
@@ -1005,6 +1021,8 @@ static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_seclamp = 
 static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_shot_noise = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_sinusoidal = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_spatially_uniform_e_field = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_subthreshold = R"doc()doc";
 
@@ -1180,6 +1198,22 @@ static const char *__doc_bbp_sonata_SimulationConfig_InputSinusoidal_dt = R"doc(
 static const char *__doc_bbp_sonata_SimulationConfig_InputSinusoidal_frequency = R"doc(The frequency of the sinusoidal waveform. Given in Hz.)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputSinusoidal_representsPhysicalElectrode = R"doc(Whether this input represents a physical electrode. Default is false)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_InputSpatiallyUniformEField =
+R"doc(Data structure for spatially_uniform_e_field input. The potential
+field is defined as the sum of an arbitrary number of potential fields
+which vary cosinusoidally in time, and whose gradient (i.e., E field)
+is constant.)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_InputSpatiallyUniformEField_fields = R"doc(A list of EFields which are summed to produce the total stimulus.)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_InputSpatiallyUniformEField_rampDownTime =
+R"doc(Duration during which the signal amplitude ramps down linearly to 0,
+in ms. Default is 0 ms.)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_InputSpatiallyUniformEField_rampUpTime =
+R"doc(Duration during which the signal amplitude ramps up linearly from 0,
+in ms. Default is 0 ms.)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputSubthreshold = R"doc()doc";
 

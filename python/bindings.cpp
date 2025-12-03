@@ -1205,6 +1205,29 @@ PYBIND11_MODULE(_libsonata, m) {
             "represents_physical_electrode",
             &SimulationConfig::InputRelativeOrnsteinUhlenbeck::representsPhysicalElectrode,
             DOC_SIMULATIONCONFIG(InputRelativeOrnsteinUhlenbeck, representsPhysicalElectrode));
+    py::class_<SimulationConfig::InputSpatiallyUniformEField, SimulationConfig::InputBase>(
+        simConf, "SpatiallyUniformEField")
+        .def_readonly("ramp_up_time",
+                      &SimulationConfig::InputSpatiallyUniformEField::rampUpTime,
+                      DOC_SIMULATIONCONFIG(InputSpatiallyUniformEField, rampUpTime))
+        .def_readonly("ramp_down_time",
+                      &SimulationConfig::InputSpatiallyUniformEField::rampDownTime,
+                      DOC_SIMULATIONCONFIG(InputSpatiallyUniformEField, rampDownTime))
+        .def_readonly("fields",
+                      &SimulationConfig::InputSpatiallyUniformEField::fields,
+                      DOC_SIMULATIONCONFIG(InputSpatiallyUniformEField, fields));
+
+    py::class_<SimulationConfig::EField>(simConf, "EField")
+        .def_readonly("Ex", &SimulationConfig::EField::ex, DOC_SIMULATIONCONFIG(EField, ex))
+        .def_readonly("Ey", &SimulationConfig::EField::ey, DOC_SIMULATIONCONFIG(EField, ey))
+        .def_readonly("Ex", &SimulationConfig::EField::ex, DOC_SIMULATIONCONFIG(EField, ex))
+        .def_readonly("Ez", &SimulationConfig::EField::ez, DOC_SIMULATIONCONFIG(EField, ez))
+        .def_readonly("frequency",
+                      &SimulationConfig::EField::frequency,
+                      DOC_SIMULATIONCONFIG(EField, frequency))
+        .def_readonly("phase",
+                      &SimulationConfig::EField::phase,
+                      DOC_SIMULATIONCONFIG(EField, phase));
 
     py::enum_<SimulationConfig::InputBase::Module>(inputBase, "Module")
         .value("linear", SimulationConfig::InputBase::Module::linear)
@@ -1221,7 +1244,9 @@ PYBIND11_MODULE(_libsonata, m) {
         .value("absolute_shot_noise", SimulationConfig::InputBase::Module::absolute_shot_noise)
         .value("ornstein_uhlenbeck", SimulationConfig::InputBase::Module::ornstein_uhlenbeck)
         .value("relative_ornstein_uhlenbeck",
-               SimulationConfig::InputBase::Module::relative_ornstein_uhlenbeck);
+               SimulationConfig::InputBase::Module::relative_ornstein_uhlenbeck)
+        .value("spatially_uniform_e_field",
+               SimulationConfig::InputBase::Module::spatially_uniform_e_field);
 
     py::enum_<SimulationConfig::InputBase::InputType>(inputBase, "InputType")
         .value("spikes", SimulationConfig::InputBase::InputType::spikes)
