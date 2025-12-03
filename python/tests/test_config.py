@@ -499,7 +499,8 @@ class TestSimulationConfig(unittest.TestCase):
                           "ex_sinusoidal",
                           "ex_sinusoidal_default_dt",
                           "ex_subthreshold",
-                          "ex_efields"
+                          "ex_efields",
+                          "ex_efields_noramp"
                           })
 
         self.assertEqual(self.config.input('ex_linear').input_type.name, 'current_clamp')
@@ -644,6 +645,21 @@ class TestSimulationConfig(unittest.TestCase):
         self.assertEqual(fields[2].phase, 0.)
         self.assertEqual(fields[3].frequency, 0.)
         self.assertEqual(fields[3].phase, -0.1)
+
+        self.assertEqual(self.config.input('ex_efields_noramp').input_type.name, "extracellular_stimulation")
+        self.assertEqual(self.config.input('ex_efields_noramp').module.name, "spatially_uniform_e_field")
+        self.assertEqual(self.config.input('ex_efields_noramp').delay, 0)
+        self.assertEqual(self.config.input('ex_efields_noramp').duration, 1000)
+        self.assertEqual(self.config.input('ex_efields_noramp').node_set, "Mosaic")
+        self.assertEqual(self.config.input('ex_efields_noramp').ramp_up_time, 0.)
+        self.assertEqual(self.config.input('ex_efields_noramp').ramp_down_time, 0.)
+        fields = self.config.input('ex_efields_noramp').fields
+        self.assertEqual(len(fields), 1)
+        self.assertEqual(fields[0].Ex, 0.1)
+        self.assertEqual(fields[0].Ey, 0.2)
+        self.assertEqual(fields[0].Ez, 0.3)
+        self.assertEqual(fields[0].frequency, 0.)
+        self.assertEqual(fields[0].phase, 0.)
 
         overrides = {o.name: o for o in self.config.connection_overrides()}
         self.assertEqual(overrides['ConL3Exc-Uni'].source, 'Excitatory')
@@ -817,29 +833,6 @@ class TestSimulationConfig(unittest.TestCase):
             """
             SimulationConfig(contents, "./")
         self.assertEqual(e.exception.args, ("An `input` has module `synapse_replay` and input_type `extracellular_stimulation` which mismatch", ))
-
-        # missing ramp_up_time in spatially_uniform_e_field
-        with self.assertRaises(SonataError) as e:
-            contents = """
-            {
-              "run": {
-                "random_seed": 12345,
-                "dt": 0.05,
-                "tstop": 1000
-              },
-              "inputs": {
-                "ex_efields": {
-                  "input_type": "extracellular_stimulation",
-                  "module": "spatially_uniform_e_field",
-                  "delay": 0.0,
-                  "duration": 40000.0,
-                  "node_set": "Column"
-                }
-              }
-            }
-            """
-            SimulationConfig(contents, "./")
-        self.assertEqual(e.exception.args, ("Could not find 'ramp_up_time' in 'input ex_efields'", ))
 
         # missing fields in spatially_uniform_e_field
         with self.assertRaises(SonataError) as e:

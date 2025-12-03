@@ -653,7 +653,7 @@ SimulationConfig::Input parseInputModule(const nlohmann::json& valueIt,
     case Module::spatially_uniform_e_field: {
         SimulationConfig::InputSpatiallyUniformEField ret;
         parseCommon(ret);
-        parseMandatory(valueIt, "ramp_up_time", debugStr, ret.rampUpTime);
+        parseOptional(valueIt, "ramp_up_time", ret.rampUpTime, {0.0});
         parseOptional(valueIt, "ramp_down_time", ret.rampDownTime, {0.0});
         parseInputsEFields(valueIt, debugStr, ret.fields, simDt);
         return ret;
