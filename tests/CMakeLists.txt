@@ -1,3 +1,10 @@
+Include(FetchContent)
+FetchContent_Declare(
+  Catch2
+  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+  GIT_TAG        v3.11.0
+)
+
 set(TESTS_SRC
   main.cpp
   test_compartment_sets.cpp
@@ -9,12 +16,6 @@ set(TESTS_SRC
   test_selection.cpp
 )
 
-if(NOT EXTLIB_FROM_SUBMODULES)
-  # When using submodules `include(.../Catch)` is performed
-  # in `extlib/CMakeLists.txt`.
-  include(Catch)
-endif()
-
 add_executable(unittests ${TESTS_SRC})
 target_link_libraries(unittests
     PRIVATE
@@ -24,6 +25,18 @@ target_link_libraries(unittests
     nlohmann_json::nlohmann_json
 )
 
+if (ENABLE_COVERAGE)
+    include(CodeCoverage)
+    set(COVERAGE_LCOV_EXCLUDES '/usr/*' '${PROJECT_SOURCE_DIR}/include/*' '${PROJECT_SOURCE_DIR}/extlib/*')
+    SETUP_TARGET_FOR_COVERAGE_LCOV(
+        NAME coverage
+        EXECUTABLE ctest
+        DEPENDENCIES unittests
+    )
+endif()
+
+include(Catch)
 catch_discover_tests(unittests
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
     )
+
