@@ -483,7 +483,6 @@ class TestSimulationConfig(unittest.TestCase):
 
         self.assertEqual(self.config.list_input_names,
                          {"ex_abs_shotnoise",
-                          "ex_extracellular_stimulation",
                           "ex_hyperpolarizing",
                           "ex_linear",
                           "ex_linear_compartment_set",
@@ -499,7 +498,9 @@ class TestSimulationConfig(unittest.TestCase):
                           "ex_shotnoise",
                           "ex_sinusoidal",
                           "ex_sinusoidal_default_dt",
-                          "ex_subthreshold"
+                          "ex_subthreshold",
+                          "ex_efields",
+                          "ex_efields_noramp"
                           })
 
         self.assertEqual(self.config.input('ex_linear').input_type.name, 'current_clamp')
@@ -590,7 +591,6 @@ class TestSimulationConfig(unittest.TestCase):
         self.assertEqual(self.config.input('ex_replay').node_set, "Column")
         self.assertEqual(self.config.input('ex_replay').spike_file,
                          os.path.abspath(os.path.join(PATH, 'config/replay.h5')))
-        self.assertEqual(self.config.input('ex_extracellular_stimulation').node_set, 'Column')
 
         self.assertEqual(self.config.input('ex_abs_shotnoise').input_type.name, "conductance")
         self.assertEqual(self.config.input('ex_abs_shotnoise').mean, 50)
@@ -618,6 +618,48 @@ class TestSimulationConfig(unittest.TestCase):
 
         self.assertEqual(self.config.input('ex_seclamp').voltage, 1.1)
         self.assertEqual(self.config.input('ex_seclamp').series_resistance, 0.5)
+
+        self.assertEqual(self.config.input('ex_efields').input_type.name, "extracellular_stimulation")
+        self.assertEqual(self.config.input('ex_efields').module.name, "spatially_uniform_e_field")
+        self.assertEqual(self.config.input('ex_efields').delay, 0)
+        self.assertEqual(self.config.input('ex_efields').duration, 1000)
+        self.assertEqual(self.config.input('ex_efields').node_set, "Mosaic")
+        self.assertEqual(self.config.input('ex_efields').ramp_up_time, 100)
+        self.assertEqual(self.config.input('ex_efields').ramp_down_time, 10)
+        fields = self.config.input('ex_efields').fields
+        self.assertEqual(len(fields), 4)
+        self.assertEqual(fields[0].Ex, 0.1)
+        self.assertEqual(fields[0].Ey, 0.2)
+        self.assertEqual(fields[0].Ez, 0.3)
+        self.assertEqual(fields[0].frequency, 10.)
+        self.assertEqual(fields[0].phase, 0.5)
+        self.assertEqual(fields[1].Ex, 0.4)
+        self.assertEqual(fields[1].Ey, 0.5)
+        self.assertEqual(fields[1].Ez, 0.6)
+        self.assertEqual(fields[1].frequency, 0.)
+        self.assertEqual(fields[1].phase, 0.)
+        self.assertEqual(fields[2].Ex, 0.7)
+        self.assertEqual(fields[2].Ey, 0.8)
+        self.assertEqual(fields[2].Ez, 0.9)
+        self.assertEqual(fields[2].frequency, 100.)
+        self.assertEqual(fields[2].phase, 0.)
+        self.assertEqual(fields[3].frequency, 0.)
+        self.assertEqual(fields[3].phase, -0.1)
+
+        self.assertEqual(self.config.input('ex_efields_noramp').input_type.name, "extracellular_stimulation")
+        self.assertEqual(self.config.input('ex_efields_noramp').module.name, "spatially_uniform_e_field")
+        self.assertEqual(self.config.input('ex_efields_noramp').delay, 0)
+        self.assertEqual(self.config.input('ex_efields_noramp').duration, 1000)
+        self.assertEqual(self.config.input('ex_efields_noramp').node_set, "Mosaic")
+        self.assertEqual(self.config.input('ex_efields_noramp').ramp_up_time, 0.)
+        self.assertEqual(self.config.input('ex_efields_noramp').ramp_down_time, 0.)
+        fields = self.config.input('ex_efields_noramp').fields
+        self.assertEqual(len(fields), 1)
+        self.assertEqual(fields[0].Ex, 0.1)
+        self.assertEqual(fields[0].Ey, 0.2)
+        self.assertEqual(fields[0].Ez, 0.3)
+        self.assertEqual(fields[0].frequency, 0.)
+        self.assertEqual(fields[0].phase, 0.)
 
         overrides = {o.name: o for o in self.config.connection_overrides()}
         self.assertEqual(overrides['ConL3Exc-Uni'].source, 'Excitatory')
@@ -767,4 +809,203 @@ class TestSimulationConfig(unittest.TestCase):
             SimulationConfig(contents, "./")
         self.assertEqual(e.exception.args, ('One of `node_set` or `compartment_set` need to have a value in input ex_linear', ))
 
+    def test_uniform_efields_input_failures(self):
+        # wrong module for extracellular stimulation input
+        with self.assertRaises(SonataError) as e:
+            contents = """
+            {
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs": {
+                "ex_replay": {
+                  "input_type": "extracellular_stimulation",
+                  "module": "synapse_replay",
+                  "delay": 0.0,
+                  "duration": 40000.0,
+                  "spike_file": "replay.h5",
+                  "node_set": "Column"
+                }
+              }
+            }
+            """
+            SimulationConfig(contents, "./")
+        self.assertEqual(e.exception.args, ("An `input` has module `synapse_replay` and input_type `extracellular_stimulation` which mismatch", ))
 
+        # missing fields in spatially_uniform_e_field
+        with self.assertRaises(SonataError) as e:
+            contents = """
+            {
+                "run": {
+                    "random_seed": 12345,
+                    "dt": 0.05,
+                    "tstop": 1000
+                },
+                "inputs": {
+                    "ex_efields": {
+                    "input_type": "extracellular_stimulation",
+                    "module": "spatially_uniform_e_field",
+                    "delay": 0.0,
+                    "duration": 40000.0,
+                    "node_set": "Column",
+                    "ramp_up_time": 10.0
+                    }
+                }
+                }
+                """
+            SimulationConfig(contents, "./")
+        self.assertEqual(e.exception.args, ("Could not find 'fields' in 'input ex_efields'", ))
+
+        # fields must be an array in spatially_uniform_e_field
+        with self.assertRaises(SonataError) as e:
+            contents = """
+            {
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs": {
+                "ex_efields": {
+                  "input_type": "extracellular_stimulation",
+                  "module": "spatially_uniform_e_field",
+                  "delay": 0.0,
+                  "duration": 40000.0,
+                  "node_set": "Column",
+                  "ramp_up_time": 10.0,
+                  "fields": {"a":1, "b":2}
+                }
+              }
+            }
+            """
+            SimulationConfig(contents, "./")
+        self.assertEqual(e.exception.args, ("'fields' must be an array in 'input ex_efields'", ))
+        
+        # fields should not be empty in spatially_uniform_e_field
+        with self.assertRaises(SonataError) as e:
+            contents = """
+            {
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs": {
+                "ex_efields": {
+                  "input_type": "extracellular_stimulation",
+                  "module": "spatially_uniform_e_field",
+                  "delay": 0.0,
+                  "duration": 40000.0,
+                  "node_set": "Column",
+                  "ramp_up_time": 10.0,
+                  "fields": []
+                }
+              }
+            }
+            """
+            SimulationConfig(contents, "./")
+        self.assertEqual(e.exception.args, ("'fields' is empty in 'input ex_efields'", ))
+    
+        # Missing mandatory parameters in fields
+        with self.assertRaises(SonataError) as e:
+            contents = """
+            {
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs": {
+                "ex_efields": {
+                  "input_type": "extracellular_stimulation",
+                  "module": "spatially_uniform_e_field",
+                  "delay": 0.0,
+                  "duration": 40000.0,
+                  "node_set": "Column",
+                  "ramp_up_time": 10.0,
+                  "fields": [
+                    {
+                      "Ex": 0.1,
+                      "frequency": 1.0
+                    }
+                  ]
+                }
+              }
+            }
+            """
+            SimulationConfig(contents, "./")
+        self.assertEqual(e.exception.args, ("Could not find 'Ey' in 'input ex_efields fields'", ))
+
+        # Must be non-negative frequency in fields
+        with self.assertRaises(SonataError) as e:
+            contents = """
+            {
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs": {
+                "ex_efields": {
+                  "input_type": "extracellular_stimulation",
+                  "module": "spatially_uniform_e_field",
+                  "delay": 0.0,
+                  "duration": 40000.0,
+                  "node_set": "Column",
+                  "ramp_up_time": 10.0,
+                  "fields": [
+                    {
+                      "Ex": 0.1,
+                      "Ey": 0.2,
+                      "Ez": 0.3,
+                      "frequency": -1.0
+                    }
+                  ]
+                }
+              }
+            }
+            """
+            SimulationConfig(contents, "./")
+        self.assertEqual(e.exception.args, ("'frequency' must be non-negative in 'input ex_efields fields'", ))
+
+        # Frequency should be < 1000/(2*dt) (dt in ms) in fields
+        with self.assertRaises(SonataError) as e:
+            contents = """
+            {  
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs": {
+                "ex_efields": {
+                  "input_type": "extracellular_stimulation",
+                  "module": "spatially_uniform_e_field",
+                  "delay": 0.0,
+                  "duration": 40000.0,
+                  "node_set": "Column",
+                  "ramp_up_time": 10.0,
+                  "fields": [
+                    {
+                      "Ex": 0.1,
+                      "Ey": 0.2,
+                      "Ez": 0.3,
+                      "frequency": 1.0
+                    },
+                    {
+                      "Ex": 0.1,
+                      "Ey": 0.2,
+                      "Ez": 0.3,
+                      "frequency": 20000
+                    }
+                  ]
+                }
+              }
+            }
+            """
+            SimulationConfig(contents, "./")
+        self.assertEqual(e.exception.args, (
+                "'frequency 20000' must be less than the Nyquist frequency of the simulation 1/(2*dt) = 10000 in 'input ex_efields fields'",
+                ));
