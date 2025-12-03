@@ -1,4 +1,4 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 #include <bbp/sonata/compartment_sets.h>
 #include <string>
 
@@ -23,7 +23,7 @@ TEST_CASE("CompartmentLocation public API") {
         const auto& loc = cs[0];
         REQUIRE(loc.nodeId == 1);
         REQUIRE(loc.sectionId == 10);
-        REQUIRE(loc.offset == Approx(0.5));
+        REQUIRE(loc.offset == Catch::Approx(0.5));
         REQUIRE(cs[0] == CompartmentLocation{1, 10, 0.5});
     }
 

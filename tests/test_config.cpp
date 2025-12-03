@@ -1,14 +1,13 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 
 #include <nlohmann/json.hpp>
 
 #include "../extlib/filesystem.hpp"
+#include "catch2/matchers/catch_matchers_string.hpp"
 
 #include <bbp/sonata/config.h>
 
 #include <cstdio>
-#include <fstream>
-#include <iostream>
 #include <string>
 #include <vector>
 
@@ -1212,7 +1211,7 @@ TEST_CASE("SimulationConfig") {
             })";
             CHECK_THROWS_WITH(
                 SimulationConfig(contents, "./"),
-                Catch::Matchers::Contains("amp_start")
+                Catch::Matchers::ContainsSubstring("amp_start")
             );
         }                                                      
         {  // Both node_set and compartment_set are given in an input object
@@ -1236,8 +1235,8 @@ TEST_CASE("SimulationConfig") {
             })";
             CHECK_THROWS_WITH(
                 SimulationConfig(contents, "./"),
-                Catch::Matchers::Contains("node_set") &&
-                Catch::Matchers::Contains("compartment_set")
+                Catch::Matchers::ContainsSubstring("node_set") &&
+                Catch::Matchers::ContainsSubstring("compartment_set")
             );
         }
         {  // Both node_set and compartment_set are missing in an input object
@@ -1259,8 +1258,8 @@ TEST_CASE("SimulationConfig") {
             })";
             CHECK_THROWS_WITH(
                 SimulationConfig(contents, "./"),
-                Catch::Matchers::Contains("node_set") &&
-                Catch::Matchers::Contains("compartment_set")
+                Catch::Matchers::ContainsSubstring("node_set") &&
+                Catch::Matchers::ContainsSubstring("compartment_set")
             );
         }
         {  // Both mean and mean_percent are given in a noise input object

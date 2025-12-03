@@ -5,6 +5,8 @@ FetchContent_Declare(
   GIT_TAG        v3.11.0
 )
 
+FetchContent_MakeAvailable(Catch2)
+
 set(TESTS_SRC
   main.cpp
   test_compartment_sets.cpp
@@ -21,17 +23,17 @@ target_link_libraries(unittests
     PRIVATE
     sonata_shared
     HighFive
-    Catch2::Catch2
+    Catch2::Catch2WithMain
     nlohmann_json::nlohmann_json
 )
 
 if (ENABLE_COVERAGE)
     include(CodeCoverage)
-    set(COVERAGE_LCOV_EXCLUDES '/usr/*' '${PROJECT_SOURCE_DIR}/include/*' '${PROJECT_SOURCE_DIR}/extlib/*')
     SETUP_TARGET_FOR_COVERAGE_LCOV(
         NAME coverage
         EXECUTABLE ctest
         DEPENDENCIES unittests
+        EXCLUDE "/usr/*" "${PROJECT_SOURCE_DIR}/include/*" "${PROJECT_SOURCE_DIR}/extlib/*"
     )
 endif()
 
