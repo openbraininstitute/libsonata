@@ -201,11 +201,11 @@ if (SONATA_TESTS)
 
     if (ENABLE_COVERAGE)
         include(CodeCoverage)
-        set(COVERAGE_LCOV_EXCLUDES '/usr/*' '${PROJECT_SOURCE_DIR}/include/*' '${PROJECT_SOURCE_DIR}/extlib/*')
         SETUP_TARGET_FOR_COVERAGE_LCOV(
             NAME coverage
             EXECUTABLE ctest
             DEPENDENCIES unittests
+            EXCLUDE "/usr/*" "${PROJECT_SOURCE_DIR}/include/*" "${PROJECT_SOURCE_DIR}/extlib/*"
         )
     endif()
 endif()
