@@ -6,6 +6,7 @@ else()
     find_package(pybind11 REQUIRED CONFIG)
 endif()
 
+find_package(Python COMPONENTS Interpreter Development REQUIRED)
 pybind11_add_module(_libsonata bindings.cpp)
 
 target_link_libraries(_libsonata
