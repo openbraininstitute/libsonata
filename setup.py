@@ -33,7 +33,7 @@ class CMakeBuild(build_ext):
     ]
 
     def initialize_options(self):
-        self.target = "sonata_python"
+        self.target = "_libsonata"
         super(CMakeBuild, self).initialize_options()
 
     def run(self):
@@ -63,7 +63,7 @@ class CMakeBuild(build_ext):
             "-DSONATA_VERSION=" + self.distribution.get_version(),
             "-DCMAKE_BUILD_TYPE={}".format(build_type),
             "-DSONATA_CXX_WARNINGS=OFF",
-            '-DPYTHON_EXECUTABLE=' + sys.executable
+            '-DPython_EXECUTABLE=' + sys.executable
         ]
 
         if "STATIC_HDF5" in os.environ:
