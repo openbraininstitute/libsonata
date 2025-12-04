@@ -111,7 +111,8 @@ NLOHMANN_JSON_SERIALIZE_ENUM(
      {SimulationConfig::InputBase::Module::absolute_shot_noise, "absolute_shot_noise"},
      {SimulationConfig::InputBase::Module::ornstein_uhlenbeck, "ornstein_uhlenbeck"},
      {SimulationConfig::InputBase::Module::relative_ornstein_uhlenbeck,
-      "relative_ornstein_uhlenbeck"}})
+      "relative_ornstein_uhlenbeck"},
+     {SimulationConfig::InputBase::Module::spatially_uniform_e_field, "spatially_uniform_e_field"}})
 
 NLOHMANN_JSON_SERIALIZE_ENUM(
     SimulationConfig::InputBase::InputType,
@@ -392,10 +393,54 @@ void parseVariantType(const nlohmann::json& it, variantValueType& var) {
     }
 }
 
+
+void parseInputsEFields(const nlohmann::json& it,
+                        const std::string& section_name,
+                        std::vector<SimulationConfig::EField>& buf,
+                        double simDt) {
+    const auto sectionIt = it.find("fields");
+    if (sectionIt == it.end()) {
+        throw SonataError(fmt::format("Could not find 'fields' in '{}'", section_name));
+        return;
+    }
+    if (sectionIt->empty()) {
+        throw SonataError(fmt::format("'fields' is empty in '{}'", section_name));
+    }
+    if (!sectionIt->is_array()) {
+        throw SonataError(fmt::format("'fields' must be an array in '{}'", section_name));
+    }
+    buf.reserve(sectionIt->size());
+
+    for (auto& fIt : sectionIt->items()) {
+        const auto valueIt = fIt.value();
+        const auto debugStr = fmt::format("{} fields", section_name);
+        SimulationConfig::EField result;
+        parseMandatory(valueIt, "Ex", debugStr, result.ex);
+        parseMandatory(valueIt, "Ey", debugStr, result.ey);
+        parseMandatory(valueIt, "Ez", debugStr, result.ez);
+        parseOptional(valueIt, "frequency", result.frequency, {0.0});
+        if (result.frequency < 0) {
+            throw SonataError(fmt::format("'frequency' must be non-negative in '{}'", debugStr));
+        }
+        auto ny_freq = 1000 / (2 * simDt);
+        if (result.frequency >= ny_freq) {
+            throw SonataError(
+                fmt::format("'frequency {}' must be less than the Nyquist frequency of the "
+                            "simulation 1/(2*dt) = {} in '{}'",
+                            result.frequency,
+                            ny_freq,
+                            debugStr));
+        }
+        parseOptional(valueIt, "phase", result.phase, {0.0});
+        buf.push_back(std::move(result));
+    }
+}
+
 SimulationConfig::Input parseInputModule(const nlohmann::json& valueIt,
                                          const SimulationConfig::InputBase::Module module,
                                          const std::string& basePath,
-                                         const std::string& debugStr) {
+                                         const std::string& debugStr,
+                                         double simDt) {
     using Module = SimulationConfig::InputBase::Module;
 
     const auto parseCommon = [&](auto& input) {
@@ -603,6 +648,14 @@ SimulationConfig::Input parseInputModule(const nlohmann::json& valueIt,
 
         parseMandatory(valueIt, "mean_percent", debugStr, ret.meanPercent);
         parseMandatory(valueIt, "sd_percent", debugStr, ret.sdPercent);
+        return ret;
+    }
+    case Module::spatially_uniform_e_field: {
+        SimulationConfig::InputSpatiallyUniformEField ret;
+        parseCommon(ret);
+        parseOptional(valueIt, "ramp_up_time", ret.rampUpTime, {0.0});
+        parseOptional(valueIt, "ramp_down_time", ret.rampDownTime, {0.0});
+        parseInputsEFields(valueIt, debugStr, ret.fields, simDt);
         return ret;
     }
     default:
@@ -1256,7 +1309,7 @@ class SimulationConfig::Parser
         }
     }
 
-    InputMap parseInputs() const {
+    InputMap parseInputs(double simDt) const {
         InputMap result;
 
         const auto inputsIt = _json.find("inputs");
@@ -1271,7 +1324,7 @@ class SimulationConfig::Parser
             InputBase::Module module = InputBase::Module::invalid;
             parseMandatory(valueIt, "module", debugStr, module);
 
-            const auto input = parseInputModule(valueIt, module, _basePath, debugStr);
+            const auto input = parseInputModule(valueIt, module, _basePath, debugStr, simDt);
             result[it.key()] = input;
 
             auto mismatchingModuleInputType = [&it]() {
@@ -1313,6 +1366,10 @@ class SimulationConfig::Parser
                 }
                 break;
             case InputBase::InputType::extracellular_stimulation:
+                if (!nonstd::holds_alternative<SimulationConfig::InputSpatiallyUniformEField>(
+                        input)) {
+                    mismatchingModuleInputType();
+                }
                 break;
             case InputBase::InputType::conductance:
                 if (!(nonstd::holds_alternative<SimulationConfig::InputShotNoise>(input) ||
@@ -1417,7 +1474,7 @@ SimulationConfig::SimulationConfig(const std::string& content, const std::string
     _conditions = parser.parseConditions();
     _reports = parser.parseReports(_output);
     _network = parser.parseNetwork();
-    _inputs = parser.parseInputs();
+    _inputs = parser.parseInputs(_run.dt);
     _connection_overrides = parser.parseConnectionOverrides();
     _targetSimulator = parser.parseTargetSimulator();
     _nodeSetsFile = parser.parseNodeSetsFile();

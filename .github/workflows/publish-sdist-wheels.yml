@@ -8,7 +8,6 @@ env:
   CIBW_BUILD: 'cp*'
   CIBW_SKIP: 'cp38-* cp39-* cp314t-* *-musllinux_* *-manylinux_i686'
   CIBW_TEST_COMMAND: ( cd {project}/python/tests; python -m unittest -v )
-  UNIXY_HDF5_VERSION: 1.14.3
 
 jobs:
   build_wheels:
@@ -19,8 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # macos-13 is an intel runner, macos-14 is apple silicon
-        os: [ubuntu-22.04, macos-13, macos-14]
+        os: [ubuntu-22.04, macos-14, macos-15-intel]
 
     steps:
       - uses: actions/checkout@v4
