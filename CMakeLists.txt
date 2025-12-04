@@ -77,9 +77,6 @@ endif()
 if (EXTLIB_FROM_SUBMODULES)
     add_subdirectory(extlib EXCLUDE_FROM_ALL)
 else()
-    if (SONATA_TESTS)
-        find_package(Catch2 REQUIRED)
-    endif()
     find_package(HighFive REQUIRED)
     find_package(fmt REQUIRED)
     find_package(nlohmann_json REQUIRED)
@@ -198,16 +195,6 @@ install(EXPORT sonata-targets
 if (SONATA_TESTS)
     enable_testing()
     add_subdirectory(tests)
-
-    if (ENABLE_COVERAGE)
-        include(CodeCoverage)
-        SETUP_TARGET_FOR_COVERAGE_LCOV(
-            NAME coverage
-            EXECUTABLE ctest
-            DEPENDENCIES unittests
-            EXCLUDE "/usr/*" "${PROJECT_SOURCE_DIR}/include/*" "${PROJECT_SOURCE_DIR}/extlib/*"
-        )
-    endif()
 endif()
 
 # =============================================================================
