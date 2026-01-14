@@ -127,7 +127,8 @@ NLOHMANN_JSON_SERIALIZE_ENUM(
 NLOHMANN_JSON_SERIALIZE_ENUM(SimulationConfig::SimulatorType,
                              {{SimulationConfig::SimulatorType::invalid, nullptr},
                               {SimulationConfig::SimulatorType::NEURON, "NEURON"},
-                              {SimulationConfig::SimulatorType::CORENEURON, "CORENEURON"}})
+                              {SimulationConfig::SimulatorType::CORENEURON, "CORENEURON"},
+                              {SimulationConfig::SimulatorType::LEARNINGENGINE, "LearningEngine"}})
 
 NLOHMANN_JSON_SERIALIZE_ENUM(
     SimulationConfig::ModificationBase::ModificationType,
