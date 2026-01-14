@@ -731,7 +731,7 @@ class SONATA_API SimulationConfig
         nonstd::optional<double> neuromodulationStrength{nonstd::nullopt};
     };
 
-    enum class SimulatorType { invalid = -1, NEURON, CORENEURON };
+    enum class SimulatorType { invalid = -1, NEURON, CORENEURON, LEARNINGENGINE };
 
     /**
      * Parses a SONATA JSON simulation configuration file.

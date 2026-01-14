@@ -1349,7 +1349,8 @@ PYBIND11_MODULE(_libsonata, m) {
 
     py::enum_<SimulationConfig::SimulatorType>(simConf, "SimulatorType", "SimulatorType Enum")
         .value("NEURON", SimulationConfig::SimulatorType::NEURON)
-        .value("CORENEURON", SimulationConfig::SimulatorType::CORENEURON);
+        .value("CORENEURON", SimulationConfig::SimulatorType::CORENEURON)
+        .value("LearningEngine", SimulationConfig::SimulatorType::LEARNINGENGINE);
 
     bindPopulationClass<EdgePopulation>(
         m, "EdgePopulation", "Collection of edges with attributes and connectivity index")

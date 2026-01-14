@@ -882,7 +882,7 @@ class TestSimulationConfig(unittest.TestCase):
             """
             SimulationConfig(contents, "./")
         self.assertEqual(e.exception.args, ("'fields' must be an array in 'input ex_efields'", ))
-        
+
         # fields should not be empty in spatially_uniform_e_field
         with self.assertRaises(SonataError) as e:
             contents = """
@@ -907,7 +907,7 @@ class TestSimulationConfig(unittest.TestCase):
             """
             SimulationConfig(contents, "./")
         self.assertEqual(e.exception.args, ("'fields' is empty in 'input ex_efields'", ))
-    
+
         # Missing mandatory parameters in fields
         with self.assertRaises(SonataError) as e:
             contents = """
@@ -973,7 +973,7 @@ class TestSimulationConfig(unittest.TestCase):
         # Frequency should be < 1000/(2*dt) (dt in ms) in fields
         with self.assertRaises(SonataError) as e:
             contents = """
-            {  
+            {
               "run": {
                 "random_seed": 12345,
                 "dt": 0.05,
@@ -1008,4 +1008,33 @@ class TestSimulationConfig(unittest.TestCase):
             SimulationConfig(contents, "./")
         self.assertEqual(e.exception.args, (
                 "'frequency 20000' must be less than the Nyquist frequency of the simulation 1/(2*dt) = 10000 in 'input ex_efields fields'",
-                ));
+                ))
+
+    def test_target_simulator_types(self):
+        contents = {
+            "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+                }
+            }
+
+        # default to NEURON
+        res = SimulationConfig(json.dumps(contents), "./")
+        self.assertEqual(res.target_simulator, SimulationConfig.SimulatorType.NEURON)
+
+        contents["target_simulator"] = "NEURON"
+        res = SimulationConfig(json.dumps(contents), "./")
+        self.assertEqual(res.target_simulator, SimulationConfig.SimulatorType.NEURON)
+
+        contents["target_simulator"] = "CORENEURON"
+        res = SimulationConfig(json.dumps(contents), "./")
+        self.assertEqual(res.target_simulator, SimulationConfig.SimulatorType.CORENEURON)
+
+        contents["target_simulator"] = "LearningEngine"
+        res = SimulationConfig(json.dumps(contents), "./")
+        self.assertEqual(res.target_simulator, SimulationConfig.SimulatorType.LearningEngine)
+
+        contents["target_simulator"] = "fake-simulator"
+        with self.assertRaises(SonataError):
+            self.assertRaises(SimulationConfig(json.dumps(contents), "./"))
