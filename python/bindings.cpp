@@ -872,20 +872,20 @@ PYBIND11_MODULE(_libsonata, m) {
                       &SimulationConfig::ModificationConfigureAllSections::sectionConfigure,
                       DOC_SIMULATIONCONFIG(ModificationConfigureAllSections, sectionConfigure));
 
-    py::class_<SimulationConfig::ModificationSectionList,
-               SimulationConfig::ModificationBase>(simConf, "ModificationSectionList")
+    py::class_<SimulationConfig::ModificationSectionList, SimulationConfig::ModificationBase>(
+        simConf, "ModificationSectionList")
         .def_readonly("section_configure",
                       &SimulationConfig::ModificationSectionList::sectionConfigure,
                       DOC_SIMULATIONCONFIG(ModificationSectionList, sectionConfigure));
 
-    py::class_<SimulationConfig::ModificationSection,
-               SimulationConfig::ModificationBase>(simConf, "ModificationSection")
+    py::class_<SimulationConfig::ModificationSection, SimulationConfig::ModificationBase>(
+        simConf, "ModificationSection")
         .def_readonly("section_configure",
                       &SimulationConfig::ModificationSection::sectionConfigure,
                       DOC_SIMULATIONCONFIG(ModificationSection, sectionConfigure));
 
-        py::class_<SimulationConfig::ModificationCompartmentSet,
-               SimulationConfig::ModificationBase>(simConf, "ModificationCompartmentSet")
+    py::class_<SimulationConfig::ModificationCompartmentSet, SimulationConfig::ModificationBase>(
+        simConf, "ModificationCompartmentSet")
         .def_readonly("section_configure",
                       &SimulationConfig::ModificationCompartmentSet::sectionConfigure,
                       DOC_SIMULATIONCONFIG(ModificationCompartmentSet, sectionConfigure));

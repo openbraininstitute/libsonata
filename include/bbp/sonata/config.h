@@ -373,13 +373,11 @@ class SONATA_API SimulationConfig
         std::string sectionConfigure;
     };
 
-    using Modification = nonstd::variant<
-        ModificationTTX,
-        ModificationConfigureAllSections,
-        ModificationSectionList,
-        ModificationSection,
-        ModificationCompartmentSet
-    >;
+    using Modification = nonstd::variant<ModificationTTX,
+                                         ModificationConfigureAllSections,
+                                         ModificationSectionList,
+                                         ModificationSection,
+                                         ModificationCompartmentSet>;
 
     /**
      * Parameters defining global experimental conditions.
