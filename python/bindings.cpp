@@ -887,8 +887,8 @@ PYBIND11_MODULE(_libsonata, m) {
         py::class_<SimulationConfig::ModificationCompartmentSet,
                SimulationConfig::ModificationBase>(simConf, "ModificationCompartmentSet")
         .def_readonly("section_configure",
-                      &SimulationConfig::ModificationSection::sectionConfigure,
-                      DOC_SIMULATIONCONFIG(ModificationSection, sectionConfigure));
+                      &SimulationConfig::ModificationCompartmentSet::sectionConfigure,
+                      DOC_SIMULATIONCONFIG(ModificationCompartmentSet, sectionConfigure));
 
     py::enum_<SimulationConfig::ModificationBase::ModificationType>(modificationBase,
                                                                     "ModificationType")

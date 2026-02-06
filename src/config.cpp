@@ -138,8 +138,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(
       "configure_all_sections"},
      {SimulationConfig::ModificationBase::ModificationType::SectionList, "section_list"},
      {SimulationConfig::ModificationBase::ModificationType::Section, "section"},
-     {SimulationConfig::ModificationBase::ModificationType::CompartmentSet, "compartment_set"},
-    })
+     {SimulationConfig::ModificationBase::ModificationType::CompartmentSet, "compartment_set"}})
 
 // { in C++14; one has to declare static constexpr members; this can go away in c++17
 #define D(name) decltype(SimulationConfig::name) constexpr SimulationConfig::name;
