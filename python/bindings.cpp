@@ -872,6 +872,24 @@ PYBIND11_MODULE(_libsonata, m) {
                       &SimulationConfig::ModificationConfigureAllSections::sectionConfigure,
                       DOC_SIMULATIONCONFIG(ModificationConfigureAllSections, sectionConfigure));
 
+    py::class_<SimulationConfig::ModificationSectionList,
+               SimulationConfig::ModificationBase>(simConf, "ModificationSectionList")
+        .def_readonly("section_configure",
+                      &SimulationConfig::ModificationSectionList::sectionConfigure,
+                      DOC_SIMULATIONCONFIG(ModificationSectionList, sectionConfigure));
+
+    py::class_<SimulationConfig::ModificationSection,
+               SimulationConfig::ModificationBase>(simConf, "ModificationSection")
+        .def_readonly("section_configure",
+                      &SimulationConfig::ModificationSection::sectionConfigure,
+                      DOC_SIMULATIONCONFIG(ModificationSection, sectionConfigure));
+
+        py::class_<SimulationConfig::ModificationCompartmentSet,
+               SimulationConfig::ModificationBase>(simConf, "ModificationCompartmentSet")
+        .def_readonly("section_configure",
+                      &SimulationConfig::ModificationSection::sectionConfigure,
+                      DOC_SIMULATIONCONFIG(ModificationSection, sectionConfigure));
+
     py::enum_<SimulationConfig::ModificationBase::ModificationType>(modificationBase,
                                                                     "ModificationType")
         .value("ttx",
@@ -879,7 +897,16 @@ PYBIND11_MODULE(_libsonata, m) {
                DOC_SIMULATIONCONFIG(ModificationBase, ModificationType, TTX))
         .value("configure_all_sections",
                SimulationConfig::ModificationBase::ModificationType::ConfigureAllSections,
-               DOC_SIMULATIONCONFIG(ModificationBase, ModificationType, ConfigureAllSections));
+               DOC_SIMULATIONCONFIG(ModificationBase, ModificationType, ConfigureAllSections))
+        .value("section_list",
+               SimulationConfig::ModificationBase::ModificationType::ModificationSectionList,
+               DOC_SIMULATIONCONFIG(ModificationBase, ModificationType, SectionList))
+        .value("section",
+               SimulationConfig::ModificationBase::ModificationType::ModificationSection,
+               DOC_SIMULATIONCONFIG(ModificationBase, ModificationType, Section))
+        .value("compartment_set",
+               SimulationConfig::ModificationBase::ModificationType::ModificationCompartmentSet,
+               DOC_SIMULATIONCONFIG(ModificationBase, ModificationType, CompartmentSet));
 
     py::class_<SimulationConfig::Report> report(simConf, "Report", "Parameters of a report");
     report

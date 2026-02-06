@@ -323,11 +323,19 @@ class SONATA_API SimulationConfig
     };
 
     struct ModificationBase {
-        enum class ModificationType { invalid = -1, TTX, ConfigureAllSections };
+        enum class ModificationType {
+            invalid = -1,
+            TTX,
+            ConfigureAllSections,
+            SectionList,
+            Section,
+            CompartmentSet
+        };
 
         /// Node set which receives the manipulation
         std::string nodeSet;
-        /// Name of the manipulation. Supported values are “TTX” and “ConfigureAllSections”.
+        /// Name of the manipulation. Supported values are “TTX”, “ConfigureAllSections”,
+        /// "SectionList", "Section" and "CompartmentSet".
         ModificationType type;
         /// Name of the modification setting.
         std::string name;
@@ -343,7 +351,35 @@ class SONATA_API SimulationConfig
         std::string sectionConfigure;
     };
 
-    using Modification = nonstd::variant<ModificationTTX, ModificationConfigureAllSections>;
+    struct ModificationSectionList: public ModificationBase {
+        /// For ModificationSectionList manipulation, a snippet of python code to perform one or
+        /// more assignments involving attributes on the sections. Entries should be of the form,
+        /// e.g. "apical.gbar_NaTg = 0.0; apical.cm = 1".
+        std::string sectionConfigure;
+    };
+
+    struct ModificationSection: public ModificationBase {
+        /// For ModificationSection manipulation, a snippet of python code to perform one or more
+        /// assignments involving attributes on the section. Entries should be of the form, e.g.
+        /// "apic[10].gbar_KTst = 0; apic[10].gbar_NaTg = 0".
+        std::string sectionConfigure;
+    };
+
+    struct ModificationCompartmentSet: public ModificationBase {
+        /// For ModificationCompartmentSet manipulation, a snippet of python code to perform one or
+        /// more assignments involving attributes on the compartment set. Entries should be of the
+        /// form, e.g. "gbar_KTst = 0; gbar_NaTg = 0".
+        /// Uses `nodeSet` from parent to store the compartment set
+        std::string sectionConfigure;
+    };
+
+    using Modification = nonstd::variant<
+        ModificationTTX,
+        ModificationConfigureAllSections,
+        ModificationSectionList,
+        ModificationSection,
+        ModificationCompartmentSet
+    >;
 
     /**
      * Parameters defining global experimental conditions.

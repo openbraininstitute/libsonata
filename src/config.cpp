@@ -135,7 +135,11 @@ NLOHMANN_JSON_SERIALIZE_ENUM(
     {{SimulationConfig::ModificationBase::ModificationType::invalid, nullptr},
      {SimulationConfig::ModificationBase::ModificationType::TTX, "ttx"},
      {SimulationConfig::ModificationBase::ModificationType::ConfigureAllSections,
-      "configure_all_sections"}})
+      "configure_all_sections"},
+     {SimulationConfig::ModificationBase::ModificationType::SectionList, "section_list"},
+     {SimulationConfig::ModificationBase::ModificationType::Section, "section"},
+     {SimulationConfig::ModificationBase::ModificationType::CompartmentSet, "compartment_set"},
+    })
 
 // { in C++14; one has to declare static constexpr members; this can go away in c++17
 #define D(name) decltype(SimulationConfig::name) constexpr SimulationConfig::name;
@@ -718,6 +722,34 @@ void parseConditionsModifications(const nlohmann::json& it,
             buf.push_back(std::move(result));
             break;
         }
+        case SimulationConfig::ModificationBase::ModificationType::SectionList: {
+            SimulationConfig::ModificationSectionList result;
+            result.type = type;
+            parseMandatory(valueIt, "name", debugStr, result.name);
+            parseMandatory(valueIt, "node_set", debugStr, result.nodeSet);
+            parseMandatory(valueIt, "section_configure", debugStr, result.sectionConfigure);
+            buf.push_back(std::move(result));
+            break;
+        }
+        case SimulationConfig::ModificationBase::ModificationType::Section: {
+            SimulationConfig::ModificationSection result;
+            result.type = type;
+            parseMandatory(valueIt, "name", debugStr, result.name);
+            parseMandatory(valueIt, "node_set", debugStr, result.nodeSet);
+            parseMandatory(valueIt, "section_configure", debugStr, result.sectionConfigure);
+            buf.push_back(std::move(result));
+            break;
+        }
+        case SimulationConfig::ModificationBase::ModificationType::CompartmentSet: {
+            SimulationConfig::ModificationCompartmentSet result;
+            result.type = type;
+            parseMandatory(valueIt, "name", debugStr, result.name);
+            parseMandatory(valueIt, "compartment_set", debugStr, result.nodeSet);
+            parseMandatory(valueIt, "section_configure", debugStr, result.sectionConfigure);
+            buf.push_back(std::move(result));
+            break;
+        }
+
         default:
             throw SonataError("Unknown modificationn type in " + debugStr);
         }
