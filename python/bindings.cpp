@@ -874,10 +874,10 @@ PYBIND11_MODULE(_libsonata, m) {
 
     py::enum_<SimulationConfig::ModificationBase::ModificationType>(modificationBase,
                                                                     "ModificationType")
-        .value("TTX",
+        .value("ttx",
                SimulationConfig::ModificationBase::ModificationType::TTX,
                DOC_SIMULATIONCONFIG(ModificationBase, ModificationType, TTX))
-        .value("ConfigureAllSections",
+        .value("configure_all_sections",
                SimulationConfig::ModificationBase::ModificationType::ConfigureAllSections,
                DOC_SIMULATIONCONFIG(ModificationBase, ModificationType, ConfigureAllSections));
 
