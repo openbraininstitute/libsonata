@@ -899,13 +899,13 @@ PYBIND11_MODULE(_libsonata, m) {
                SimulationConfig::ModificationBase::ModificationType::ConfigureAllSections,
                DOC_SIMULATIONCONFIG(ModificationBase, ModificationType, ConfigureAllSections))
         .value("section_list",
-               SimulationConfig::ModificationBase::ModificationType::ModificationSectionList,
+               SimulationConfig::ModificationBase::ModificationType::SectionList,
                DOC_SIMULATIONCONFIG(ModificationBase, ModificationType, SectionList))
         .value("section",
-               SimulationConfig::ModificationBase::ModificationType::ModificationSection,
+               SimulationConfig::ModificationBase::ModificationType::Section,
                DOC_SIMULATIONCONFIG(ModificationBase, ModificationType, Section))
         .value("compartment_set",
-               SimulationConfig::ModificationBase::ModificationType::ModificationCompartmentSet,
+               SimulationConfig::ModificationBase::ModificationType::CompartmentSet,
                DOC_SIMULATIONCONFIG(ModificationBase, ModificationType, CompartmentSet));
 
     py::class_<SimulationConfig::Report> report(simConf, "Report", "Parameters of a report");
