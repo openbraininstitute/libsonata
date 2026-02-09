@@ -623,7 +623,8 @@ SimulationConfig::Input parseInputModule(const nlohmann::json& valueIt,
             throw SonataError("`delay` is not applicable to SEClamp, must be zero in " + debugStr);
         }
         if (ret.durationLevels.size() != ret.voltageLevels.size()) {
-            throw SonataError("`duration_levels` and `voltage_levels` must have the same size in " + debugStr);
+            throw SonataError("`duration_levels` and `voltage_levels` must have the same size in " +
+                              debugStr);
         }
         return ret;
     }

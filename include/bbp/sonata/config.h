@@ -526,9 +526,10 @@ class SONATA_API SimulationConfig
         double voltage{};
         /// The series resistance (Mohm), default is 0.01 Mohm
         double seriesResistance{};
-        ///Specifies the durations of each step stimulus
+        /// Specifies the durations of each step stimulus
         std::vector<double> durationLevels;
-        /// Specifies the membrane voltages the targeted cells should be held at in mV for each step stimulus. Overrides voltage property.
+        /// Specifies the membrane voltages the targeted cells should be held at in mV for each step
+        /// stimulus. Overrides voltage property.
         std::vector<double> voltageLevels;
     };
 
