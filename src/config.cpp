@@ -617,6 +617,14 @@ SimulationConfig::Input parseInputModule(const nlohmann::json& valueIt,
         parseCommon(ret);
         parseMandatory(valueIt, "voltage", debugStr, ret.voltage);
         parseOptional(valueIt, "series_resistance", ret.seriesResistance, {0.01});
+        parseOptional(valueIt, "duration_levels", ret.durationLevels, {});
+        parseOptional(valueIt, "voltage_levels", ret.voltageLevels, {});
+        if (ret.delay > 0) {
+            throw SonataError("`delay` is not applicable to SEClamp, must be zero in " + debugStr);
+        }
+        if (ret.durationLevels.size() != ret.voltageLevels.size()) {
+            throw SonataError("`duration_levels` and `voltage_levels` must have the same size in " + debugStr);
+        }
         return ret;
     }
     case Module::ornstein_uhlenbeck: {

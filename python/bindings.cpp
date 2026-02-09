@@ -1051,7 +1051,11 @@ PYBIND11_MODULE(_libsonata, m) {
                       DOC_SIMULATIONCONFIG(InputSeclamp, voltage))
         .def_readonly("series_resistance",
                       &SimulationConfig::InputSeclamp::seriesResistance,
-                      DOC_SIMULATIONCONFIG(InputSeclamp, seriesResistance));
+                      DOC_SIMULATIONCONFIG(InputSeclamp, seriesResistance))
+        .def_readonly("voltage_levels",
+                      &SimulationConfig::InputSeclamp::voltageLevels)
+        .def_readonly("duration_levels",
+                      &SimulationConfig::InputSeclamp::durationLevels);
 
     py::class_<SimulationConfig::InputNoise, SimulationConfig::InputBase>(simConf, "Noise")
         .def_readonly("mean",
