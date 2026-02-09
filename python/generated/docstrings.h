@@ -1231,7 +1231,13 @@ static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase = R"doc()d
 
 static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase_ModificationType = R"doc()doc";
 
+static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase_ModificationType_CompartmentSet = R"doc()doc";
+
 static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase_ModificationType_ConfigureAllSections = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase_ModificationType_Section = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase_ModificationType_SectionList = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase_ModificationType_TTX = R"doc()doc";
 
@@ -1242,8 +1248,17 @@ static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase_name = R"d
 static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase_nodeSet = R"doc(Node set which receives the manipulation)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase_type =
-R"doc(Name of the manipulation. Supported values are “TTX” and
-“ConfigureAllSections”.)doc";
+R"doc(Name of the manipulation. Supported values are “TTX”,
+“ConfigureAllSections”, "SectionList", "Section" and "CompartmentSet".)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_ModificationCompartmentSet = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_ModificationCompartmentSet_sectionConfigure =
+R"doc(For ModificationCompartmentSet manipulation, a snippet of python code
+to perform one or more assignments involving attributes on the
+compartment set. Entries should be of the form, e.g. "gbar_KTst = 0;
+gbar_NaTg = 0". Uses `nodeSet` from parent to store the compartment
+set)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_ModificationConfigureAllSections = R"doc()doc";
 
@@ -1252,6 +1267,22 @@ R"doc(For “ConfigureAllSections” manipulation, a snippet of python code to
 perform one or more assignments involving section attributes, for all
 sections that have all the referenced attributes. The format is
 "%s.xxxx; %s.xxxx; ...".)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_ModificationSection = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_ModificationSectionList = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_ModificationSectionList_sectionConfigure =
+R"doc(For ModificationSectionList manipulation, a snippet of python code to
+perform one or more assignments involving attributes on the sections.
+Entries should be of the form, e.g. "apical.gbar_NaTg = 0.0; apical.cm
+= 1".)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_ModificationSection_sectionConfigure =
+R"doc(For ModificationSection manipulation, a snippet of python code to
+perform one or more assignments involving attributes on the section.
+Entries should be of the form, e.g. "apic[10].gbar_KTst = 0;
+apic[10].gbar_NaTg = 0".)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_ModificationTTX = R"doc()doc";
 
