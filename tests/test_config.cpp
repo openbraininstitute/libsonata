@@ -544,8 +544,8 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.nodeSet == "L5E");
             CHECK(input.voltage == 1.1);
             CHECK(input.seriesResistance == 0.5);
-            CHECK(input.durationLevels == std::vector<double>{0, 10,20,30});
-            CHECK(input.voltageLevels == std::vector<double>{1.5, 2,3,4});
+            CHECK(input.durationLevels == std::vector<double>{0, 10, 20, 30});
+            CHECK(input.voltageLevels == std::vector<double>{1.5, 2, 3, 4});
         }
         {
             const auto input = nonstd::get<SimulationConfig::InputAbsoluteShotNoise>(
