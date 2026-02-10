@@ -355,21 +355,25 @@ TEST_CASE("SimulationConfig") {
         CHECK(configAllSects.name == "no_SK_E2");
         CHECK(configAllSects.type ==
               SimulationConfig::ModificationBase::ModificationType::ConfigureAllSections);
+        CHECK(configAllSects.nodeSet == "single");
         CHECK(configAllSects.sectionConfigure == "%s.gSK_E2bar_SK_E2 = 0");
         const auto configSectList = nonstd::get<SimulationConfig::ModificationSectionList>(modifications[2]);
         CHECK(configSectList.name == "apical_block_NaTg");
         CHECK(configSectList.type ==
               SimulationConfig::ModificationBase::ModificationType::SectionList);
+        CHECK(configSectList.nodeSet == "single");
         CHECK(configSectList.sectionConfigure == "apical.gbar_NaTg = 0");
         const auto configSection = nonstd::get<SimulationConfig::ModificationSection>(modifications[3]);
         CHECK(configSection.name == "apical[10]_KTst_NaTg_block");
         CHECK(configSection.type ==
               SimulationConfig::ModificationBase::ModificationType::Section);
+        CHECK(configSection.nodeSet == "single");
         CHECK(configSection.sectionConfigure == "apic[10].gbar_KTst = 0; apic[10].gbar_NaTg = 0");
         const auto configCompSet = nonstd::get<SimulationConfig::ModificationCompartmentSet>(modifications[4]);
         CHECK(configCompSet.name == "Ca_hotspot_dend[10]_manipulation");
         CHECK(configCompSet.type ==
               SimulationConfig::ModificationBase::ModificationType::CompartmentSet);
+        CHECK(configCompSet.compartmentSet == "dend_ca_hotspot_name");
         CHECK(configCompSet.sectionConfigure == "gbar_Ca_HVA2 = 1.5; gbar_Ca_LVA = 2");
 
         CHECK_THROWS_AS(config.getReport("DoesNotExist"), SonataError);

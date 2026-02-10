@@ -742,15 +742,16 @@ void parseConditionsModifications(const nlohmann::json& it,
         case SimulationConfig::ModificationBase::ModificationType::CompartmentSet: {
             SimulationConfig::ModificationCompartmentSet result;
             result.type = type;
+            std::string hasNodeSetDefined;
             parseMandatory(valueIt, "name", debugStr, result.name);
-            parseMandatory(valueIt, "compartment_set", debugStr, result.nodeSet);
+            parseMandatory(valueIt, "compartment_set", debugStr, result.compartmentSet);
             parseMandatory(valueIt, "section_configure", debugStr, result.sectionConfigure);
             buf.push_back(std::move(result));
             break;
         }
 
         default:
-            throw SonataError("Unknown modificationn type in " + debugStr);
+            throw SonataError("Unknown modification type in " + debugStr);
         }
     }
 }

@@ -451,7 +451,7 @@ class TestSimulationConfig(unittest.TestCase):
         self.assertEqual(modifications["apical[10]_KTst_NaTg_block"].node_set, "single")
         self.assertEqual(modifications["apical[10]_KTst_NaTg_block"].section_configure, "apic[10].gbar_KTst = 0; apic[10].gbar_NaTg = 0")
         self.assertEqual(modifications["Ca_hotspot_dend[10]_manipulation"].type.name, "compartment_set")
-        self.assertEqual(modifications["Ca_hotspot_dend[10]_manipulation"].node_set, "dend_ca_hotspot_name")
+        self.assertEqual(modifications["Ca_hotspot_dend[10]_manipulation"].compartment_set, "dend_ca_hotspot_name")
         self.assertEqual(modifications["Ca_hotspot_dend[10]_manipulation"].section_configure, "gbar_Ca_HVA2 = 1.5; gbar_Ca_LVA = 2")
 
 
