@@ -866,8 +866,8 @@ PYBIND11_MODULE(_libsonata, m) {
                       &SimulationConfig::ModificationNodeSetBase::nodeSet,
                       DOC_SIMULATIONCONFIG(ModificationNodeSetBase, nodeSet));
 
-    py::class_<SimulationConfig::ModificationCompartmentSetBase, SimulationConfig::ModificationBase>(
-        simConf, "ModificationCompartmentSetBase")
+    py::class_<SimulationConfig::ModificationCompartmentSetBase,
+               SimulationConfig::ModificationBase>(simConf, "ModificationCompartmentSetBase")
         .def_readonly("compartment_set",
                       &SimulationConfig::ModificationCompartmentSetBase::compartmentSet,
                       DOC_SIMULATIONCONFIG(ModificationCompartmentSetBase, compartmentSet));
@@ -876,13 +876,14 @@ PYBIND11_MODULE(_libsonata, m) {
         simConf, "ModificationTTX");
 
     py::class_<SimulationConfig::ModificationConfigureAllSections,
-               SimulationConfig::ModificationNodeSetBase>(simConf, "ModificationConfigureAllSections")
+               SimulationConfig::ModificationNodeSetBase>(simConf,
+                                                          "ModificationConfigureAllSections")
         .def_readonly("section_configure",
                       &SimulationConfig::ModificationConfigureAllSections::sectionConfigure,
                       DOC_SIMULATIONCONFIG(ModificationConfigureAllSections, sectionConfigure));
 
-    py::class_<SimulationConfig::ModificationSectionList, SimulationConfig::ModificationNodeSetBase>(
-        simConf, "ModificationSectionList")
+    py::class_<SimulationConfig::ModificationSectionList,
+               SimulationConfig::ModificationNodeSetBase>(simConf, "ModificationSectionList")
         .def_readonly("section_configure",
                       &SimulationConfig::ModificationSectionList::sectionConfigure,
                       DOC_SIMULATIONCONFIG(ModificationSectionList, sectionConfigure));
@@ -893,8 +894,9 @@ PYBIND11_MODULE(_libsonata, m) {
                       &SimulationConfig::ModificationSection::sectionConfigure,
                       DOC_SIMULATIONCONFIG(ModificationSection, sectionConfigure));
 
-    py::class_<SimulationConfig::ModificationCompartmentSet, SimulationConfig::ModificationCompartmentSetBase>(
-        simConf, "ModificationCompartmentSet")
+    py::class_<SimulationConfig::ModificationCompartmentSet,
+               SimulationConfig::ModificationCompartmentSetBase>(simConf,
+                                                                 "ModificationCompartmentSet")
         .def_readonly("section_configure",
                       &SimulationConfig::ModificationCompartmentSet::sectionConfigure,
                       DOC_SIMULATIONCONFIG(ModificationCompartmentSet, sectionConfigure));

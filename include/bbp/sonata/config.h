@@ -364,9 +364,9 @@ class SONATA_API SimulationConfig
      * configure_all_sections modification class
      */
     struct ModificationConfigureAllSections: public ModificationNodeSetBase {
-        /// For "configure_all_sections" manipulation, a snippet of python code to perform one or more
-        /// assignments involving section attributes, for all sections that have all the referenced
-        /// attributes. The format is "%s.xxxx; %s.xxxx; ...".
+        /// For "configure_all_sections" manipulation, a snippet of python code to perform one or
+        /// more assignments involving section attributes, for all sections that have all the
+        /// referenced attributes. The format is "%s.xxxx; %s.xxxx; ...".
         std::string sectionConfigure;
     };
     /**
