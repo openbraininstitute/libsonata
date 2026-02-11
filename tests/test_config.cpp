@@ -1650,5 +1650,128 @@ TEST_CASE("SimulationConfig") {
             })";
             CHECK_THROWS_AS(SimulationConfig(contents, "./"), SonataError);
         }
+        {  // The "node_set" key is mandatory in "section_list" modification
+            auto contents = R"({
+                "run": {
+                  "random_seed": 12345,
+                  "dt": 0.05,
+                  "tstop": 1000
+                },
+                "conditions": {
+                  "celsius": 34.0,
+                  "modifications": [
+                    {
+                      "name": "apical_block_NaTg_exception",
+                      "type": "section_list",
+                      "section_configure": "apical.gbar_NaTg = 0"
+                    }
+                  ]
+                }
+            })";
+            CHECK_THROWS_AS(SimulationConfig(contents, "./"), SonataError);
+        }
+        {  // The "node_set" key is mandatory in "section_list" modification
+            auto contents = R"({
+                "run": {
+                  "random_seed": 12345,
+                  "dt": 0.05,
+                  "tstop": 1000
+                },
+                "conditions": {
+                  "celsius": 34.0,
+                  "modifications": [
+                    {
+                      "name": "apical_block_NaTg_exception",
+                      "compartment_set": "dend_ca_hotspot_name",
+                      "type": "section_list",
+                      "section_configure": "apical.gbar_NaTg = 0"
+                    }
+                  ]
+                }
+            })";
+            CHECK_THROWS_AS(SimulationConfig(contents, "./"), SonataError);
+        }
+        {  // The "node_set" key is mandatory in "section" modification
+            auto contents = R"({
+                "run": {
+                  "random_seed": 12345,
+                  "dt": 0.05,
+                  "tstop": 1000
+                },
+                "conditions": {
+                  "celsius": 34.0,
+                  "modifications": [
+                    {
+                      "name": "apical[10]_KTst_NaTg_block_exception",
+                      "type": "section",
+                      "section_configure": "apic[10].gbar_KTst = 0; apic[10].gbar_NaTg = 0"
+                    }
+                  ]
+                }
+            })";
+            CHECK_THROWS_AS(SimulationConfig(contents, "./"), SonataError);
+        }
+        {  // The "node_set" key is mandatory in "section" modification
+            auto contents = R"({
+                "run": {
+                  "random_seed": 12345,
+                  "dt": 0.05,
+                  "tstop": 1000
+                },
+                "conditions": {
+                  "celsius": 34.0,
+                  "modifications": [
+                    {
+                      "name": "apical[10]_KTst_NaTg_block_exception",
+                      "compartment_set": "dend_ca_hotspot_name",
+                      "type": "section",
+                      "section_configure": "apic[10].gbar_KTst = 0; apic[10].gbar_NaTg = 0"
+                    }
+                  ]
+                }
+            })";
+            CHECK_THROWS_AS(SimulationConfig(contents, "./"), SonataError);
+        }
+        {  // The "compartment_set" key is mandatory in "compartment_set" modification
+            auto contents = R"({
+                "run": {
+                  "random_seed": 12345,
+                  "dt": 0.05,
+                  "tstop": 1000
+                },
+                "conditions": {
+                  "celsius": 34.0,
+                  "modifications": [
+                    {
+                      "name": "Ca_hotspot_dend[10]_manipulation_exception",
+                      "type": "compartment_set",
+                      "section_configure": "gbar_Ca_HVA2 = 1.5; gbar_Ca_LVA = 2"
+                    }
+                  ]
+                }
+            })";
+            CHECK_THROWS_AS(SimulationConfig(contents, "./"), SonataError);
+        }
+        {  // The "compartment_set" key is mandatory in "compartment_set" modification
+            auto contents = R"({
+                "run": {
+                  "random_seed": 12345,
+                  "dt": 0.05,
+                  "tstop": 1000
+                },
+                "conditions": {
+                  "celsius": 34.0,
+                  "modifications": [
+                    {
+                      "name": "Ca_hotspot_dend[10]_manipulation_exception",
+                      "node_set": "single",
+                      "type": "compartment_set",
+                      "section_configure": "gbar_Ca_HVA2 = 1.5; gbar_Ca_LVA = 2"
+                    }
+                  ]
+                }
+            })";
+            CHECK_THROWS_AS(SimulationConfig(contents, "./"), SonataError);
+        }
     }
 }
