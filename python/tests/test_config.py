@@ -1118,4 +1118,29 @@ class TestSimulationConfig(unittest.TestCase):
             """
             SimulationConfig(contents, "./")
         self.assertEqual(e.exception.args, ("`duration_levels` and `voltage_levels` must have the same size in input seclamp", ))
-        
+
+        # SEClamp with duration_levels that contains negative values
+        with self.assertRaises(SonataError) as e:
+            contents = """
+            {
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs" : {
+                "seclamp": {
+                    "input_type": "voltage_clamp",
+                    "node_set": "Column",
+                    "module": "seclamp",
+                    "delay": 0.0,
+                    "duration": 100.0,
+                    "voltage": 10,
+                    "duration_levels": [-0.00000005, 10.0, 20.0],
+                    "voltage_levels": [10.0, 20.0, 30.0]
+                }
+              }
+            }
+            """
+            SimulationConfig(contents, "./")
+        self.assertEqual(e.exception.args, ("`duration_levels` must contain only non-negative values in input seclamp",))

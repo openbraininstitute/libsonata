@@ -626,6 +626,12 @@ SimulationConfig::Input parseInputModule(const nlohmann::json& valueIt,
             throw SonataError("`duration_levels` and `voltage_levels` must have the same size in " +
                               debugStr);
         }
+        if (!ret.durationLevels.empty() && std::any_of(ret.durationLevels.begin(),
+                                                       ret.durationLevels.end(),
+                                                       [](double val) { return val < 0; })) {
+            throw SonataError("`duration_levels` must contain only non-negative values in " +
+                              debugStr);
+        }
         return ret;
     }
     case Module::ornstein_uhlenbeck: {
