@@ -1245,8 +1245,6 @@ static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase_Modificati
 
 static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase_name = R"doc(Name of the modification setting.)doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase_nodeSet = R"doc(Node set which receives the manipulation)doc";
-
 static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase_type =
 R"doc(Name of the manipulation. Supported values are “TTX”,
 “ConfigureAllSections”, "SectionList", "Section" and "CompartmentSet".)doc";
