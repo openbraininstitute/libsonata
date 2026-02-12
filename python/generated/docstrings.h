@@ -1164,7 +1164,7 @@ static const char *__doc_bbp_sonata_SimulationConfig_InputSeclamp_durationLevels
 static const char *__doc_bbp_sonata_SimulationConfig_InputSeclamp_seriesResistance = R"doc(The series resistance (Mohm), default is 0.01 Mohm)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputSeclamp_voltage =
-R"doc(the initial membrane voltage in mV at which the targeted cells should
+R"doc(The initial membrane voltage in mV at which the targeted cells should
 be held at time = 0)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputSeclamp_voltageLevels =

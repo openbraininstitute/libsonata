@@ -522,7 +522,7 @@ class SONATA_API SimulationConfig
     };
 
     struct InputSeclamp: public InputBase {
-        /// the initial membrane voltage in mV at which the targeted cells should be held at time =
+        /// The initial membrane voltage in mV at which the targeted cells should be held at time =
         /// 0
         double voltage{};
         /// The series resistance (Mohm), default is 0.01 Mohm
