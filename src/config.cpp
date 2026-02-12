@@ -750,7 +750,9 @@ void parseConditionsModifications(const nlohmann::json& it,
             std::string nodeSetDefined;
             parseOptional(valueIt, "node_set", nodeSetDefined);
             if (!nodeSetDefined.empty()) {
-                std::cout << "WARNING: ignoring 'node_set' key defined in compartment set modification: " << result.name << std::endl;
+                std::cout
+                    << "WARNING: ignoring 'node_set' key defined in compartment set modification: "
+                    << result.name << std::endl;
             }
 
             buf.push_back(std::move(result));
