@@ -1730,6 +1730,7 @@ TEST_CASE("SimulationConfig") {
                 SonataError,
                 Catch::Matchers::Message(
                     "`duration_levels` must contain only non-negative values in input seclamp"));
+        }
         {  // The "node_set" key is mandatory in "section_list" modification
             auto contents = R"({
                 "run": {
