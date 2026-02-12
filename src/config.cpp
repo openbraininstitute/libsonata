@@ -746,6 +746,13 @@ void parseConditionsModifications(const nlohmann::json& it,
             parseMandatory(valueIt, "name", debugStr, result.name);
             parseMandatory(valueIt, "compartment_set", debugStr, result.compartmentSet);
             parseMandatory(valueIt, "section_configure", debugStr, result.sectionConfigure);
+
+            std::string nodeSetDefined;
+            parseOptional(valueIt, "node_set", nodeSetDefined);
+            if (!nodeSetDefined.empty()) {
+                std::cout << "WARNING: ignoring 'node_set' key defined in compartment set modification: " << result.name << std::endl;
+            }
+
             buf.push_back(std::move(result));
             break;
         }
