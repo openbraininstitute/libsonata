@@ -346,7 +346,7 @@ TEST_CASE("SimulationConfig") {
         CHECK(nonstd::get<double>(itr->second.find("property3")->second) == 0.025);
         CHECK(nonstd::get<std::string>(itr->second.find("property4")->second) == "test");
         const auto modifications = config.getConditions().getModifications();
-        CHECK(modifications.size() == 2);
+        CHECK(modifications.size() == 5);
         const auto TTX = nonstd::get<SimulationConfig::ModificationTTX>(modifications[0]);
         CHECK(TTX.name == "applyTTX");
         CHECK(TTX.type == SimulationConfig::ModificationBase::ModificationType::TTX);
@@ -355,7 +355,26 @@ TEST_CASE("SimulationConfig") {
         CHECK(configAllSects.name == "no_SK_E2");
         CHECK(configAllSects.type ==
               SimulationConfig::ModificationBase::ModificationType::ConfigureAllSections);
+        CHECK(configAllSects.nodeSet == "single");
         CHECK(configAllSects.sectionConfigure == "%s.gSK_E2bar_SK_E2 = 0");
+        const auto configSectList = nonstd::get<SimulationConfig::ModificationSectionList>(modifications[2]);
+        CHECK(configSectList.name == "apical_block_NaTg");
+        CHECK(configSectList.type ==
+              SimulationConfig::ModificationBase::ModificationType::SectionList);
+        CHECK(configSectList.nodeSet == "single");
+        CHECK(configSectList.sectionConfigure == "apical.gbar_NaTg = 0");
+        const auto configSection = nonstd::get<SimulationConfig::ModificationSection>(modifications[3]);
+        CHECK(configSection.name == "apical[10]_KTst_NaTg_block");
+        CHECK(configSection.type ==
+              SimulationConfig::ModificationBase::ModificationType::Section);
+        CHECK(configSection.nodeSet == "single");
+        CHECK(configSection.sectionConfigure == "apic[10].gbar_KTst = 0; apic[10].gbar_NaTg = 0");
+        const auto configCompSet = nonstd::get<SimulationConfig::ModificationCompartmentSet>(modifications[4]);
+        CHECK(configCompSet.name == "Ca_hotspot_dend[10]_manipulation");
+        CHECK(configCompSet.type ==
+              SimulationConfig::ModificationBase::ModificationType::CompartmentSet);
+        CHECK(configCompSet.compartmentSet == "dend_ca_hotspot_name");
+        CHECK(configCompSet.sectionConfigure == "gbar_Ca_HVA2 = 1.5; gbar_Ca_LVA = 2");
 
         CHECK_THROWS_AS(config.getReport("DoesNotExist"), SonataError);
         CHECK(config.listReportNames() == std::set<std::string>{
@@ -1628,6 +1647,129 @@ TEST_CASE("SimulationConfig") {
                     "node_set": "Column"
                 }
               }
+            })";
+            CHECK_THROWS_AS(SimulationConfig(contents, "./"), SonataError);
+        }
+        {  // The "node_set" key is mandatory in "section_list" modification
+            auto contents = R"({
+                "run": {
+                  "random_seed": 12345,
+                  "dt": 0.05,
+                  "tstop": 1000
+                },
+                "conditions": {
+                  "celsius": 34.0,
+                  "modifications": [
+                    {
+                      "name": "apical_block_NaTg_exception",
+                      "type": "section_list",
+                      "section_configure": "apical.gbar_NaTg = 0"
+                    }
+                  ]
+                }
+            })";
+            CHECK_THROWS_AS(SimulationConfig(contents, "./"), SonataError);
+        }
+        {  // The "node_set" key is mandatory in "section_list" modification
+            auto contents = R"({
+                "run": {
+                  "random_seed": 12345,
+                  "dt": 0.05,
+                  "tstop": 1000
+                },
+                "conditions": {
+                  "celsius": 34.0,
+                  "modifications": [
+                    {
+                      "name": "apical_block_NaTg_exception",
+                      "compartment_set": "dend_ca_hotspot_name",
+                      "type": "section_list",
+                      "section_configure": "apical.gbar_NaTg = 0"
+                    }
+                  ]
+                }
+            })";
+            CHECK_THROWS_AS(SimulationConfig(contents, "./"), SonataError);
+        }
+        {  // The "node_set" key is mandatory in "section" modification
+            auto contents = R"({
+                "run": {
+                  "random_seed": 12345,
+                  "dt": 0.05,
+                  "tstop": 1000
+                },
+                "conditions": {
+                  "celsius": 34.0,
+                  "modifications": [
+                    {
+                      "name": "apical[10]_KTst_NaTg_block_exception",
+                      "type": "section",
+                      "section_configure": "apic[10].gbar_KTst = 0; apic[10].gbar_NaTg = 0"
+                    }
+                  ]
+                }
+            })";
+            CHECK_THROWS_AS(SimulationConfig(contents, "./"), SonataError);
+        }
+        {  // The "node_set" key is mandatory in "section" modification
+            auto contents = R"({
+                "run": {
+                  "random_seed": 12345,
+                  "dt": 0.05,
+                  "tstop": 1000
+                },
+                "conditions": {
+                  "celsius": 34.0,
+                  "modifications": [
+                    {
+                      "name": "apical[10]_KTst_NaTg_block_exception",
+                      "compartment_set": "dend_ca_hotspot_name",
+                      "type": "section",
+                      "section_configure": "apic[10].gbar_KTst = 0; apic[10].gbar_NaTg = 0"
+                    }
+                  ]
+                }
+            })";
+            CHECK_THROWS_AS(SimulationConfig(contents, "./"), SonataError);
+        }
+        {  // The "compartment_set" key is mandatory in "compartment_set" modification
+            auto contents = R"({
+                "run": {
+                  "random_seed": 12345,
+                  "dt": 0.05,
+                  "tstop": 1000
+                },
+                "conditions": {
+                  "celsius": 34.0,
+                  "modifications": [
+                    {
+                      "name": "Ca_hotspot_dend[10]_manipulation_exception",
+                      "type": "compartment_set",
+                      "section_configure": "gbar_Ca_HVA2 = 1.5; gbar_Ca_LVA = 2"
+                    }
+                  ]
+                }
+            })";
+            CHECK_THROWS_AS(SimulationConfig(contents, "./"), SonataError);
+        }
+        {  // The "compartment_set" key is mandatory in "compartment_set" modification
+            auto contents = R"({
+                "run": {
+                  "random_seed": 12345,
+                  "dt": 0.05,
+                  "tstop": 1000
+                },
+                "conditions": {
+                  "celsius": 34.0,
+                  "modifications": [
+                    {
+                      "name": "Ca_hotspot_dend[10]_manipulation_exception",
+                      "node_set": "single",
+                      "type": "compartment_set",
+                      "section_configure": "gbar_Ca_HVA2 = 1.5; gbar_Ca_LVA = 2"
+                    }
+                  ]
+                }
             })";
             CHECK_THROWS_AS(SimulationConfig(contents, "./"), SonataError);
         }

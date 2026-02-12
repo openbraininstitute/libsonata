@@ -439,11 +439,21 @@ class TestSimulationConfig(unittest.TestCase):
                                                              'GluSynapse': {'property4': 'test',
                                                                             'property3': 0.025}})
         modifications = {o.name: o for o in self.config.conditions.modifications()}
-        self.assertEqual(modifications["applyTTX"].type.name, "TTX")
+        self.assertEqual(modifications["applyTTX"].type.name, "ttx")
         self.assertEqual(modifications["applyTTX"].node_set, "single")
-        self.assertEqual(modifications["no_SK_E2"].type.name, "ConfigureAllSections")
+        self.assertEqual(modifications["no_SK_E2"].type.name, "configure_all_sections")
         self.assertEqual(modifications["no_SK_E2"].node_set, "single")
         self.assertEqual(modifications["no_SK_E2"].section_configure, "%s.gSK_E2bar_SK_E2 = 0")
+        self.assertEqual(modifications["apical_block_NaTg"].type.name, "section_list")
+        self.assertEqual(modifications["apical_block_NaTg"].node_set, "single")
+        self.assertEqual(modifications["apical_block_NaTg"].section_configure, "apical.gbar_NaTg = 0")
+        self.assertEqual(modifications["apical[10]_KTst_NaTg_block"].type.name, "section")
+        self.assertEqual(modifications["apical[10]_KTst_NaTg_block"].node_set, "single")
+        self.assertEqual(modifications["apical[10]_KTst_NaTg_block"].section_configure, "apic[10].gbar_KTst = 0; apic[10].gbar_NaTg = 0")
+        self.assertEqual(modifications["Ca_hotspot_dend[10]_manipulation"].type.name, "compartment_set")
+        self.assertEqual(modifications["Ca_hotspot_dend[10]_manipulation"].compartment_set, "dend_ca_hotspot_name")
+        self.assertEqual(modifications["Ca_hotspot_dend[10]_manipulation"].section_configure, "gbar_Ca_HVA2 = 1.5; gbar_Ca_LVA = 2")
+
 
         self.assertEqual(self.config.list_report_names,
                          { "axonal_comp_centers", "cell_imembrane", "compartment", "soma", "lfp", "compartment_set_v" })

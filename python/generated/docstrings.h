@@ -1227,11 +1227,17 @@ static const char *__doc_bbp_sonata_SimulationConfig_InputSynapseReplay_spikeFil
 R"doc(The location of the file with the spike info for injection, file
 extension must be .h5)doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase = R"doc()doc";
+static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase = R"doc(Base class for condition modifications)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase_ModificationType = R"doc()doc";
 
+static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase_ModificationType_CompartmentSet = R"doc()doc";
+
 static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase_ModificationType_ConfigureAllSections = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase_ModificationType_Section = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase_ModificationType_SectionList = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase_ModificationType_TTX = R"doc()doc";
 
@@ -1239,21 +1245,49 @@ static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase_Modificati
 
 static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase_name = R"doc(Name of the modification setting.)doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase_nodeSet = R"doc(Node set which receives the manipulation)doc";
-
 static const char *__doc_bbp_sonata_SimulationConfig_ModificationBase_type =
-R"doc(Name of the manipulation. Supported values are “TTX” and
-“ConfigureAllSections”.)doc";
+R"doc(Name of the manipulation. Supported values are “TTX”,
+“ConfigureAllSections”, "SectionList", "Section" and "CompartmentSet".)doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_ModificationConfigureAllSections = R"doc()doc";
+static const char *__doc_bbp_sonata_SimulationConfig_ModificationCompartmentSet = R"doc(compartment_set modification class)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_ModificationCompartmentSetBase = R"doc(Base class for condition modifications applied to compartment sets)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_ModificationCompartmentSetBase_compartmentSet = R"doc(Compartment set which receives the manipulation)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_ModificationCompartmentSet_sectionConfigure =
+R"doc(For "compartment_set" manipulation, a snippet of python code to
+perform one or more assignments involving attributes on the
+compartment set. Entries should be of the form, e.g. "gbar_KTst = 0;
+gbar_NaTg = 0".)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_ModificationConfigureAllSections = R"doc(configure_all_sections modification class)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_ModificationConfigureAllSections_sectionConfigure =
-R"doc(For “ConfigureAllSections” manipulation, a snippet of python code to
+R"doc(For "configure_all_sections" manipulation, a snippet of python code to
 perform one or more assignments involving section attributes, for all
 sections that have all the referenced attributes. The format is
 "%s.xxxx; %s.xxxx; ...".)doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_ModificationTTX = R"doc()doc";
+static const char *__doc_bbp_sonata_SimulationConfig_ModificationNodeSetBase = R"doc(Base class for condition modifications applied to node sets)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_ModificationNodeSetBase_nodeSet = R"doc(Node set which receives the manipulation)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_ModificationSection = R"doc(section modification class)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_ModificationSectionList = R"doc(section_list modification class)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_ModificationSectionList_sectionConfigure =
+R"doc(For "section_list" manipulation, a snippet of python code to perform
+one or more assignments involving attributes on the sections. Entries
+should be of the form, e.g. "apical.gbar_NaTg = 0.0; apical.cm = 1".)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_ModificationSection_sectionConfigure =
+R"doc(For "section" manipulation, a snippet of python code to perform one or
+more assignments involving attributes on the section. Entries should
+be of the form, e.g. "apic[10].gbar_KTst = 0; apic[10].gbar_NaTg = 0".)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_ModificationTTX = R"doc(ttx modification class)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_Output = R"doc(Parameters to override simulator output for spike reports)doc";
 
