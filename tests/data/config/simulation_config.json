@@ -53,15 +53,33 @@
       "modifications": [
         {
             "node_set": "single",
-            "type": "TTX",
+            "type": "ttx",
             "name": "applyTTX"
         },
         {
             "node_set": "single",
-            "type": "ConfigureAllSections",
+            "type": "configure_all_sections",
             "section_configure": "%s.gSK_E2bar_SK_E2 = 0",
             "name": "no_SK_E2"
-        }
+        },
+        {
+            "name": "apical_block_NaTg",
+            "node_set": "single",
+            "type": "section_list",
+            "section_configure": "apical.gbar_NaTg = 0"
+         },
+         {
+            "name": "apical[10]_KTst_NaTg_block",
+            "node_set": "single",
+            "type": "section",
+            "section_configure": "apic[10].gbar_KTst = 0; apic[10].gbar_NaTg = 0"
+         },
+         {
+            "name": "Ca_hotspot_dend[10]_manipulation",
+            "type": "compartment_set",
+            "compartment_set": "dend_ca_hotspot_name",
+            "section_configure": "gbar_Ca_HVA2 = 1.5; gbar_Ca_LVA = 2"
+         }
         ]
     },
     "inputs": {

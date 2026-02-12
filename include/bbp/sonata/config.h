@@ -321,29 +321,87 @@ class SONATA_API SimulationConfig
         /// The sorting order of the spike report. Default is "by_time"
         SpikesSortOrder sortOrder = DEFAULT_sortOrder;
     };
-
+    /**
+     * Base class for condition modifications
+     */
     struct ModificationBase {
-        enum class ModificationType { invalid = -1, TTX, ConfigureAllSections };
+        enum class ModificationType {
+            invalid = -1,
+            TTX,
+            ConfigureAllSections,
+            SectionList,
+            Section,
+            CompartmentSet
+        };
 
-        /// Node set which receives the manipulation
-        std::string nodeSet;
-        /// Name of the manipulation. Supported values are “TTX” and “ConfigureAllSections”.
+        /// Name of the manipulation. Supported values are “TTX”, “ConfigureAllSections”,
+        /// "SectionList", "Section" and "CompartmentSet".
         ModificationType type;
         /// Name of the modification setting.
         std::string name;
     };
-
-    struct ModificationTTX: public ModificationBase {
+    /**
+     * Base class for condition modifications applied to node sets
+     */
+    struct ModificationNodeSetBase: public ModificationBase {
+        /// Node set which receives the manipulation
+        std::string nodeSet;
     };
 
-    struct ModificationConfigureAllSections: public ModificationBase {
-        /// For “ConfigureAllSections” manipulation, a snippet of python code to perform one or more
-        /// assignments involving section attributes, for all sections that have all the referenced
-        /// attributes. The format is "%s.xxxx; %s.xxxx; ...".
+    /**
+     * Base class for condition modifications applied to compartment sets
+     */
+    struct ModificationCompartmentSetBase: public ModificationBase {
+        /// Compartment set which receives the manipulation
+        std::string compartmentSet;
+    };
+    /**
+     * ttx modification class
+     */
+    struct ModificationTTX: public ModificationNodeSetBase {
+    };
+    /**
+     * configure_all_sections modification class
+     */
+    struct ModificationConfigureAllSections: public ModificationNodeSetBase {
+        /// For "configure_all_sections" manipulation, a snippet of python code to perform one or
+        /// more assignments involving section attributes, for all sections that have all the
+        /// referenced attributes. The format is "%s.xxxx; %s.xxxx; ...".
+        std::string sectionConfigure;
+    };
+    /**
+     * section_list modification class
+     */
+    struct ModificationSectionList: public ModificationNodeSetBase {
+        /// For "section_list" manipulation, a snippet of python code to perform one or
+        /// more assignments involving attributes on the sections. Entries should be of the form,
+        /// e.g. "apical.gbar_NaTg = 0.0; apical.cm = 1".
+        std::string sectionConfigure;
+    };
+    /**
+     * section modification class
+     */
+    struct ModificationSection: public ModificationNodeSetBase {
+        /// For "section" manipulation, a snippet of python code to perform one or more
+        /// assignments involving attributes on the section. Entries should be of the form, e.g.
+        /// "apic[10].gbar_KTst = 0; apic[10].gbar_NaTg = 0".
+        std::string sectionConfigure;
+    };
+    /**
+     * compartment_set modification class
+     */
+    struct ModificationCompartmentSet: public ModificationCompartmentSetBase {
+        /// For "compartment_set" manipulation, a snippet of python code to perform one or
+        /// more assignments involving attributes on the compartment set. Entries should be of the
+        /// form, e.g. "gbar_KTst = 0; gbar_NaTg = 0".
         std::string sectionConfigure;
     };
 
-    using Modification = nonstd::variant<ModificationTTX, ModificationConfigureAllSections>;
+    using Modification = nonstd::variant<ModificationTTX,
+                                         ModificationConfigureAllSections,
+                                         ModificationSectionList,
+                                         ModificationSection,
+                                         ModificationCompartmentSet>;
 
     /**
      * Parameters defining global experimental conditions.
