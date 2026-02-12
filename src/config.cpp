@@ -760,7 +760,7 @@ void parseConditionsModifications(const nlohmann::json& it,
         }
 
         default:
-            throw SonataError("Unknown modification type in " + debugStr);
+            throw SonataError("Unknown modification type in " + debugStr + "\nPlease check for updated libsonata version.");
         }
     }
 }
