@@ -1154,3 +1154,29 @@ class TestSimulationConfig(unittest.TestCase):
             """
             SimulationConfig(contents, "./")
         self.assertEqual(e.exception.args, ("`duration_levels` must contain only non-negative values in input seclamp",))
+
+        # SEClamp with empty duration_levels and voltage_levels considered as null by nlohnman::json
+        with self.assertRaises(RuntimeError) as e:
+            contents = """
+            {
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs" : {
+                "seclamp": {
+                    "input_type": "voltage_clamp",
+                    "node_set": "Column",
+                    "module": "seclamp",
+                    "delay": 0.0,
+                    "duration": 100.0,
+                    "voltage": 10,
+                    "duration_levels": [],
+                    "voltage_levels": []
+                }
+              }
+            }
+            """
+            SimulationConfig(contents, "./")
+        self.assertIn("type must be array, but is null", e.exception.args[0])
