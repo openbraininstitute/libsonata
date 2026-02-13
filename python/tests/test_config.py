@@ -628,6 +628,8 @@ class TestSimulationConfig(unittest.TestCase):
 
         self.assertEqual(self.config.input('ex_seclamp').voltage, 1.1)
         self.assertEqual(self.config.input('ex_seclamp').series_resistance, 0.5)
+        self.assertEqual(self.config.input('ex_seclamp').duration_levels, [0, 10, 20, 30])
+        self.assertEqual(self.config.input('ex_seclamp').voltage_levels, [1.5, 2, 3, 4])
 
         self.assertEqual(self.config.input('ex_efields').input_type.name, "extracellular_stimulation")
         self.assertEqual(self.config.input('ex_efields').module.name, "spatially_uniform_e_field")
@@ -746,6 +748,31 @@ class TestSimulationConfig(unittest.TestCase):
         self.assertEqual(conf.run.synapse_seed, 0)
         self.assertEqual(conf.run.electrodes_file, "")
         self.assertEqual(conf.run.spike_threshold, -30.0)
+
+    def test_seclamp_without_duration_levels(self):
+        contents = """
+        {
+          "manifest": {
+            "$CIRCUIT_DIR": "./circuit"
+          },
+          "network": "$CIRCUIT_DIR/circuit_config.json",
+          "run": { "random_seed": 12345, "dt": 0.05, "tstop": 1000 },
+          "inputs": {
+            "seclamp": {
+                "input_type": "voltage_clamp",
+                "module": "seclamp",
+                "delay": 0,
+                "duration": 1000,
+                "node_set": "L5E",
+                "voltage": 1.1,
+                "series_resistance": 0.5
+            }
+          }
+        }
+        """
+        conf = SimulationConfig(contents, "./")
+        self.assertEqual(conf.input("seclamp").duration_levels, [])
+        self.assertEqual(conf.input("seclamp").voltage_levels, [])
 
     def test_simulation_config_failures(self):
         with self.assertRaises(SonataError) as e:
@@ -1048,3 +1075,108 @@ class TestSimulationConfig(unittest.TestCase):
         contents["target_simulator"] = "fake-simulator"
         with self.assertRaises(SonataError):
             self.assertRaises(SimulationConfig(json.dumps(contents), "./"))
+
+    def test_seclamp_failures(self):
+        # SEClamp with delay
+        with self.assertRaises(SonataError) as e:
+            contents = """
+            {
+                "run": {
+                    "random_seed": 12345,
+                    "dt": 0.05,
+                    "tstop": 1000
+                },
+                "inputs": {
+                    "seclamp": {
+                        "input_type": "voltage_clamp",
+                        "node_set": "Column",
+                        "module": "seclamp",
+                        "delay": 0.01,
+                        "duration": 100.0,
+                        "voltage": 10
+                    }
+                }
+            }
+            """
+            SimulationConfig(contents, "./")
+        self.assertEqual(e.exception.args, (
+                "`delay` is not applicable to SEClamp, must be zero in input seclamp",
+                ))
+
+        # SEClamp with different length of voltage_levels and duration_levels
+        with self.assertRaises(SonataError) as e:
+            contents = """
+            {
+                "run": {
+                    "random_seed": 12345,
+                    "dt": 0.05,
+                    "tstop": 1000
+                },
+              "inputs": {
+                    "seclamp": {
+                        "input_type": "voltage_clamp",
+                        "node_set": "Column",
+                        "module": "seclamp",
+                        "delay": 0.0,
+                        "duration": 100.0,
+                        "voltage": 10,
+                        "duration_levels": [10.0, 20.0],
+                        "voltage_levels": [10.0, 20.0, 30.0]
+                    }
+                }
+            }
+            """
+            SimulationConfig(contents, "./")
+        self.assertEqual(e.exception.args, ("`duration_levels` and `voltage_levels` must have the same size in input seclamp", ))
+
+        # SEClamp with duration_levels that contains negative values
+        with self.assertRaises(SonataError) as e:
+            contents = """
+            {
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs" : {
+                "seclamp": {
+                    "input_type": "voltage_clamp",
+                    "node_set": "Column",
+                    "module": "seclamp",
+                    "delay": 0.0,
+                    "duration": 100.0,
+                    "voltage": 10,
+                    "duration_levels": [-0.00000005, 10.0, 20.0],
+                    "voltage_levels": [10.0, 20.0, 30.0]
+                }
+              }
+            }
+            """
+            SimulationConfig(contents, "./")
+        self.assertEqual(e.exception.args, ("`duration_levels` must contain only non-negative values in input seclamp",))
+
+        # SEClamp with empty duration_levels and voltage_levels considered as null by nlohnman::json
+        with self.assertRaises(RuntimeError) as e:
+            contents = """
+            {
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs" : {
+                "seclamp": {
+                    "input_type": "voltage_clamp",
+                    "node_set": "Column",
+                    "module": "seclamp",
+                    "delay": 0.0,
+                    "duration": 100.0,
+                    "voltage": 10,
+                    "duration_levels": [],
+                    "voltage_levels": []
+                }
+              }
+            }
+            """
+            SimulationConfig(contents, "./")
+        self.assertIn("type must be array, but is null", e.exception.args[0])

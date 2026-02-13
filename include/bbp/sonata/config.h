@@ -580,10 +580,15 @@ class SONATA_API SimulationConfig
     };
 
     struct InputSeclamp: public InputBase {
-        /// The membrane voltage the targeted cells should be held at (mV)
+        /// The initial membrane voltage in mV at which the targeted cells should be held at time =
+        /// 0
         double voltage{};
         /// The series resistance (Mohm), default is 0.01 Mohm
         double seriesResistance{};
+        /// The durations of each step stimulus
+        std::vector<double> durationLevels;
+        /// The membrane voltages the targeted cells should be held at in mV for each step
+        std::vector<double> voltageLevels;
     };
 
     struct InputNoise: public InputBase {
