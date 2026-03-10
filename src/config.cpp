@@ -1199,7 +1199,6 @@ class SimulationConfig::Parser
             return true;
         };
         const auto rawJson = nlohmann::json::parse(content, callback);
-        // const auto rawJson = nlohmann::json::parse(content);
         const auto vars = replaceVariables(readVariables(rawJson));
         _json = expandVariables(rawJson, vars);
     }

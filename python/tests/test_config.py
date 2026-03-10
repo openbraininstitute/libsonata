@@ -1186,26 +1186,26 @@ class TestSimulationConfig(unittest.TestCase):
         with self.assertRaises(SonataError) as e:
             contents = """
                 {
-                "reports": {
-                    "test_dup": {
-                    "cells": "dummy",
-                    "sections": "soma",
-                    "type": "compartment",
-                    "variable_name": "v",
-                    "dt": 0.05,
-                    "start_time": 0,
-                    "end_time": 500
-                    },
-                    "test_dup": {
-                    "cells": "dummy",
-                    "sections": "all",
-                    "type": "compartment",
-                    "variable_name": "v",
-                    "dt": 0.05,
-                    "start_time": 0,
-                    "end_time": 500
+                    "reports": {
+                            "test_dup": {
+                            "cells": "dummy",
+                            "sections": "soma",
+                            "type": "compartment",
+                            "variable_name": "v",
+                            "dt": 0.05,
+                            "start_time": 0,
+                            "end_time": 500
+                        },
+                        "test_dup": {
+                            "cells": "dummy",
+                            "sections": "all",
+                            "type": "compartment",
+                            "variable_name": "v",
+                            "dt": 0.05,
+                            "start_time": 0,
+                            "end_time": 500
+                        }
                     }
-                }
                 }
                 """
             SimulationConfig(contents, "./")

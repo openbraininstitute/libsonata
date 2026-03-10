@@ -1860,7 +1860,7 @@ TEST_CASE("SimulationConfig") {
             })";
             CHECK_THROWS_AS(SimulationConfig(contents, "./"), SonataError);
         }
-        {  // duplicate keys at root level rejected by nlohmn::json
+        {  // duplicate keys at root level rejected by nlohmann::json
             auto contents = R"({
             "ABC": 1,
             "ABC": 2
@@ -1869,7 +1869,7 @@ TEST_CASE("SimulationConfig") {
                                  SonataError,
                                  Catch::Matchers::Message("Duplicate key 'ABC' in 'root'"));
         }
-        {  // duplicate section keys at root level rejected by nlohmn::json
+        {  // duplicate section keys at root level rejected by nlohmann::json
             auto contents = R"({
             "reports": {},
             "reports": {}
