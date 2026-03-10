@@ -710,19 +710,25 @@ void parseConditionsModifications(const nlohmann::json& it,
         throw SonataError("`modifications` must be an array");
     }
     buf.reserve(sectionIt->size());
+    std::set<std::string> uniqueNames;
 
     for (auto& mIt : sectionIt->items()) {
         const auto valueIt = mIt.value();
         const auto debugStr = fmt::format("modification {}", mIt.key());
 
         SimulationConfig::ModificationBase::ModificationType type;
+        std::string modificationName;
         parseMandatory(valueIt, "type", debugStr, type);
+        parseMandatory(valueIt, "name", debugStr, modificationName);
+        if (!uniqueNames.insert(modificationName).second) {
+            throw SonataError("Duplicate name '" + modificationName + "' in 'modifications'");
+        }
 
         switch (type) {
         case SimulationConfig::ModificationBase::ModificationType::TTX: {
             SimulationConfig::ModificationTTX result;
             result.type = type;
-            parseMandatory(valueIt, "name", debugStr, result.name);
+            result.name = modificationName;
             parseMandatory(valueIt, "node_set", debugStr, result.nodeSet);
             buf.push_back(std::move(result));
             break;
@@ -730,7 +736,7 @@ void parseConditionsModifications(const nlohmann::json& it,
         case SimulationConfig::ModificationBase::ModificationType::ConfigureAllSections: {
             SimulationConfig::ModificationConfigureAllSections result;
             result.type = type;
-            parseMandatory(valueIt, "name", debugStr, result.name);
+            result.name = modificationName;
             parseMandatory(valueIt, "node_set", debugStr, result.nodeSet);
             parseMandatory(valueIt, "section_configure", debugStr, result.sectionConfigure);
             buf.push_back(std::move(result));
@@ -739,7 +745,7 @@ void parseConditionsModifications(const nlohmann::json& it,
         case SimulationConfig::ModificationBase::ModificationType::SectionList: {
             SimulationConfig::ModificationSectionList result;
             result.type = type;
-            parseMandatory(valueIt, "name", debugStr, result.name);
+            result.name = modificationName;
             parseMandatory(valueIt, "node_set", debugStr, result.nodeSet);
             parseMandatory(valueIt, "section_configure", debugStr, result.sectionConfigure);
             buf.push_back(std::move(result));
@@ -748,7 +754,7 @@ void parseConditionsModifications(const nlohmann::json& it,
         case SimulationConfig::ModificationBase::ModificationType::Section: {
             SimulationConfig::ModificationSection result;
             result.type = type;
-            parseMandatory(valueIt, "name", debugStr, result.name);
+            result.name = modificationName;
             parseMandatory(valueIt, "node_set", debugStr, result.nodeSet);
             parseMandatory(valueIt, "section_configure", debugStr, result.sectionConfigure);
             buf.push_back(std::move(result));
@@ -757,8 +763,8 @@ void parseConditionsModifications(const nlohmann::json& it,
         case SimulationConfig::ModificationBase::ModificationType::CompartmentSet: {
             SimulationConfig::ModificationCompartmentSet result;
             result.type = type;
+            result.name = modificationName;
             std::string hasNodeSetDefined;
-            parseMandatory(valueIt, "name", debugStr, result.name);
             parseMandatory(valueIt, "compartment_set", debugStr, result.compartmentSet);
             parseMandatory(valueIt, "section_configure", debugStr, result.sectionConfigure);
 
@@ -1164,7 +1170,36 @@ class SimulationConfig::Parser
     Parser(const std::string& content, const std::string& basePath)
         : _basePath(fs::absolute(fs::path(basePath)).lexically_normal()) {
         // Parse manifest section and expand JSON string
-        const auto rawJson = nlohmann::json::parse(content);
+        // Use parser callback to throw exceptsion for duplicate keys
+        std::vector<std::set<std::string>> section_keys;  // Track current section keys
+        std::vector<std::string> section_names;           // Track current section name
+        std::string current_key;                          // Store the last key seen
+        auto callback =
+            [&section_keys, &section_names, &current_key](int /*depth*/,
+                                                          nlohmann::json::parse_event_t event,
+                                                          nlohmann::json& parsed) -> bool {
+            if (event == nlohmann::json::parse_event_t::object_start) {
+                section_keys.push_back(std::set<std::string>());
+                section_names.push_back(current_key.empty() ? "root" : current_key);
+            } else if (event == nlohmann::json::parse_event_t::object_end) {
+                if (!section_keys.empty()) {
+                    section_keys.pop_back();
+                    section_names.pop_back();
+                }
+            } else if (event == nlohmann::json::parse_event_t::key) {
+                current_key = parsed.get<std::string>();
+                if (!section_keys.empty()) {
+                    if (!section_keys.back().insert(current_key).second) {
+                        throw SonataError(fmt::format("Duplicate key '{}' in '{}'",
+                                                      current_key,
+                                                      section_names.back()));
+                    }
+                }
+            }
+            return true;
+        };
+        const auto rawJson = nlohmann::json::parse(content, callback);
+        // const auto rawJson = nlohmann::json::parse(content);
         const auto vars = replaceVariables(readVariables(rawJson));
         _json = expandVariables(rawJson, vars);
     }
@@ -1448,6 +1483,7 @@ class SimulationConfig::Parser
 
     std::vector<ConnectionOverride> parseConnectionOverrides() const {
         std::vector<ConnectionOverride> result;
+        std::set<std::string> uniqueNames;
 
         const auto connIt = _json.find("connection_overrides");
         // nlohmann::json::flatten().unflatten() converts empty containers to `null`:
@@ -1469,6 +1505,10 @@ class SimulationConfig::Parser
             const auto& valueIt = it.value();
             ConnectionOverride connect;
             parseMandatory(valueIt, "name", "connection_override", connect.name);
+            if (!uniqueNames.insert(connect.name).second) {
+                throw SonataError("Duplicate name '" + connect.name +
+                                  "' in 'connection_overrides'");
+            }
             const auto debugStr = fmt::format("connection_override {}", connect.name);
             parseMandatory(valueIt, "source", debugStr, connect.source);
             parseMandatory(valueIt, "target", debugStr, connect.target);
