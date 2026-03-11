@@ -1171,7 +1171,7 @@ class SimulationConfig::Parser
     Parser(const std::string& content, const std::string& basePath)
         : _basePath(fs::absolute(fs::path(basePath)).lexically_normal()) {
         // Parse manifest section and expand JSON string
-        const auto rawJson = parseJSONWithDuplicateKeyCheck(content);
+        const auto rawJson = parseJSONRejectDuplicateKeys(content);
         const auto vars = replaceVariables(readVariables(rawJson));
         _json = expandVariables(rawJson, vars);
     }

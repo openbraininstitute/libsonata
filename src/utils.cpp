@@ -41,7 +41,7 @@ std::string readFile(const std::string& path) {
 namespace bbp {
 namespace sonata {
 
-json parseJSONWithDuplicateKeyCheck(const std::string& content) {
+json parseJSONRejectDuplicateKeys(const std::string& content) {
     // Use parser callback to throw exception for duplicate keys
     struct ObjectScope {
         std::string name;
