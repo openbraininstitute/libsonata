@@ -1233,7 +1233,7 @@ class TestSimulationConfig(unittest.TestCase):
                       "node_set": "nodesPopA"
                     }
                 }
-            })";
+            }
             """
             SimulationConfig(contents, "./")
         self.assertEqual(e.exception.args,("Duplicate key 'spikeReplay_dup' in 'inputs'",))
