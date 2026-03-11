@@ -1179,23 +1179,30 @@ class SimulationConfig::Parser
             [&section_keys, &section_names, &current_key](int /*depth*/,
                                                           nlohmann::json::parse_event_t event,
                                                           nlohmann::json& parsed) -> bool {
-            if (event == nlohmann::json::parse_event_t::object_start) {
+            switch (event) {
+            case nlohmann::json::parse_event_t::object_start:
                 section_keys.push_back(std::unordered_set<std::string>());
                 section_names.push_back(current_key.empty() ? "root" : current_key);
-            } else if (event == nlohmann::json::parse_event_t::object_end) {
+                break;
+
+            case nlohmann::json::parse_event_t::object_end:
                 if (!section_keys.empty()) {
                     section_keys.pop_back();
                     section_names.pop_back();
                 }
-            } else if (event == nlohmann::json::parse_event_t::key) {
+                break;
+
+            case nlohmann::json::parse_event_t::key:
                 current_key = parsed.get<std::string>();
-                if (!section_keys.empty()) {
-                    if (!section_keys.back().insert(current_key).second) {
-                        throw SonataError(fmt::format("Duplicate key '{}' in '{}'",
-                                                      current_key,
-                                                      section_names.back()));
-                    }
+                if (!section_keys.empty() && !section_keys.back().insert(current_key).second) {
+                    throw SonataError(fmt::format("Duplicate key '{}' in '{}'",
+                                                  current_key,
+                                                  section_names.back()));
                 }
+                break;
+
+            default:
+                break;
             }
             return true;
         };
