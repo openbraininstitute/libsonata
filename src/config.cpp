@@ -1171,42 +1171,7 @@ class SimulationConfig::Parser
     Parser(const std::string& content, const std::string& basePath)
         : _basePath(fs::absolute(fs::path(basePath)).lexically_normal()) {
         // Parse manifest section and expand JSON string
-        // Use parser callback to throw exceptsion for duplicate keys
-        std::vector<std::unordered_set<std::string>> section_keys;  // Track current section keys
-        std::vector<std::string> section_names;                     // Track current section name
-        std::string current_key;                                    // Store the last key seen
-        auto callback =
-            [&section_keys, &section_names, &current_key](int /*depth*/,
-                                                          nlohmann::json::parse_event_t event,
-                                                          nlohmann::json& parsed) -> bool {
-            switch (event) {
-            case nlohmann::json::parse_event_t::object_start:
-                section_keys.push_back(std::unordered_set<std::string>());
-                section_names.push_back(current_key.empty() ? "root" : current_key);
-                break;
-
-            case nlohmann::json::parse_event_t::object_end:
-                if (!section_keys.empty()) {
-                    section_keys.pop_back();
-                    section_names.pop_back();
-                }
-                break;
-
-            case nlohmann::json::parse_event_t::key:
-                current_key = parsed.get<std::string>();
-                if (!section_keys.empty() && !section_keys.back().insert(current_key).second) {
-                    throw SonataError(fmt::format("Duplicate key '{}' in '{}'",
-                                                  current_key,
-                                                  section_names.back()));
-                }
-                break;
-
-            default:
-                break;
-            }
-            return true;
-        };
-        const auto rawJson = nlohmann::json::parse(content, callback);
+        const auto rawJson = parseJSONWithDuplicateKeyCheck(content);
         const auto vars = replaceVariables(readVariables(rawJson));
         _json = expandVariables(rawJson, vars);
     }
