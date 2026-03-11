@@ -15,6 +15,7 @@
 #include <regex>
 #include <set>
 #include <string>
+#include <unordered_set>
 
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
@@ -710,7 +711,7 @@ void parseConditionsModifications(const nlohmann::json& it,
         throw SonataError("`modifications` must be an array");
     }
     buf.reserve(sectionIt->size());
-    std::set<std::string> uniqueNames;
+    std::unordered_set<std::string> uniqueNames;
 
     for (auto& mIt : sectionIt->items()) {
         const auto valueIt = mIt.value();
@@ -1171,15 +1172,15 @@ class SimulationConfig::Parser
         : _basePath(fs::absolute(fs::path(basePath)).lexically_normal()) {
         // Parse manifest section and expand JSON string
         // Use parser callback to throw exceptsion for duplicate keys
-        std::vector<std::set<std::string>> section_keys;  // Track current section keys
-        std::vector<std::string> section_names;           // Track current section name
-        std::string current_key;                          // Store the last key seen
+        std::vector<std::unordered_set<std::string>> section_keys;  // Track current section keys
+        std::vector<std::string> section_names;                     // Track current section name
+        std::string current_key;                                    // Store the last key seen
         auto callback =
             [&section_keys, &section_names, &current_key](int /*depth*/,
                                                           nlohmann::json::parse_event_t event,
                                                           nlohmann::json& parsed) -> bool {
             if (event == nlohmann::json::parse_event_t::object_start) {
-                section_keys.push_back(std::set<std::string>());
+                section_keys.push_back(std::unordered_set<std::string>());
                 section_names.push_back(current_key.empty() ? "root" : current_key);
             } else if (event == nlohmann::json::parse_event_t::object_end) {
                 if (!section_keys.empty()) {
@@ -1482,7 +1483,7 @@ class SimulationConfig::Parser
 
     std::vector<ConnectionOverride> parseConnectionOverrides() const {
         std::vector<ConnectionOverride> result;
-        std::set<std::string> uniqueNames;
+        std::unordered_set<std::string> uniqueNames;
 
         const auto connIt = _json.find("connection_overrides");
         // nlohmann::json::flatten().unflatten() converts empty containers to `null`:
