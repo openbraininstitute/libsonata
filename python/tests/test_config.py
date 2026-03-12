@@ -1180,3 +1180,116 @@ class TestSimulationConfig(unittest.TestCase):
             """
             SimulationConfig(contents, "./")
         self.assertIn("type must be array, but is null", e.exception.args[0])
+
+    def test_duplicate_key_name_rejection(self):
+        # duplicate report section key
+        with self.assertRaises(SonataError) as e:
+            contents = """
+                {
+                    "reports": {
+                            "test_dup": {
+                            "cells": "dummy",
+                            "sections": "soma",
+                            "type": "compartment",
+                            "variable_name": "v",
+                            "dt": 0.05,
+                            "start_time": 0,
+                            "end_time": 500
+                        },
+                        "test_dup": {
+                            "cells": "dummy",
+                            "sections": "all",
+                            "type": "compartment",
+                            "variable_name": "v",
+                            "dt": 0.05,
+                            "start_time": 0,
+                            "end_time": 500
+                        }
+                    }
+                }
+                """
+            SimulationConfig(contents, "./")
+        self.assertEqual(e.exception.args, ("Duplicate key 'test_dup' in 'reports'",))
+
+        # duplicate input section key
+        with self.assertRaises(SonataError) as e:
+            contents = """
+            {
+              "inputs": {
+                  "spikeReplay_dup": {
+                      "module": "synapse_replay",
+                      "input_type": "spikes",
+                      "spike_file": "input.h5",
+                      "delay": 0,
+                      "duration": 1000,
+                      "node_set": "nodesPopA"
+                  },
+                  "spikeReplay_dup": {
+                      "module": "synapse_replay",
+                      "input_type": "spikes",
+                      "spike_file": "input.h5",
+                      "delay": 0,
+                      "duration": 1000,
+                      "node_set": "nodesPopA"
+                    }
+                }
+            }
+            """
+            SimulationConfig(contents, "./")
+        self.assertEqual(e.exception.args,("Duplicate key 'spikeReplay_dup' in 'inputs'",))
+
+        #duplicate connection_override name
+        with self.assertRaises(SonataError) as e:
+            contents = """
+            {
+              "run": {
+                "dt": 0.05,
+                "tstop": 1000,
+                "random_seed": 0
+              },
+              "connection_overrides": [
+                {
+                    "name": "dup_conn",
+                    "source": "A",
+                    "target": "B",
+                    "synapse_configure": "%s.dummy=1"
+                },
+                {
+                    "name": "dup_conn",
+                    "source": "A",
+                    "target": "B",
+                    "synapse_configure": "%s.dummy=1"
+                }
+              ]
+            }
+            """
+            SimulationConfig(contents, "./")
+        self.assertEqual(e.exception.args,("Duplicate name 'dup_conn' in 'connection_overrides'",))
+        
+        #duplicate condition modification name
+        with self.assertRaises(SonataError) as e:
+            contents = """
+            {
+              "run": {
+                "dt": 0.05,
+                "tstop": 1000,
+                "random_seed": 0
+              },
+              "conditions": {
+                "modifications": [
+                  {
+                    "name": "TTXdup",
+                    "node_set": "single",
+                    "type": "ttx"
+                  },
+                  {
+                    "name": "TTXdup",
+                    "node_set": "single",
+                    "type": "ttx"
+                  }
+                ]
+              }
+            }
+            """
+            SimulationConfig(contents, "./")
+        self.assertEqual(e.exception.args,("Duplicate name 'TTXdup' in 'modifications'",))

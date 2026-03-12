@@ -1186,11 +1186,13 @@ TEST_CASE("SimulationConfig") {
             auto contents = R"({
               "run": {
                 "dt": 0.05,
-                "tstop": 1000
+                "tstop": 1000,
+                "random_seed": 0
               },
               "reports": {
                 "test": {
                    "cells": "nodesetstring",
+                   "compartment_set": "cs0",
                    "compartments": "middle",
                    "type": "compartment_set",
                    "variable_name": "variablestring",
@@ -1200,7 +1202,11 @@ TEST_CASE("SimulationConfig") {
                 }
               }
             })";
-            CHECK_THROWS_AS(SimulationConfig(contents, "./"), SonataError);
+            CHECK_THROWS_MATCHES(SimulationConfig(contents, "./"),
+                                 SonataError,
+                                 Catch::Matchers::Message(
+                                     "Field 'compartments' is not allowed for reports of type "
+                                     "'compartment_set'."));
         }
         {  // wrong input_type in an input object
             auto contents = R"({
@@ -1853,6 +1859,117 @@ TEST_CASE("SimulationConfig") {
                 }
             })";
             CHECK_THROWS_AS(SimulationConfig(contents, "./"), SonataError);
+        }
+        {  // duplicate keys at root level rejected by nlohmann::json
+            auto contents = R"({
+            "ABC": 1,
+            "ABC": 2
+          })";
+            CHECK_THROWS_MATCHES(SimulationConfig(contents, "./"),
+                                 SonataError,
+                                 Catch::Matchers::Message("Duplicate key 'ABC' in 'root'"));
+        }
+        {  // duplicate section keys at root level rejected by nlohmann::json
+            auto contents = R"({
+            "reports": {},
+            "reports": {}
+          })";
+            CHECK_THROWS_MATCHES(SimulationConfig(contents, "./"),
+                                 SonataError,
+                                 Catch::Matchers::Message("Duplicate key 'reports' in 'root'"));
+        }
+        {  // duplicate keys in section - 1
+            auto contents = R"({
+            "ABC": 1,
+            "run" : {
+              "ABC": 1,
+              "ABC": 2
+            }
+          })";
+            CHECK_THROWS_MATCHES(SimulationConfig(contents, "./"),
+                                 SonataError,
+                                 Catch::Matchers::Message("Duplicate key 'ABC' in 'run'"));
+        }
+        {  // duplicate section keys in section - 2, such inputs, reports
+            auto contents = R"({
+            "ABC": 1,
+            "inputs" : {
+              "ABC": {},
+              "ABC": {}
+            }
+          })";
+            CHECK_THROWS_MATCHES(SimulationConfig(contents, "./"),
+                                 SonataError,
+                                 Catch::Matchers::Message("Duplicate key 'ABC' in 'inputs'"));
+        }
+        {  // duplicate keys in sub sections
+            auto contents = R"({
+            "ABC": 1,
+            "conditions": {
+              "ABC": 1,
+               "mechanisms": {
+                  "ABC": {"A":1},
+                  "ABC": {"A":1},
+                }
+              }
+          })";
+            CHECK_THROWS_MATCHES(SimulationConfig(contents, "./"),
+                                 SonataError,
+                                 Catch::Matchers::Message("Duplicate key 'ABC' in 'mechanisms'"));
+        }
+        {  // duplicate connection_override name
+            auto contents = R"({
+              "run": {
+                "dt": 0.05,
+                "tstop": 1000,
+                "random_seed": 0
+              },
+              "connection_overrides": [
+                {
+                    "name": "dup_conn",
+                    "source": "A",
+                    "target": "B",
+                    "synapse_configure": "%s.dummy=1"
+                },
+                {
+                    "name": "dup_conn",
+                    "source": "A",
+                    "target": "B",
+                    "synapse_configure": "%s.dummy=1"
+                }
+              ]
+            })";
+            CHECK_THROWS_MATCHES(SimulationConfig(contents, "./"),
+                                 SonataError,
+                                 Catch::Matchers::Message(
+                                     "Duplicate name 'dup_conn' in 'connection_overrides'"));
+        }
+        {  // duplicate condition modification name
+            auto contents = R"({
+              "run": {
+                "dt": 0.05,
+                "tstop": 1000,
+                "random_seed": 0
+              },
+              "conditions": {
+                "modifications": [
+                  {
+                    "name": "TTXdup",
+                    "node_set": "single",
+                    "type": "ttx"
+                  },
+                  {
+                    "name": "TTXdup",
+                    "node_set": "single",
+                    "type": "ttx"
+                  }
+                ]
+              }
+            })";
+            CHECK_THROWS_MATCHES(SimulationConfig(contents, "./"),
+                                 SonataError,
+                                 Catch::Matchers::Message(
+                                     "Duplicate name 'TTXdup' in 'modifications'"));
         }
     }
 }

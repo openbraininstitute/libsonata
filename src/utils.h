@@ -88,5 +88,7 @@ inline uint64_t get_uint64_or_throw(const json& el) {
     return static_cast<uint64_t>(v);
 }
 
+json parseJSONRejectDuplicateKeys(const std::string& content);
+
 }  // namespace sonata
 }  // namespace bbp
