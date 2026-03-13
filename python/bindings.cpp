@@ -553,6 +553,7 @@ PYBIND11_MODULE(_libsonata, m) {
             "path"_a)
         .def_property_readonly("names", &NodeSets::names, DOC_NODESETS(names))
         .def("materialize", &NodeSets::materialize, DOC_NODESETS(materialize))
+        .def("referenced_populations", &NodeSets::referencedPopulations, DOC_NODESETS(referencedPopulations))
         .def("update", &NodeSets::update, "other"_a, DOC_NODESETS(update))
         .def("toJSON", &NodeSets::toJSON, DOC_NODESETS(toJSON));
 

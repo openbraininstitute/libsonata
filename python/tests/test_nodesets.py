@@ -199,3 +199,11 @@ class TestNodePopulationNodeSet(unittest.TestCase):
         ns.update(NodeSets(json.dumps({"NodeSet0": {"attr-Y": [22]}})))
         sel = ns.materialize("NodeSet0", self.population)
         self.assertEqual(sel, Selection(((1, 2), )))
+
+    def test_referenced_populations(self):
+        ns = NodeSets.from_file(os.path.join(PATH, 'node_sets.json'))
+        self.assertEqual(ns.referenced_populations("DOES_NOT_EXIST"), set())
+
+        self.assertEqual(ns.referenced_populations("bio_layer45"), set())
+        self.assertEqual(ns.referenced_populations("V1_point_prime"), {"biophysical"})
+        self.assertEqual(ns.referenced_populations("combined"), {"biophysical"})

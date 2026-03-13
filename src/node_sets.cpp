@@ -62,6 +62,9 @@ class NodeSetRule
     virtual bool is_compound() const {
         return false;
     }
+    virtual std::set<std::string> getReferencedPopulations(const detail::NodeSets&) const {
+        return {};
+    }
     virtual std::unique_ptr<NodeSetRule> clone() const = 0;
 };
 
@@ -104,6 +107,8 @@ class NodeSets
         : NodeSets(json::parse(content)) { }
 
     Selection materialize(const std::string& name, const NodePopulation& population) const;
+
+    std::set<std::string> referencedPopulations(const std::string& name) const;
 
     std::set<std::string> names() const {
         return getMapKeys(node_sets_);
@@ -219,6 +224,10 @@ class NodeSetBasicPopulation: public NodeSetRule
         return std::make_unique<detail::NodeSetBasicPopulation>(values_);
     }
 
+    std::set<std::string> getReferencedPopulations(const detail::NodeSets&) const final {
+        return std::set<std::string>(values_.begin(), values_.end());
+    }
+
   private:
     std::vector<std::string> values_;
 };
@@ -287,6 +296,15 @@ class NodeSetBasicMultiClause: public NodeSetRule
             clauses.push_back(clause->clone());
         }
         return std::make_unique<detail::NodeSetBasicMultiClause>(std::move(clauses));
+    }
+
+    std::set<std::string> getReferencedPopulations(const detail::NodeSets& ns) const final {
+        std::set<std::string> ret;
+        for (const auto& clause : clauses_) {
+            const auto s = clause->getReferencedPopulations(ns);
+            ret.insert(s.begin(), s.end());
+        }
+        return ret;
     }
 
   private:
@@ -455,6 +473,16 @@ class NodeSetCompoundRule: public NodeSetRule
 
     std::unique_ptr<NodeSetRule> clone() const final {
         return std::make_unique<detail::NodeSetCompoundRule>(name_, targets_);
+    }
+
+    std::set<std::string> getReferencedPopulations(const detail::NodeSets& ns) const final {
+        std::set<std::string> ret;
+        for (const auto& target : targets_) {
+            const auto s = ns.referencedPopulations(target);
+            ret.insert(s.begin(), s.end());
+
+        }
+        return ret;
     }
 
   private:
@@ -704,6 +732,15 @@ Selection NodeSets::materialize(const std::string& name, const NodePopulation& p
 
     return ret;
 }
+
+std::set<std::string> NodeSets::referencedPopulations(const std::string& name) const {
+    const auto& node_set = node_sets_.find(name);
+    if (node_set == node_sets_.end()) {
+        return {};
+    }
+    return node_set->second->getReferencedPopulations(*this);
+}
+
 }  // namespace detail
 
 NodeSets::NodeSets(const std::string& content)
@@ -730,6 +767,10 @@ std::set<std::string> NodeSets::names() const {
 
 std::set<std::string> NodeSets::update(const NodeSets& other) const {
     return impl_->update(*other.impl_);
+}
+
+std::set<std::string> NodeSets::referencedPopulations(const std::string& name) const {
+    return impl_->referencedPopulations(name);
 }
 
 std::string NodeSets::toJSON() const {
