@@ -701,8 +701,7 @@ class TestSimulationConfig(unittest.TestCase):
         self.assertEqual(config['output']['output_dir'], 'some/path/output')
 
     def test_empty_connection_overrides(self):
-        contents = """
-        {
+        contents = {
           "manifest": {
             "$CIRCUIT_DIR": "./circuit"
           },
@@ -710,26 +709,22 @@ class TestSimulationConfig(unittest.TestCase):
           "run": { "random_seed": 12345, "dt": 0.05, "tstop": 1000 },
           "connection_overrides": []
         }
-        """
-        conf = SimulationConfig(contents, "./")
+        conf = SimulationConfig(json.dumps(contents), "./")
         self.assertEqual(conf.connection_overrides(), [])
 
     def test_empty_conditions(self):
-        contents = """
-        {
+        contents = {
           "manifest": { "$CIRCUIT_DIR": "./circuit" },
           "network": "$CIRCUIT_DIR/circuit_config.json",
           "run": { "random_seed": 12345, "dt": 0.05, "tstop": 1000 },
           "connection_overrides": []
         }
-        """
-        conf = SimulationConfig(contents, "./")
+        conf = SimulationConfig(json.dumps(contents), "./")
         self.assertEqual(conf.conditions.celsius, 34.0)
         self.assertEqual(conf.conditions.v_init, -80)
 
     def test_run(self):
-        contents = """
-        {
+        contents = {
           "manifest": {
             "$CIRCUIT_DIR": "./circuit"
           },
@@ -740,8 +735,7 @@ class TestSimulationConfig(unittest.TestCase):
             "tstop": 1000
           }
         }
-        """
-        conf = SimulationConfig(contents, "./")
+        conf = SimulationConfig(json.dumps(contents), "./")
         self.assertEqual(conf.run.stimulus_seed, 0)
         self.assertEqual(conf.run.ionchannel_seed, 0)
         self.assertEqual(conf.run.minis_seed, 0)
@@ -750,8 +744,7 @@ class TestSimulationConfig(unittest.TestCase):
         self.assertEqual(conf.run.spike_threshold, -30.0)
 
     def test_seclamp_without_duration_levels(self):
-        contents = """
-        {
+        contents = {
           "manifest": {
             "$CIRCUIT_DIR": "./circuit"
           },
@@ -769,280 +762,257 @@ class TestSimulationConfig(unittest.TestCase):
             }
           }
         }
-        """
-        conf = SimulationConfig(contents, "./")
+        conf = SimulationConfig(json.dumps(contents), "./")
         self.assertEqual(conf.input("seclamp").duration_levels, [])
         self.assertEqual(conf.input("seclamp").voltage_levels, [])
 
     def test_simulation_config_failures(self):
+        contents = {
+          "manifest": {
+            "$CIRCUIT_DIR": "./circuit"
+          },
+          "network": "$CIRCUIT_DIR/circuit_config.json",
+          "run": { "random_seed": 12345, "dt": 0.05, "tstop": 1000 },
+          "connection_overrides": {"foo": "bar"}
+        }
         with self.assertRaises(SonataError) as e:
-            contents = """
-            {
-              "manifest": {
-                "$CIRCUIT_DIR": "./circuit"
-              },
-              "network": "$CIRCUIT_DIR/circuit_config.json",
-              "run": { "random_seed": 12345, "dt": 0.05, "tstop": 1000 },
-              "connection_overrides": {"foo": "bar"}
-            }
-            """
-            SimulationConfig(contents, "./")
+            SimulationConfig(json.dumps(contents), "./")
         self.assertEqual(e.exception.args, ('`connection_overrides` must be an array', ))
 
-        with self.assertRaises(SonataError) as e:
-            contents = """
-            {
-              "run": { "random_seed": 12345, "dt": 0.05, "tstop": 1000 },
-              "inputs" : {
-                "ex_replay": {
-                    "input_type": "spikes",
-                    "module": "synapse_replay",
-                    "delay": 0.0,
-                    "duration": 40000.0,
-                    "spike_file": "replay.dat",
-                    "node_set": "Column"
-                }
-              }
+        contents = {
+          "run": { "random_seed": 12345, "dt": 0.05, "tstop": 1000 },
+          "inputs" : {
+            "ex_replay": {
+                "input_type": "spikes",
+                "module": "synapse_replay",
+                "delay": 0.0,
+                "duration": 40000.0,
+                "spike_file": "replay.dat",
+                "node_set": "Column"
             }
-            """
-            SimulationConfig(contents, "./")
+          }
+        }
+        with self.assertRaises(SonataError) as e:
+            SimulationConfig(json.dumps(contents), "./")
         self.assertEqual(e.exception.args, ('Replay spike_file should be a SONATA h5 file', ))
 
-        with self.assertRaises(SonataError) as e:
-            contents = """
-            {
-                "run": { "random_seed": 12345, "dt": 0.05, "tstop": 1000 },
-                "inputs" : {
-                    "ex_linear": {
-                        "input_type": "current_clamp",
-                        "module": "linear",
-                        "amp_start": 0.15,
-                        "delay": 0,
-                        "duration": 15,
-                        "node_set":"Column",
-                        "compartment_set":"cs1"
-                    }
+        contents = {
+            "run": { "random_seed": 12345, "dt": 0.05, "tstop": 1000 },
+            "inputs" : {
+                "ex_linear": {
+                    "input_type": "current_clamp",
+                    "module": "linear",
+                    "amp_start": 0.15,
+                    "delay": 0,
+                    "duration": 15,
+                    "node_set":"Column",
+                    "compartment_set":"cs1"
                 }
             }
-            """
-            SimulationConfig(contents, "./")
+        }
+        with self.assertRaises(SonataError) as e:
+            SimulationConfig(json.dumps(contents), "./")
         self.assertEqual(e.exception.args, ('`node_set` is not allowed if `compartment_set` is set in input ex_linear', ))
 
-        with self.assertRaises(SonataError) as e:
-            contents = """
-            {
-                "run": { "random_seed": 12345, "dt": 0.05, "tstop": 1000 },
-                "inputs" : {
-                    "ex_linear": {
-                        "input_type": "current_clamp",
-                        "module": "linear",
-                        "amp_start": 0.15,
-                        "delay": 0,
-                        "duration": 15
-                    }
+        contents = {
+            "run": { "random_seed": 12345, "dt": 0.05, "tstop": 1000 },
+            "inputs" : {
+                "ex_linear": {
+                    "input_type": "current_clamp",
+                    "module": "linear",
+                    "amp_start": 0.15,
+                    "delay": 0,
+                    "duration": 15
                 }
             }
-            """
-            SimulationConfig(contents, "./")
+        }
+        with self.assertRaises(SonataError) as e:
+            SimulationConfig(json.dumps(contents), "./")
         self.assertEqual(e.exception.args, ('One of `node_set` or `compartment_set` need to have a value in input ex_linear', ))
 
     def test_uniform_efields_input_failures(self):
         # wrong module for extracellular stimulation input
-        with self.assertRaises(SonataError) as e:
-            contents = """
-            {
-              "run": {
-                "random_seed": 12345,
-                "dt": 0.05,
-                "tstop": 1000
-              },
-              "inputs": {
-                "ex_replay": {
-                  "input_type": "extracellular_stimulation",
-                  "module": "synapse_replay",
-                  "delay": 0.0,
-                  "duration": 40000.0,
-                  "spike_file": "replay.h5",
-                  "node_set": "Column"
-                }
-              }
+        contents = {
+          "run": {
+            "random_seed": 12345,
+            "dt": 0.05,
+            "tstop": 1000
+          },
+          "inputs": {
+            "ex_replay": {
+              "input_type": "extracellular_stimulation",
+              "module": "synapse_replay",
+              "delay": 0.0,
+              "duration": 40000.0,
+              "spike_file": "replay.h5",
+              "node_set": "Column"
             }
-            """
-            SimulationConfig(contents, "./")
+          }
+        }
+        with self.assertRaises(SonataError) as e:
+            SimulationConfig(json.dumps(contents), "./")
         self.assertEqual(e.exception.args, ("An `input` has module `synapse_replay` and input_type `extracellular_stimulation` which mismatch", ))
 
         # missing fields in spatially_uniform_e_field
+        contents = {
+            "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+            },
+            "inputs": {
+                "ex_efields": {
+                "input_type": "extracellular_stimulation",
+                "module": "spatially_uniform_e_field",
+                "delay": 0.0,
+                "duration": 40000.0,
+                "node_set": "Column",
+                "ramp_up_time": 10.0
+                }
+            }
+            }
         with self.assertRaises(SonataError) as e:
-            contents = """
-            {
-                "run": {
-                    "random_seed": 12345,
-                    "dt": 0.05,
-                    "tstop": 1000
-                },
-                "inputs": {
-                    "ex_efields": {
-                    "input_type": "extracellular_stimulation",
-                    "module": "spatially_uniform_e_field",
-                    "delay": 0.0,
-                    "duration": 40000.0,
-                    "node_set": "Column",
-                    "ramp_up_time": 10.0
-                    }
-                }
-                }
-                """
-            SimulationConfig(contents, "./")
+            SimulationConfig(json.dumps(contents), "./")
         self.assertEqual(e.exception.args, ("Could not find 'fields' in 'input ex_efields'", ))
 
         # fields must be an array in spatially_uniform_e_field
-        with self.assertRaises(SonataError) as e:
-            contents = """
-            {
-              "run": {
-                "random_seed": 12345,
-                "dt": 0.05,
-                "tstop": 1000
-              },
-              "inputs": {
-                "ex_efields": {
-                  "input_type": "extracellular_stimulation",
-                  "module": "spatially_uniform_e_field",
-                  "delay": 0.0,
-                  "duration": 40000.0,
-                  "node_set": "Column",
-                  "ramp_up_time": 10.0,
-                  "fields": {"a":1, "b":2}
-                }
-              }
+        contents = {
+          "run": {
+            "random_seed": 12345,
+            "dt": 0.05,
+            "tstop": 1000
+          },
+          "inputs": {
+            "ex_efields": {
+              "input_type": "extracellular_stimulation",
+              "module": "spatially_uniform_e_field",
+              "delay": 0.0,
+              "duration": 40000.0,
+              "node_set": "Column",
+              "ramp_up_time": 10.0,
+              "fields": {"a":1, "b":2}
             }
-            """
-            SimulationConfig(contents, "./")
+          }
+        }
+        with self.assertRaises(SonataError) as e:
+            SimulationConfig(json.dumps(contents), "./")
         self.assertEqual(e.exception.args, ("'fields' must be an array in 'input ex_efields'", ))
 
         # fields should not be empty in spatially_uniform_e_field
-        with self.assertRaises(SonataError) as e:
-            contents = """
-            {
-              "run": {
-                "random_seed": 12345,
-                "dt": 0.05,
-                "tstop": 1000
-              },
-              "inputs": {
-                "ex_efields": {
-                  "input_type": "extracellular_stimulation",
-                  "module": "spatially_uniform_e_field",
-                  "delay": 0.0,
-                  "duration": 40000.0,
-                  "node_set": "Column",
-                  "ramp_up_time": 10.0,
-                  "fields": []
-                }
-              }
+        contents = {
+          "run": {
+            "random_seed": 12345,
+            "dt": 0.05,
+            "tstop": 1000
+          },
+          "inputs": {
+            "ex_efields": {
+              "input_type": "extracellular_stimulation",
+              "module": "spatially_uniform_e_field",
+              "delay": 0.0,
+              "duration": 40000.0,
+              "node_set": "Column",
+              "ramp_up_time": 10.0,
+              "fields": []
             }
-            """
-            SimulationConfig(contents, "./")
+          }
+        }
+        with self.assertRaises(SonataError) as e:
+            SimulationConfig(json.dumps(contents), "./")
         self.assertEqual(e.exception.args, ("'fields' is empty in 'input ex_efields'", ))
 
         # Missing mandatory parameters in fields
-        with self.assertRaises(SonataError) as e:
-            contents = """
-            {
-              "run": {
-                "random_seed": 12345,
-                "dt": 0.05,
-                "tstop": 1000
-              },
-              "inputs": {
-                "ex_efields": {
-                  "input_type": "extracellular_stimulation",
-                  "module": "spatially_uniform_e_field",
-                  "delay": 0.0,
-                  "duration": 40000.0,
-                  "node_set": "Column",
-                  "ramp_up_time": 10.0,
-                  "fields": [
-                    {
-                      "Ex": 0.1,
-                      "frequency": 1.0
-                    }
-                  ]
+        contents = {
+          "run": {
+            "random_seed": 12345,
+            "dt": 0.05,
+            "tstop": 1000
+          },
+          "inputs": {
+            "ex_efields": {
+              "input_type": "extracellular_stimulation",
+              "module": "spatially_uniform_e_field",
+              "delay": 0.0,
+              "duration": 40000.0,
+              "node_set": "Column",
+              "ramp_up_time": 10.0,
+              "fields": [
+                {
+                  "Ex": 0.1,
+                  "frequency": 1.0
                 }
-              }
+              ]
             }
-            """
-            SimulationConfig(contents, "./")
+          }
+        }
+        with self.assertRaises(SonataError) as e:
+            SimulationConfig(json.dumps(contents), "./")
         self.assertEqual(e.exception.args, ("Could not find 'Ey' in 'input ex_efields fields'", ))
 
         # Must be non-negative frequency in fields
-        with self.assertRaises(SonataError) as e:
-            contents = """
-            {
-              "run": {
-                "random_seed": 12345,
-                "dt": 0.05,
-                "tstop": 1000
-              },
-              "inputs": {
-                "ex_efields": {
-                  "input_type": "extracellular_stimulation",
-                  "module": "spatially_uniform_e_field",
-                  "delay": 0.0,
-                  "duration": 40000.0,
-                  "node_set": "Column",
-                  "ramp_up_time": 10.0,
-                  "fields": [
-                    {
-                      "Ex": 0.1,
-                      "Ey": 0.2,
-                      "Ez": 0.3,
-                      "frequency": -1.0
-                    }
-                  ]
+        contents = {
+          "run": {
+            "random_seed": 12345,
+            "dt": 0.05,
+            "tstop": 1000
+          },
+          "inputs": {
+            "ex_efields": {
+              "input_type": "extracellular_stimulation",
+              "module": "spatially_uniform_e_field",
+              "delay": 0.0,
+              "duration": 40000.0,
+              "node_set": "Column",
+              "ramp_up_time": 10.0,
+              "fields": [
+                {
+                  "Ex": 0.1,
+                  "Ey": 0.2,
+                  "Ez": 0.3,
+                  "frequency": -1.0
                 }
-              }
+              ]
             }
-            """
-            SimulationConfig(contents, "./")
+          }
+        }
+        with self.assertRaises(SonataError) as e:
+            SimulationConfig(json.dumps(contents), "./")
         self.assertEqual(e.exception.args, ("'frequency' must be non-negative in 'input ex_efields fields'", ))
 
         # Frequency should be < 1000/(2*dt) (dt in ms) in fields
-        with self.assertRaises(SonataError) as e:
-            contents = """
-            {
-              "run": {
-                "random_seed": 12345,
-                "dt": 0.05,
-                "tstop": 1000
-              },
-              "inputs": {
-                "ex_efields": {
-                  "input_type": "extracellular_stimulation",
-                  "module": "spatially_uniform_e_field",
-                  "delay": 0.0,
-                  "duration": 40000.0,
-                  "node_set": "Column",
-                  "ramp_up_time": 10.0,
-                  "fields": [
-                    {
-                      "Ex": 0.1,
-                      "Ey": 0.2,
-                      "Ez": 0.3,
-                      "frequency": 1.0
-                    },
-                    {
-                      "Ex": 0.1,
-                      "Ey": 0.2,
-                      "Ez": 0.3,
-                      "frequency": 20000
-                    }
-                  ]
+        contents = {
+          "run": {
+            "random_seed": 12345,
+            "dt": 0.05,
+            "tstop": 1000
+          },
+          "inputs": {
+            "ex_efields": {
+              "input_type": "extracellular_stimulation",
+              "module": "spatially_uniform_e_field",
+              "delay": 0.0,
+              "duration": 40000.0,
+              "node_set": "Column",
+              "ramp_up_time": 10.0,
+              "fields": [
+                {
+                  "Ex": 0.1,
+                  "Ey": 0.2,
+                  "Ez": 0.3,
+                  "frequency": 1.0
+                },
+                {
+                  "Ex": 0.1,
+                  "Ey": 0.2,
+                  "Ez": 0.3,
+                  "frequency": 20000
                 }
-              }
+              ]
             }
-            """
-            SimulationConfig(contents, "./")
+          }
+        }
+        with self.assertRaises(SonataError) as e:
+            SimulationConfig(json.dumps(contents), "./")
         self.assertEqual(e.exception.args, (
                 "'frequency 20000' must be less than the Nyquist frequency of the simulation 1/(2*dt) = 10000 in 'input ex_efields fields'",
                 ))
@@ -1078,218 +1048,210 @@ class TestSimulationConfig(unittest.TestCase):
 
     def test_seclamp_failures(self):
         # SEClamp with delay
-        with self.assertRaises(SonataError) as e:
-            contents = """
-            {
-                "run": {
-                    "random_seed": 12345,
-                    "dt": 0.05,
-                    "tstop": 1000
-                },
-                "inputs": {
-                    "seclamp": {
-                        "input_type": "voltage_clamp",
-                        "node_set": "Column",
-                        "module": "seclamp",
-                        "delay": 0.01,
-                        "duration": 100.0,
-                        "voltage": 10
-                    }
+        contents = {
+            "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+            },
+            "inputs": {
+                "seclamp": {
+                    "input_type": "voltage_clamp",
+                    "node_set": "Column",
+                    "module": "seclamp",
+                    "delay": 0.01,
+                    "duration": 100.0,
+                    "voltage": 10
                 }
             }
-            """
-            SimulationConfig(contents, "./")
+        }
+        with self.assertRaises(SonataError) as e:
+            SimulationConfig(json.dumps(contents), "./")
         self.assertEqual(e.exception.args, (
                 "`delay` is not applicable to SEClamp, must be zero in input seclamp",
                 ))
 
         # SEClamp with different length of voltage_levels and duration_levels
-        with self.assertRaises(SonataError) as e:
-            contents = """
-            {
-                "run": {
-                    "random_seed": 12345,
-                    "dt": 0.05,
-                    "tstop": 1000
-                },
-              "inputs": {
-                    "seclamp": {
-                        "input_type": "voltage_clamp",
-                        "node_set": "Column",
-                        "module": "seclamp",
-                        "delay": 0.0,
-                        "duration": 100.0,
-                        "voltage": 10,
-                        "duration_levels": [10.0, 20.0],
-                        "voltage_levels": [10.0, 20.0, 30.0]
-                    }
+        contents = {
+            "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+            },
+          "inputs": {
+                "seclamp": {
+                    "input_type": "voltage_clamp",
+                    "node_set": "Column",
+                    "module": "seclamp",
+                    "delay": 0.0,
+                    "duration": 100.0,
+                    "voltage": 10,
+                    "duration_levels": [10.0, 20.0],
+                    "voltage_levels": [10.0, 20.0, 30.0]
                 }
             }
-            """
-            SimulationConfig(contents, "./")
+        }
+        with self.assertRaises(SonataError) as e:
+            SimulationConfig(json.dumps(contents), "./")
         self.assertEqual(e.exception.args, ("`duration_levels` and `voltage_levels` must have the same size in input seclamp", ))
 
         # SEClamp with duration_levels that contains negative values
-        with self.assertRaises(SonataError) as e:
-            contents = """
-            {
-              "run": {
-                "random_seed": 12345,
-                "dt": 0.05,
-                "tstop": 1000
-              },
-              "inputs" : {
-                "seclamp": {
-                    "input_type": "voltage_clamp",
-                    "node_set": "Column",
-                    "module": "seclamp",
-                    "delay": 0.0,
-                    "duration": 100.0,
-                    "voltage": 10,
-                    "duration_levels": [-0.00000005, 10.0, 20.0],
-                    "voltage_levels": [10.0, 20.0, 30.0]
-                }
-              }
+        contents = {
+          "run": {
+            "random_seed": 12345,
+            "dt": 0.05,
+            "tstop": 1000
+          },
+          "inputs" : {
+            "seclamp": {
+                "input_type": "voltage_clamp",
+                "node_set": "Column",
+                "module": "seclamp",
+                "delay": 0.0,
+                "duration": 100.0,
+                "voltage": 10,
+                "duration_levels": [-0.00000005, 10.0, 20.0],
+                "voltage_levels": [10.0, 20.0, 30.0]
             }
-            """
-            SimulationConfig(contents, "./")
+          }
+        }
+        with self.assertRaises(SonataError) as e:
+            SimulationConfig(json.dumps(contents), "./")
         self.assertEqual(e.exception.args, ("`duration_levels` must contain only non-negative values in input seclamp",))
 
         # SEClamp with empty duration_levels and voltage_levels considered as null by nlohnman::json
-        with self.assertRaises(RuntimeError) as e:
-            contents = """
-            {
-              "run": {
-                "random_seed": 12345,
-                "dt": 0.05,
-                "tstop": 1000
-              },
-              "inputs" : {
-                "seclamp": {
-                    "input_type": "voltage_clamp",
-                    "node_set": "Column",
-                    "module": "seclamp",
-                    "delay": 0.0,
-                    "duration": 100.0,
-                    "voltage": 10,
-                    "duration_levels": [],
-                    "voltage_levels": []
-                }
-              }
+        contents = {
+          "run": {
+            "random_seed": 12345,
+            "dt": 0.05,
+            "tstop": 1000
+          },
+          "inputs" : {
+            "seclamp": {
+                "input_type": "voltage_clamp",
+                "node_set": "Column",
+                "module": "seclamp",
+                "delay": 0.0,
+                "duration": 100.0,
+                "voltage": 10,
+                "duration_levels": [],
+                "voltage_levels": []
             }
-            """
-            SimulationConfig(contents, "./")
+          }
+        }
+        with self.assertRaises(RuntimeError) as e:
+            SimulationConfig(json.dumps(contents), "./")
         self.assertIn("type must be array, but is null", e.exception.args[0])
 
     def test_duplicate_key_name_rejection(self):
         # duplicate report section key
-        with self.assertRaises(SonataError) as e:
-            contents = """
-                {
-                    "reports": {
-                            "test_dup": {
-                            "cells": "dummy",
-                            "sections": "soma",
-                            "type": "compartment",
-                            "variable_name": "v",
-                            "dt": 0.05,
-                            "start_time": 0,
-                            "end_time": 500
-                        },
+        contents = """
+            {
+                "reports": {
                         "test_dup": {
-                            "cells": "dummy",
-                            "sections": "all",
-                            "type": "compartment",
-                            "variable_name": "v",
-                            "dt": 0.05,
-                            "start_time": 0,
-                            "end_time": 500
-                        }
+                        "cells": "dummy",
+                        "sections": "soma",
+                        "type": "compartment",
+                        "variable_name": "v",
+                        "dt": 0.05,
+                        "start_time": 0,
+                        "end_time": 500
+                    },
+                    "test_dup": {
+                        "cells": "dummy",
+                        "sections": "all",
+                        "type": "compartment",
+                        "variable_name": "v",
+                        "dt": 0.05,
+                        "start_time": 0,
+                        "end_time": 500
                     }
                 }
-                """
+            }
+            """
+        with self.assertRaises(SonataError) as e:
             SimulationConfig(contents, "./")
         self.assertEqual(e.exception.args, ("Duplicate key 'test_dup' in 'reports'",))
 
         # duplicate input section key
-        with self.assertRaises(SonataError) as e:
-            contents = """
-            {
-              "inputs": {
-                  "spikeReplay_dup": {
-                      "module": "synapse_replay",
-                      "input_type": "spikes",
-                      "spike_file": "input.h5",
-                      "delay": 0,
-                      "duration": 1000,
-                      "node_set": "nodesPopA"
-                  },
-                  "spikeReplay_dup": {
-                      "module": "synapse_replay",
-                      "input_type": "spikes",
-                      "spike_file": "input.h5",
-                      "delay": 0,
-                      "duration": 1000,
-                      "node_set": "nodesPopA"
-                    }
+        contents = """
+        {
+          "inputs": {
+              "spikeReplay_dup": {
+                  "module": "synapse_replay",
+                  "input_type": "spikes",
+                  "spike_file": "input.h5",
+                  "delay": 0,
+                  "duration": 1000,
+                  "node_set": "nodesPopA"
+              },
+              "spikeReplay_dup": {
+                  "module": "synapse_replay",
+                  "input_type": "spikes",
+                  "spike_file": "input.h5",
+                  "delay": 0,
+                  "duration": 1000,
+                  "node_set": "nodesPopA"
                 }
             }
-            """
+        }
+        """
+        with self.assertRaises(SonataError) as e:
             SimulationConfig(contents, "./")
         self.assertEqual(e.exception.args,("Duplicate key 'spikeReplay_dup' in 'inputs'",))
 
         #duplicate connection_override name
-        with self.assertRaises(SonataError) as e:
-            contents = """
+        contents = """
+        {
+          "run": {
+            "dt": 0.05,
+            "tstop": 1000,
+            "random_seed": 0
+          },
+          "connection_overrides": [
             {
-              "run": {
-                "dt": 0.05,
-                "tstop": 1000,
-                "random_seed": 0
-              },
-              "connection_overrides": [
-                {
-                    "name": "dup_conn",
-                    "source": "A",
-                    "target": "B",
-                    "synapse_configure": "%s.dummy=1"
-                },
-                {
-                    "name": "dup_conn",
-                    "source": "A",
-                    "target": "B",
-                    "synapse_configure": "%s.dummy=1"
-                }
-              ]
+                "name": "dup_conn",
+                "source": "A",
+                "target": "B",
+                "synapse_configure": "%s.dummy=1"
+            },
+            {
+                "name": "dup_conn",
+                "source": "A",
+                "target": "B",
+                "synapse_configure": "%s.dummy=1"
             }
-            """
+          ]
+        }
+        """
+        with self.assertRaises(SonataError) as e:
             SimulationConfig(contents, "./")
         self.assertEqual(e.exception.args,("Duplicate name 'dup_conn' in 'connection_overrides'",))
-        
+
         #duplicate condition modification name
-        with self.assertRaises(SonataError) as e:
-            contents = """
-            {
-              "run": {
-                "dt": 0.05,
-                "tstop": 1000,
-                "random_seed": 0
+        contents = """
+        {
+          "run": {
+            "dt": 0.05,
+            "tstop": 1000,
+            "random_seed": 0
+          },
+          "conditions": {
+            "modifications": [
+              {
+                "name": "TTXdup",
+                "node_set": "single",
+                "type": "ttx"
               },
-              "conditions": {
-                "modifications": [
-                  {
-                    "name": "TTXdup",
-                    "node_set": "single",
-                    "type": "ttx"
-                  },
-                  {
-                    "name": "TTXdup",
-                    "node_set": "single",
-                    "type": "ttx"
-                  }
-                ]
+              {
+                "name": "TTXdup",
+                "node_set": "single",
+                "type": "ttx"
               }
-            }
-            """
+            ]
+          }
+        }
+        """
+        with self.assertRaises(SonataError) as e:
             SimulationConfig(contents, "./")
         self.assertEqual(e.exception.args,("Duplicate name 'TTXdup' in 'modifications'",))

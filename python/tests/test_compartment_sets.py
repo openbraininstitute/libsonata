@@ -15,14 +15,14 @@ PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),
 
 class TestCompartmentLocation(unittest.TestCase):
     def setUp(self):
-        self.json = '''{
+        self.json = json.dumps({
             "population": "pop0",
             "compartment_set": [
                 [4, 40, 0.9],
                 [4, 41, 0.9],
                 [5, 30, 0.75]
             ]
-        }'''
+        })
         self.cs = CompartmentSet(self.json)
     def test_constructor_from_values(self):
         loc = self.cs[0]
@@ -73,7 +73,7 @@ class TestCompartmentLocation(unittest.TestCase):
 
 class TestCompartmentSet(unittest.TestCase):
     def setUp(self):
-        self.json = '''{
+        self.json = json.dumps({
             "population": "pop0",
             "compartment_set": [
                 [1, 10, 0.5],
@@ -81,7 +81,7 @@ class TestCompartmentSet(unittest.TestCase):
                 [2, 20, 0.26],
                 [4, 20, 0.25]
             ]
-        }'''
+        })
         self.cs = CompartmentSet(self.json)
 
     def test_population_property(self):
@@ -140,14 +140,14 @@ class TestCompartmentSet(unittest.TestCase):
         self.assertFalse(cs1 != cs2)
 
         # Slightly modify JSON to create a different object
-        json_diff = '''{
+        json_diff = json.dumps({
             "population": "pop0",
             "compartment_set": [
                 [1, 10, 0.5],
                 [2, 20, 0.25],
                 [3, 30, 0.75]
             ]
-        }'''
+        })
         cs3 = CompartmentSet(json_diff)
         self.assertNotEqual(cs1, cs3)
         self.assertFalse(cs1 == cs3)
