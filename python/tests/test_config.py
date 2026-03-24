@@ -1156,9 +1156,9 @@ class TestSimulationConfig(unittest.TestCase):
                     "node_set": "Column",
                     "module": "seclamp",
                     "delay": 0.0,
-                    "duration": 100.0,
+                    "duration": 10.0,
                     "voltage": 10,
-                    "duration_levels": [20.55, 44.65, 55.35],
+                    "duration_levels": [5.000001, 3.0, 2.0],
                     "voltage_levels": [10.0, 20.0, 30.0]
                 }
             }
