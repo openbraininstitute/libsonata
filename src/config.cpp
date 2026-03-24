@@ -636,6 +636,14 @@ SimulationConfig::Input parseInputModule(const nlohmann::json& valueIt,
             throw SonataError("`duration_levels` must contain only non-negative values in " +
                               debugStr);
         }
+        double sum = std::accumulate(ret.durationLevels.begin(), ret.durationLevels.end(), 0.0);
+        double tol = std::numeric_limits<double>::epsilon() *
+                     std::max(std::abs(sum), std::abs(ret.duration));
+        if (sum > ret.duration + tol) {
+            throw SonataError("Sum of `duration_levels` must not exceed the total `duration` in " +
+                              debugStr);
+        }
+
         return ret;
     }
     case Module::ornstein_uhlenbeck: {

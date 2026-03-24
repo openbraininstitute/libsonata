@@ -1143,6 +1143,30 @@ class TestSimulationConfig(unittest.TestCase):
             SimulationConfig(json.dumps(contents), "./")
         self.assertIn("type must be array, but is null", e.exception.args[0])
 
+        # SEClamp with duration_levels that exceed the total duration
+        contents = {
+            "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+            },
+            "inputs" : {
+                "seclamp": {
+                    "input_type": "voltage_clamp",
+                    "node_set": "Column",
+                    "module": "seclamp",
+                    "delay": 0.0,
+                    "duration": 100.0,
+                    "voltage": 10,
+                    "duration_levels": [20.55, 44.65, 55.35],
+                    "voltage_levels": [10.0, 20.0, 30.0]
+                }
+            }
+        }
+        with self.assertRaises(SonataError) as e:
+            SimulationConfig(json.dumps(contents), "./")
+        self.assertEqual(e.exception.args, ("Sum of `duration_levels` must not exceed the total `duration` in input seclamp",))
+
     def test_duplicate_key_name_rejection(self):
         # duplicate report section key
         contents = """
