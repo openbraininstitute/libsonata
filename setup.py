@@ -99,10 +99,6 @@ install_requires = [
     "numpy>=1.17.3",
 ]
 
-setup_requires = [
-    "setuptools_scm",
-]
-
 with open('README.rst') as f:
     README = f.read()
 
@@ -118,7 +114,6 @@ setup(
     cmdclass={'build_ext': CMakeBuild,
               },
     zip_safe=False,
-    setup_requires=setup_requires,
     install_requires=install_requires,
     extras_require={
         'docs': ['sphinx-bluebrain-theme'],

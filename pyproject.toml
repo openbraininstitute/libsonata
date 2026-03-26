@@ -3,6 +3,7 @@ requires = [
     "cmake",
     "oldest-supported-numpy",
     "setuptools",
+    "setuptools_scm",
     "wheel",
 ]
 build-backend = "setuptools.build_meta"
