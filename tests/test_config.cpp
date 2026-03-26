@@ -1684,6 +1684,30 @@ TEST_CASE("SimulationConfig") {
                     "`delay` is not applicable to SEClamp, must be zero in input seclamp"));
         }
         {
+            // SEClamp with negative duration
+            auto contents = R"({
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs" : {
+                "seclamp": {
+                    "input_type": "voltage_clamp",
+                    "node_set": "Column",
+                    "module": "seclamp",
+                    "duration": -0.5,
+                    "delay": 0,
+                    "voltage": 10
+                }
+              }
+            })";
+            CHECK_THROWS_MATCHES(SimulationConfig(contents, "./"),
+                                 SonataError,
+                                 Catch::Matchers::Message(
+                                     "`duration` must be non-negative in input seclamp"));
+        }
+        {
             // SEClamp with different length of voltage_levels and duration_levels
             auto contents = R"({
               "run": {

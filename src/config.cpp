@@ -464,6 +464,9 @@ SimulationConfig::Input parseInputModule(const nlohmann::json& valueIt,
             throw SonataError("One of `node_set` or `compartment_set` need to have a value in " +
                               debugStr);
         }
+        if (input.duration < 0) {
+            throw SonataError("`duration` must be non-negative in " + debugStr);
+        }
     };
 
     switch (module) {
@@ -637,8 +640,7 @@ SimulationConfig::Input parseInputModule(const nlohmann::json& valueIt,
                               debugStr);
         }
         double sum = std::accumulate(ret.durationLevels.begin(), ret.durationLevels.end(), 0.0);
-        double tol = std::numeric_limits<double>::epsilon() *
-                     std::max(std::abs(sum), std::abs(ret.duration));
+        double tol = std::numeric_limits<double>::epsilon() * std::max(sum, ret.duration);
         if (sum > ret.duration + tol) {
             throw SonataError("Sum of `duration_levels` must not exceed the total `duration` in " +
                               debugStr);

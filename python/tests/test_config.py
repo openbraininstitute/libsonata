@@ -830,6 +830,24 @@ class TestSimulationConfig(unittest.TestCase):
             SimulationConfig(json.dumps(contents), "./")
         self.assertEqual(e.exception.args, ('One of `node_set` or `compartment_set` need to have a value in input ex_linear', ))
 
+        # test negative duration in any input
+        contents = {
+            "run": { "random_seed": 12345, "dt": 0.05, "tstop": 1000 },
+            "inputs" : {
+                "ex_linear": {
+                    "input_type": "current_clamp",
+                    "module": "linear",
+                    "amp_start": 0.15,
+                    "delay": 0,
+                    "node_set": "ABC",
+                    "duration": -0.0001
+                }
+            }
+        }
+        with self.assertRaises(SonataError) as e:
+            SimulationConfig(json.dumps(contents), "./")
+        self.assertEqual(e.exception.args, ('`duration` must be non-negative in input ex_linear', ))
+
     def test_uniform_efields_input_failures(self):
         # wrong module for extracellular stimulation input
         contents = {
