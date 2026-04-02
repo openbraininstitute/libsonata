@@ -1,3 +1,4 @@
+#include "hdf5_reader.hpp"
 #include <bbp/sonata/report_reader.h>
 #include <fmt/format.h>
 
@@ -101,7 +102,7 @@ SpikeReader::SpikeReader(std::string filename)
     : filename_(std::move(filename)) { }
 
 std::vector<std::string> SpikeReader::getPopulationNames() const {
-    HighFive::File file(filename_, HighFive::File::ReadOnly);
+    HighFive::File file = openHDF5withoutLock(filename_);
     return file.getGroup("/spikes").listObjectNames();
 }
 
@@ -202,7 +203,8 @@ std::string SpikeReader::Population::getTimeUnits() const {
 
 SpikeReader::Population::Population(const std::string& filename,
                                     const std::string& populationName) {
-    HighFive::File file(filename, HighFive::File::ReadOnly);
+    HighFive::File file = openHDF5withoutLock(filename);
+
     const auto pop_path = std::string("/spikes/") + populationName;
     const auto pop = file.getGroup(pop_path);
     auto& node_ids = spike_times_.node_ids;
@@ -248,7 +250,7 @@ void SpikeReader::Population::filterTimestamp(Spikes& spikes, double tstart, dou
 
 template <typename T>
 ReportReader<T>::ReportReader(const std::string& filename)
-    : file_(filename, HighFive::File::ReadOnly) { }
+    : file_(openHDF5withoutLock(filename)) { }
 
 template <typename T>
 std::vector<std::string> ReportReader<T>::getPopulationNames() const {

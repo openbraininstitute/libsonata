@@ -20,6 +20,7 @@
 
 #include <fmt/format.h>
 
+#include "hdf5_reader.hpp"
 #include "read_bulk.hpp"
 #include <highfive/H5File.hpp>
 
@@ -179,7 +180,7 @@ struct PopulationStorage<Population>::Impl {
          const Hdf5Reader& hdf5_reader)
         : h5FilePath(_h5FilePath)
         , csvFilePath(_csvFilePath)
-        , h5File(h5FilePath)
+        , h5File(bbp::sonata::openHDF5withoutLock(h5FilePath))
         , h5Root(h5File.getGroup(fmt::format("/{}s", Population::ELEMENT)))
         , hdf5_reader(hdf5_reader) {
         if (!csvFilePath.empty()) {
