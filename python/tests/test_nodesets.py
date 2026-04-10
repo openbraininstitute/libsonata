@@ -51,6 +51,10 @@ class TestNodePopulationNodeSet(unittest.TestCase):
     def setUp(self):
         self.population = NodeStorage(os.path.join(PATH, 'nodes1.h5')).open_population('nodes-A')
 
+    def test_population_name(self):
+        sel = NodeSets('{}').materialize("nodes-A", self.population)
+        self.assertEqual(sel, Selection(((0, 6),)))
+
     def test_BasicScalarInt(self):
         sel = NodeSets('{ "NodeSet0": { "attr-Y": 21 } }').materialize("NodeSet0", self.population)
         self.assertEqual(sel, Selection(((0, 1),)))
