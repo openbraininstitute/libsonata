@@ -415,7 +415,7 @@ TEST_CASE("SimulationConfig") {
 
         const auto network = fs::absolute(basePath / fs::path("circuit_config.json"));
         CHECK(config.getNetwork() == network.lexically_normal());
-        CHECK(config.getTargetSimulator() == SimulationConfig::SimulatorType::CORENEURON);
+        CHECK(config.getTargetSimulator() == SimulatorType::CORENEURON);
         const auto circuit_conf = CircuitConfig::fromFile(config.getNetwork());
         CHECK(config.getNodeSetsFile() == circuit_conf.getNodeSetsPath());
         CHECK(config.getNodeSet() == "Column");
@@ -730,7 +730,7 @@ TEST_CASE("SimulationConfig") {
         const auto config = SimulationConfig(contents, basePath);
         const auto network = fs::absolute(basePath / "circuit" / fs::path("circuit_config.json"));
         CHECK(config.getNetwork() == network.lexically_normal());
-        CHECK(config.getTargetSimulator() == SimulationConfig::SimulatorType::NEURON);  // default
+        CHECK(config.getTargetSimulator() == SimulatorType::NEURON);  // default
         CHECK(config.getNodeSetsFile() == "");  // network file is not readable so default empty
         CHECK(config.getNodeSet() == nonstd::nullopt);  // default
         CHECK(config.getRun().stimulusSeed == 0);

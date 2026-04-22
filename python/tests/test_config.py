@@ -2,8 +2,13 @@ import json
 import os
 import unittest
 
-from libsonata import (CircuitConfig, CircuitConfigStatus, SimulationConfig, SonataError,
-                       )
+from libsonata import (
+    CircuitConfig,
+    CircuitConfigStatus,
+    SimulationConfig,
+    SonataError,
+    SimulatorType,
+)
 
 
 PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -29,6 +34,14 @@ class TestCircuitConfig(unittest.TestCase):
         self.assertEqual(self.config.edge_population('edges-AB').name, 'edges-AB')
 
         self.assertEqual(self.config.config_status, CircuitConfigStatus.complete)
+
+        self.assertEqual(self.config.target_simulator, SimulatorType.CORENEURON)
+
+        #default to NEURON when missing `target_simulator`
+        contents = json.loads(self.config.expanded_json)
+        del contents["target_simulator"]
+        config = CircuitConfig(json.dumps(contents), './')
+        self.assertEqual(config.target_simulator, SimulatorType.NEURON)
 
     def test_expanded_json(self):
         config = json.loads(self.config.expanded_json)
@@ -1036,7 +1049,7 @@ class TestSimulationConfig(unittest.TestCase):
                 ))
 
     def test_target_simulator_types(self):
-        contents = {
+        contents: dict = {
             "run": {
                 "random_seed": 12345,
                 "dt": 0.05,
@@ -1044,7 +1057,11 @@ class TestSimulationConfig(unittest.TestCase):
                 }
             }
 
-        # default to NEURON
+        # default to NEURON, since no `network` exists to check
+        res = SimulationConfig(json.dumps(contents), "./")
+        self.assertEqual(res.target_simulator, SimulationConfig.SimulatorType.NEURON)
+
+        # default to NEURON, since no `network` exists to check
         res = SimulationConfig(json.dumps(contents), "./")
         self.assertEqual(res.target_simulator, SimulationConfig.SimulatorType.NEURON)
 
@@ -1063,6 +1080,12 @@ class TestSimulationConfig(unittest.TestCase):
         contents["target_simulator"] = "fake-simulator"
         with self.assertRaises(SonataError):
             self.assertRaises(SimulationConfig(json.dumps(contents), "./"))
+
+        # when it doesn't exist in the simulation_config, fallback to circuit_config
+        contents["network"] = "config/circuit_config.json"
+        del contents["target_simulator"]
+        res = SimulationConfig(json.dumps(contents), PATH)
+        self.assertEqual(res.target_simulator, SimulationConfig.SimulatorType.CORENEURON)
 
     def test_seclamp_failures(self):
         # SEClamp with delay

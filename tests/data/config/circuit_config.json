@@ -1,5 +1,5 @@
 {
-  "target_simulator": "NEURON",
+  "target_simulator": "CORENEURON",
   "manifest": {
     "$BASE_DIR": "./",
     "$COMPONENT_DIR": "$BASE_DIR",
