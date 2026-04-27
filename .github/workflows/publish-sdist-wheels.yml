@@ -85,7 +85,7 @@ jobs:
         with:
           name: dist-wheels-${{ matrix.os }}
           path: dist/*.whl
-          retention-days: 14
+          retention-days: 7
 
   build_sdist:
     name: Build sdist
@@ -116,7 +116,7 @@ jobs:
         with:
           name: dist-sdist
           path: dist/*.tar.gz
-          retention-days: 14
+          retention-days: 7
 
   upload_artifacts:
     name: Upload wheels to PyPI
