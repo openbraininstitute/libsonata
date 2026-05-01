@@ -649,25 +649,25 @@ TEST_CASE("SimulationConfig") {
             CHECK(fields[0].frequency == 0.);
             CHECK(fields[0].phase == 0.);
         }
-        CHECK(config.listInputNames() == std::set<std::string>{"ex_abs_shotnoise",
-                                                               "ex_hyperpolarizing",
-                                                               "ex_linear",
-                                                               "ex_linear_compartment_set",
-                                                               "ex_noise_mean",
-                                                               "ex_noise_meanpercent",
-                                                               "ex_OU",
-                                                               "ex_pulse",
-                                                               "ex_rel_linear",
-                                                               "ex_rel_OU",
-                                                               "ex_rel_shotnoise",
-                                                               "ex_replay",
-                                                               "ex_seclamp",
-                                                               "ex_shotnoise",
-                                                               "ex_sinusoidal",
-                                                               "ex_sinusoidal_default_dt",
-                                                               "ex_subthreshold",
-                                                               "ex_efields",
-                                                               "ex_efields_noramp"});
+        CHECK(config.listInputNames() == std::vector<std::string>{"ex_linear",
+                                                                  "ex_linear_compartment_set",
+                                                                  "ex_rel_linear",
+                                                                  "ex_pulse",
+                                                                  "ex_sinusoidal",
+                                                                  "ex_sinusoidal_default_dt",
+                                                                  "ex_subthreshold",
+                                                                  "ex_shotnoise",
+                                                                  "ex_hyperpolarizing",
+                                                                  "ex_seclamp",
+                                                                  "ex_noise_meanpercent",
+                                                                  "ex_noise_mean",
+                                                                  "ex_rel_shotnoise",
+                                                                  "ex_abs_shotnoise",
+                                                                  "ex_replay",
+                                                                  "ex_OU",
+                                                                  "ex_rel_OU",
+                                                                  "ex_efields",
+                                                                  "ex_efields_noramp"});
 
         auto overrides = config.getConnectionOverrides();
         CHECK(overrides[0].name == "ConL3Exc-Uni");
@@ -1960,7 +1960,7 @@ TEST_CASE("SimulationConfig") {
               "ABC": 1,
                "mechanisms": {
                   "ABC": {"A":1},
-                  "ABC": {"A":1},
+                  "ABC": {"A":1}
                 }
               }
           })";

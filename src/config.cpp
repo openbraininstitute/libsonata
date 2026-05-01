@@ -1179,7 +1179,8 @@ class SimulationConfig::Parser
 {
   public:
     Parser(const std::string& content, const std::string& basePath)
-        : _basePath(fs::absolute(fs::path(basePath)).lexically_normal()) {
+        : _basePath(fs::absolute(fs::path(basePath)).lexically_normal())
+        , _orderedJson(nlohmann::ordered_json::parse(content)) {
         // Parse manifest section and expand JSON string
         const auto rawJson = parseJSONRejectDuplicateKeys(content);
         const auto vars = replaceVariables(readVariables(rawJson));
@@ -1540,8 +1541,24 @@ class SimulationConfig::Parser
         return _json.dump();
     }
 
+    std::vector<std::string> parseInputNames() const {
+        std::vector<std::string> result;
+        const auto it = _orderedJson.find("inputs");
+        if (it == _orderedJson.end()) {
+            return result;
+        }
+        std::unordered_set<std::string> seen;
+        for (auto kv = it->begin(); kv != it->end(); ++kv) {
+            if (seen.insert(kv.key()).second) {
+                result.push_back(kv.key());
+            }
+        }
+        return result;
+    }
+
   private:
     const fs::path _basePath;
+    const nlohmann::ordered_json _orderedJson;
     nlohmann::json _json;
 };
 
@@ -1555,6 +1572,7 @@ SimulationConfig::SimulationConfig(const std::string& content, const std::string
     _reports = parser.parseReports(_output);
     _network = parser.parseNetwork();
     _inputs = parser.parseInputs(_run.dt);
+    _inputNames = parser.parseInputNames();
     _connection_overrides = parser.parseConnectionOverrides();
     _targetSimulator = parser.parseTargetSimulator();
     _nodeSetsFile = parser.parseNodeSetsFile();
@@ -1607,8 +1625,8 @@ const SimulationConfig::Report& SimulationConfig::getReport(const std::string& n
     return it->second;
 }
 
-std::set<std::string> SimulationConfig::listInputNames() const {
-    return getMapKeys(_inputs);
+const std::vector<std::string>& SimulationConfig::listInputNames() const noexcept {
+    return _inputNames;
 }
 
 const SimulationConfig::Input& SimulationConfig::getInput(const std::string& name) const {

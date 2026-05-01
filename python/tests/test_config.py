@@ -492,26 +492,26 @@ class TestSimulationConfig(unittest.TestCase):
         self.assertEqual(self.config.node_set, 'Column')
 
         self.assertEqual(self.config.list_input_names,
-                         {"ex_abs_shotnoise",
-                          "ex_hyperpolarizing",
-                          "ex_linear",
+                         ["ex_linear",
                           "ex_linear_compartment_set",
-                          "ex_noise_mean",
-                          "ex_noise_meanpercent",
-                          "ex_OU",
-                          "ex_pulse",
                           "ex_rel_linear",
-                          "ex_rel_OU",
-                          "ex_rel_shotnoise",
-                          "ex_replay",
-                          "ex_seclamp",
-                          "ex_shotnoise",
+                          "ex_pulse",
                           "ex_sinusoidal",
                           "ex_sinusoidal_default_dt",
                           "ex_subthreshold",
+                          "ex_shotnoise",
+                          "ex_hyperpolarizing",
+                          "ex_seclamp",
+                          "ex_noise_meanpercent",
+                          "ex_noise_mean",
+                          "ex_rel_shotnoise",
+                          "ex_abs_shotnoise",
+                          "ex_replay",
+                          "ex_OU",
+                          "ex_rel_OU",
                           "ex_efields",
                           "ex_efields_noramp"
-                          })
+                          ])
 
         self.assertEqual(self.config.input('ex_linear').input_type.name, 'current_clamp')
         self.assertEqual(self.config.input('ex_linear').module.name, 'linear')
