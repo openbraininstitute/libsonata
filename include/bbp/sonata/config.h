@@ -508,7 +508,7 @@ class SONATA_API SimulationConfig
             relative_ornstein_uhlenbeck,
             spatially_uniform_e_field,
             poisson
-            
+
         };
 
         enum class InputType {
@@ -879,9 +879,9 @@ class SONATA_API SimulationConfig
     const Report& getReport(const std::string& name) const;
 
     /**
-     * Returns the names of the inputs
+     * Returns the names of the inputs in the order they appear in the config
      */
-    std::set<std::string> listInputNames() const;
+    const std::vector<std::string>& listInputNames() const noexcept;
 
     /**
      * Returns the given input parameters.
@@ -958,6 +958,8 @@ class SONATA_API SimulationConfig
     std::string _network;
     // List of inputs
     InputMap _inputs;
+    // Input names in config-file order
+    std::vector<std::string> _inputNames;
     // List of connections
     std::vector<ConnectionOverride> _connection_overrides;
     // Name of simulator
