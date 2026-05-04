@@ -11,7 +11,9 @@
 
 #include <bbp/sonata/config.h>
 
+#include <algorithm>
 #include <bbp/sonata/optional.hpp>
+#include <iterator>
 #include <regex>
 #include <set>
 #include <string>
@@ -1542,16 +1544,16 @@ class SimulationConfig::Parser
     }
 
     std::vector<std::string> parseInputNames() const {
-        std::vector<std::string> result;
         const auto it = _orderedJson.find("inputs");
         if (it == _orderedJson.end()) {
-            return result;
+            return {};
         }
-        std::unordered_set<std::string> seen;
-        for (auto kv = it->begin(); kv != it->end(); ++kv) {
-            if (seen.insert(kv.key()).second) {
-                result.push_back(kv.key());
-            }
+        // No need to check for duplicate keys here: parseJSONRejectDuplicateKeys()
+        // already throws on duplicates during construction, before this is called.
+        std::vector<std::string> result;
+        result.reserve(it->size());
+        for (const auto& kv : it->items()) {
+            result.push_back(kv.key());
         }
         return result;
     }
