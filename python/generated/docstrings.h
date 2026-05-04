@@ -1537,9 +1537,11 @@ R"doc(Returns the name of simulator, default = NEURON
 Throws:
     SonataError if the given value is neither NEURON nor CORENEURON)doc";
 
+static const char *__doc_bbp_sonata_SimulationConfig_inputNames = R"doc()doc";
+
 static const char *__doc_bbp_sonata_SimulationConfig_inputs = R"doc()doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_listInputNames = R"doc(Returns the names of the inputs)doc";
+static const char *__doc_bbp_sonata_SimulationConfig_listInputNames = R"doc(Returns the names of the inputs in the order they appear in the config)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_listReportNames = R"doc(Returns the names of the reports)doc";
 
