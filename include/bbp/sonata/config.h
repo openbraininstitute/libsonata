@@ -939,7 +939,7 @@ class SONATA_API SimulationConfig
     std::string _network;
     // List of inputs
     InputMap _inputs;
-    // Input names in config-file order (no duplicates)
+    // Input names in config-file order
     std::vector<std::string> _inputNames;
     // List of connections
     std::vector<ConnectionOverride> _connection_overrides;

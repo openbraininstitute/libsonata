@@ -11,9 +11,7 @@
 
 #include <bbp/sonata/config.h>
 
-#include <algorithm>
 #include <bbp/sonata/optional.hpp>
-#include <iterator>
 #include <regex>
 #include <set>
 #include <string>
