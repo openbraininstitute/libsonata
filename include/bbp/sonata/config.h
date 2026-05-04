@@ -58,6 +58,11 @@ struct CommonPopulationProperties {
     std::string biophysicalNeuronModelsDir;
 
     /**
+     * Path to the template templates for point neurons
+     */
+    std::string pointNeuronModelsDir;
+
+    /**
      * Path to the directory containing the morphologies
      */
     std::string morphologiesDir;
@@ -238,6 +243,7 @@ class SONATA_API CircuitConfig
         std::string morphologiesDir;
         std::unordered_map<std::string, std::string> alternateMorphologiesDir;
         std::string biophysicalNeuronModelsDir;
+        std::string pointNeuronModelsDir;
 
         nonstd::optional<std::string> vasculatureFile{nonstd::nullopt};
         nonstd::optional<std::string> vasculatureMesh{nonstd::nullopt};

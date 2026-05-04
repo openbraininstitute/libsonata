@@ -46,6 +46,8 @@ static const char *__doc_bbp_sonata_CircuitConfig_Components_microdomainsFile = 
 
 static const char *__doc_bbp_sonata_CircuitConfig_Components_morphologiesDir = R"doc()doc";
 
+static const char *__doc_bbp_sonata_CircuitConfig_Components_pointNeuronModelsDir = R"doc()doc";
+
 static const char *__doc_bbp_sonata_CircuitConfig_Components_spineMorphologiesDir = R"doc()doc";
 
 static const char *__doc_bbp_sonata_CircuitConfig_Components_vasculatureFile = R"doc()doc";
@@ -163,6 +165,8 @@ access the contents of the file. Instead use 'libsonata' to read this
 file.)doc";
 
 static const char *__doc_bbp_sonata_CommonPopulationProperties_morphologiesDir = R"doc(Path to the directory containing the morphologies)doc";
+
+static const char *__doc_bbp_sonata_CommonPopulationProperties_pointNeuronModelsDir = R"doc(Path to the template templates for point neurons)doc";
 
 static const char *__doc_bbp_sonata_CommonPopulationProperties_type = R"doc(Population type)doc";
 

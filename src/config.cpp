@@ -915,6 +915,8 @@ class CircuitConfig::Parser
         result.biophysicalNeuronModelsDir = getJSONPath(components,
                                                         "biophysical_neuron_models_dir");
 
+        result.pointNeuronModelsDir = getJSONPath(components, "point_neuron_models_dir");
+
         result.vasculatureFile = getOptionalJSONPath(components, "vasculature_file");
         result.vasculatureMesh = getOptionalJSONPath(components, "vasculature_mesh");
         result.endfeetMeshesFile = getOptionalJSONPath(components, "endfeet_meshes_file");
@@ -938,6 +940,10 @@ class CircuitConfig::Parser
 
         if (component.biophysicalNeuronModelsDir.empty()) {
             component.biophysicalNeuronModelsDir = defaultComponents.biophysicalNeuronModelsDir;
+        }
+
+        if (component.pointNeuronModelsDir.empty()) {
+            component.pointNeuronModelsDir = defaultComponents.pointNeuronModelsDir;
         }
 
         if (component.morphologiesDir.empty()) {
@@ -1038,6 +1044,8 @@ class CircuitConfig::Parser
                 popProperties.morphologiesDir = getJSONPath(popData, "morphologies_dir");
                 popProperties.biophysicalNeuronModelsDir =
                     getJSONPath(popData, "biophysical_neuron_models_dir");
+                popProperties.pointNeuronModelsDir = getJSONPath(popData,
+                                                                 "point_neuron_models_dir");
 
                 // Overwrite those specified, if any
                 const auto altMorphoDir = popData.find("alternate_morphologies");
