@@ -649,6 +649,17 @@ TEST_CASE("SimulationConfig") {
             CHECK(fields[0].frequency == 0.);
             CHECK(fields[0].phase == 0.);
         }
+        {
+            const auto input = nonstd::get<SimulationConfig::InputPoissonSpike>(
+                config.getInput("ex_poisson"));
+            CHECK(input.inputType == InputType::spikes);
+            CHECK(input.module == Module::poisson);
+            CHECK(input.delay == 1);
+            CHECK(input.duration == 555);
+            CHECK(input.nodeSet == "All");
+            CHECK(input.rate == 4.9);
+            CHECK(input.weight == 3.5);
+        }
         CHECK(config.listInputNames() == std::set<std::string>{"ex_abs_shotnoise",
                                                                "ex_hyperpolarizing",
                                                                "ex_linear",
@@ -667,7 +678,9 @@ TEST_CASE("SimulationConfig") {
                                                                "ex_sinusoidal_default_dt",
                                                                "ex_subthreshold",
                                                                "ex_efields",
-                                                               "ex_efields_noramp"});
+                                                               "ex_efields_noramp",
+                                                               "ex_poisson",
+                                                               });
 
         auto overrides = config.getConnectionOverrides();
         CHECK(overrides[0].name == "ConL3Exc-Uni");

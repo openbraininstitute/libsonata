@@ -506,7 +506,9 @@ class SONATA_API SimulationConfig
             absolute_shot_noise,
             ornstein_uhlenbeck,
             relative_ornstein_uhlenbeck,
-            spatially_uniform_e_field
+            spatially_uniform_e_field,
+            poisson
+            
         };
 
         enum class InputType {
@@ -740,7 +742,6 @@ class SONATA_API SimulationConfig
     /// the sum of an arbitrary number of potential fields which vary cosinusoidally in time, and
     /// whose gradient (i.e., E field) is constant.
     struct InputSpatiallyUniformEField: public InputBase {
-      public:
         /// A list of EFields which are summed to produce the total stimulus.
         std::vector<EField> fields;
         /// Duration during which the signal amplitude ramps up linearly from 0, in ms. Default is 0
@@ -749,6 +750,15 @@ class SONATA_API SimulationConfig
         /// Duration during which the signal amplitude ramps down linearly to 0, in ms. Default is 0
         /// ms.
         double rampDownTime;
+    };
+
+    /// Poisson Spike input; modelled after Brian2::PoissonInput
+    struct InputPoissonSpike: public InputBase {
+        /// Rate of the inputs
+        double rate{};
+
+        /// Weight per synapse
+        double weight{};
     };
 
     using Input = nonstd::variant<InputLinear,
@@ -765,7 +775,8 @@ class SONATA_API SimulationConfig
                                   InputAbsoluteShotNoise,
                                   InputOrnsteinUhlenbeck,
                                   InputRelativeOrnsteinUhlenbeck,
-                                  InputSpatiallyUniformEField>;
+                                  InputSpatiallyUniformEField,
+                                  InputPoissonSpike>;
 
     using InputMap = std::unordered_map<std::string, Input>;
 
