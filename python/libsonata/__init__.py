@@ -5,6 +5,7 @@
 
 from libsonata._libsonata import (
     CircuitConfig,
+    SimulatorType,
     CircuitConfigStatus,
     SimulationConfig,
     EdgePopulation,
@@ -29,6 +30,8 @@ from libsonata._libsonata import (
     Hdf5Reader,
 )
 
+# maintain backwarks compatibility
+setattr(SimulationConfig, 'SimulatorType', SimulatorType)
 
 __all__ = [
     "CircuitConfig",

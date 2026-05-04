@@ -729,6 +729,12 @@ PYBIND11_MODULE(_libsonata, m) {
                       &EdgePopulationProperties::spineMorphologiesDir,
                       DOC_EDGE_POPULATION_PROPERTIES(spineMorphologiesDir));
 
+    py::enum_<SimulatorType>(m, "SimulatorType", "SimulatorType Enum", py::module_local())
+        .value("NEURON", SimulatorType::NEURON)
+        .value("CORENEURON", SimulatorType::CORENEURON)
+        .value("LearningEngine", SimulatorType::LEARNINGENGINE)
+        .value("Brian2", SimulatorType::BRIAN2);
+
     py::enum_<CircuitConfig::ConfigStatus>(m, "CircuitConfigStatus")
         .value("invalid", CircuitConfig::ConfigStatus::invalid)
         .value("complete", CircuitConfig::ConfigStatus::complete)
@@ -743,6 +749,8 @@ PYBIND11_MODULE(_libsonata, m) {
         .def_property_readonly("config_status", &CircuitConfig::getCircuitConfigStatus, "ibid")
         .def_property_readonly("node_sets_path", &CircuitConfig::getNodeSetsPath)
         .def_property_readonly("node_populations", &CircuitConfig::listNodePopulations)
+        .def_property_readonly("target_simulator", &CircuitConfig::getTargetSimulator)
+
         .def("node_population",
              [](const CircuitConfig& config, const std::string& name) {
                  return config.getNodePopulation(name);
@@ -1390,11 +1398,6 @@ PYBIND11_MODULE(_libsonata, m) {
         .def_property_readonly("beta_features",
                                &SimulationConfig::getBetaFeatures,
                                DOC_SIMULATIONCONFIG(getBetaFeatures));
-
-    py::enum_<SimulationConfig::SimulatorType>(simConf, "SimulatorType", "SimulatorType Enum")
-        .value("NEURON", SimulationConfig::SimulatorType::NEURON)
-        .value("CORENEURON", SimulationConfig::SimulatorType::CORENEURON)
-        .value("LearningEngine", SimulationConfig::SimulatorType::LEARNINGENGINE);
 
     bindPopulationClass<EdgePopulation>(
         m, "EdgePopulation", "Collection of edges with attributes and connectivity index")

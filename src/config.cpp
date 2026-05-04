@@ -125,11 +125,12 @@ NLOHMANN_JSON_SERIALIZE_ENUM(
      {SimulationConfig::InputBase::InputType::voltage_clamp, "voltage_clamp"},
      {SimulationConfig::InputBase::InputType::conductance, "conductance"}})
 
-NLOHMANN_JSON_SERIALIZE_ENUM(SimulationConfig::SimulatorType,
-                             {{SimulationConfig::SimulatorType::invalid, nullptr},
-                              {SimulationConfig::SimulatorType::NEURON, "NEURON"},
-                              {SimulationConfig::SimulatorType::CORENEURON, "CORENEURON"},
-                              {SimulationConfig::SimulatorType::LEARNINGENGINE, "LearningEngine"}})
+NLOHMANN_JSON_SERIALIZE_ENUM(SimulatorType,
+                             {{SimulatorType::invalid, nullptr},
+                              {SimulatorType::NEURON, "NEURON"},
+                              {SimulatorType::CORENEURON, "CORENEURON"},
+                              {SimulatorType::LEARNINGENGINE, "LearningEngine"},
+                              {SimulatorType::BRIAN2, "Brian2"}})
 
 NLOHMANN_JSON_SERIALIZE_ENUM(
     SimulationConfig::ModificationBase::ModificationType,
@@ -981,6 +982,12 @@ class CircuitConfig::Parser
         }
     }
 
+    SimulatorType parseTargetSimulator() const {
+        SimulatorType val = SimulatorType::NEURON;
+        parseOptional(_json, "target_simulator", val, {SimulatorType::NEURON});
+        return val;
+    }
+
     template <typename JSON>
     std::tuple<std::string, std::string> parseSubNetworks(const std::string& prefix,
                                                           const JSON& value) const {
@@ -1096,6 +1103,7 @@ CircuitConfig::CircuitConfig(const std::string& contents, const std::string& bas
 
     _nodePopulationProperties = parser.parseNodePopulations(_status);
     _edgePopulationProperties = parser.parseEdgePopulations(_status);
+    _targetSimulator = parser.parseTargetSimulator();
 
     Components defaultComponents = parser.parseDefaultComponents();
 
@@ -1173,6 +1181,10 @@ EdgePopulationProperties CircuitConfig::getEdgePopulationProperties(const std::s
 
 const std::string& CircuitConfig::getExpandedJSON() const {
     return _expandedJSON;
+}
+
+const SimulatorType& CircuitConfig::getTargetSimulator() const {
+    return _targetSimulator;
 }
 
 class SimulationConfig::Parser
@@ -1345,9 +1357,21 @@ class SimulationConfig::Parser
         return toAbsolute(_basePath, val);
     }
 
-    SimulationConfig::SimulatorType parseTargetSimulator() const {
-        SimulationConfig::SimulatorType val = SimulationConfig::SimulatorType::NEURON;
-        parseOptional(_json, "target_simulator", val, {SimulationConfig::SimulatorType::NEURON});
+    SimulatorType parseTargetSimulator() const {
+        SimulatorType val = SimulatorType::NEURON;
+        if (_json.contains("target_simulator")) {
+            parseOptional(_json, "target_simulator", val, {SimulatorType::NEURON});
+            return val;
+        } else {
+            try {
+                const auto circuitFile = parseNetwork();
+                const auto conf = CircuitConfig::fromFile(circuitFile);
+                return conf.getTargetSimulator();
+            } catch (...) {
+                // Don't throw CircuitConfig exceptions in SimulationConfig and return empty string
+                return val;
+            }
+        }
         return val;
     }
 
@@ -1643,7 +1667,7 @@ const std::vector<SimulationConfig::ConnectionOverride>& SimulationConfig::getCo
     return _connection_overrides;
 }
 
-const SimulationConfig::SimulatorType& SimulationConfig::getTargetSimulator() const {
+const SimulatorType& SimulationConfig::getTargetSimulator() const {
     return _targetSimulator;
 }
 

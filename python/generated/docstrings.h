@@ -133,6 +133,8 @@ Throws:
 
 static const char *__doc_bbp_sonata_CircuitConfig_getNodeSetsPath = R"doc(Returns the path to the node sets file.)doc";
 
+static const char *__doc_bbp_sonata_CircuitConfig_getTargetSimulator = R"doc(Returns target simulator)doc";
+
 static const char *__doc_bbp_sonata_CircuitConfig_listEdgePopulations =
 R"doc(Returns a set with all available population names across all the edge
 networks.)doc";
@@ -146,6 +148,8 @@ static const char *__doc_bbp_sonata_CircuitConfig_nodePopulationProperties = R"d
 static const char *__doc_bbp_sonata_CircuitConfig_nodeSetsFile = R"doc()doc";
 
 static const char *__doc_bbp_sonata_CircuitConfig_status = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CircuitConfig_targetSimulator = R"doc()doc";
 
 static const char *__doc_bbp_sonata_CommonPopulationProperties = R"doc()doc";
 
@@ -1451,16 +1455,6 @@ Throws:
     SonataError on: - Ill-formed JSON - Missing mandatory entries (in
     any depth))doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_SimulatorType = R"doc()doc";
-
-static const char *__doc_bbp_sonata_SimulationConfig_SimulatorType_CORENEURON = R"doc()doc";
-
-static const char *__doc_bbp_sonata_SimulationConfig_SimulatorType_LEARNINGENGINE = R"doc()doc";
-
-static const char *__doc_bbp_sonata_SimulationConfig_SimulatorType_NEURON = R"doc()doc";
-
-static const char *__doc_bbp_sonata_SimulationConfig_SimulatorType_invalid = R"doc()doc";
-
 static const char *__doc_bbp_sonata_SimulationConfig_basePath = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_betaFeatures = R"doc()doc";
@@ -1560,6 +1554,18 @@ static const char *__doc_bbp_sonata_SimulationConfig_reports = R"doc()doc";
 static const char *__doc_bbp_sonata_SimulationConfig_run = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_targetSimulator = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulatorType = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulatorType_BRIAN2 = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulatorType_CORENEURON = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulatorType_LEARNINGENGINE = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulatorType_NEURON = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulatorType_invalid = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SonataError = R"doc()doc";
 

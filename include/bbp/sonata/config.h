@@ -30,6 +30,8 @@ namespace sonata {
 
 using variantValueType = nonstd::variant<bool, std::string, int, double>;
 
+enum class SimulatorType { invalid = -1, NEURON, CORENEURON, LEARNINGENGINE, BRIAN2 };
+
 struct CommonPopulationProperties {
     /**
      * Population type
@@ -176,6 +178,11 @@ class SONATA_API CircuitConfig
     const std::string& getCompartmentSetsPath() const;
 
     /**
+     * Returns target simulator
+     */
+    const SimulatorType& getTargetSimulator() const;
+
+    /**
      *  Returns a set with all available population names across all the node networks.
      */
     std::set<std::string> listNodePopulations() const;
@@ -256,6 +263,9 @@ class SONATA_API CircuitConfig
 
     // Edge populations that override default components variables
     std::unordered_map<std::string, EdgePopulationProperties> _edgePopulationProperties;
+
+    // Name of simulator
+    SimulatorType _targetSimulator;
 };
 
 /**
@@ -794,8 +804,6 @@ class SONATA_API SimulationConfig
         nonstd::optional<double> neuromodulationStrength{nonstd::nullopt};
     };
 
-    enum class SimulatorType { invalid = -1, NEURON, CORENEURON, LEARNINGENGINE };
-
     /**
      * Parses a SONATA JSON simulation configuration file.
      *
@@ -881,7 +889,7 @@ class SONATA_API SimulationConfig
      * Returns the name of simulator, default = NEURON
      * \throws SonataError if the given value is neither NEURON nor CORENEURON
      */
-    const SimulationConfig::SimulatorType& getTargetSimulator() const;
+    const SimulatorType& getTargetSimulator() const;
 
     /**
      * Returns the path of node sets file overriding node_sets_file provided in _network,
