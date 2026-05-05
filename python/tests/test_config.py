@@ -303,6 +303,7 @@ class TestCircuitConfig(unittest.TestCase):
                 },
             "components": {
                 "biophysical_neuron_models_dir": "/biophysical_neuron_models",
+                "point_neuron_models_dir": "/point_neuron_models",
                 "alternate_morphologies": {
                     "h5v1": "/morphologies/h5"
                     }
@@ -325,6 +326,7 @@ class TestCircuitConfig(unittest.TestCase):
         pp = cc.node_population_properties('nodes-A')
         assert pp.alternate_morphology_formats == {'h5v1': '/morphologies/h5'}
         assert pp.biophysical_neuron_models_dir == "/biophysical_neuron_models"
+        assert pp.point_neuron_models_dir == "/point_neuron_models"
         assert pp.morphologies_dir == "/my/custom/morphologies/dir"
         assert pp.alternate_morphology_formats == {'h5v1': '/morphologies/h5'}
 
