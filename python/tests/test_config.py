@@ -525,7 +525,8 @@ class TestSimulationConfig(unittest.TestCase):
                           "ex_OU",
                           "ex_rel_OU",
                           "ex_efields",
-                          "ex_efields_noramp"
+                          "ex_efields_noramp",
+                          "ex_poisson",
                           ])
 
         self.assertEqual(self.config.input('ex_linear').input_type.name, 'current_clamp')
@@ -687,6 +688,14 @@ class TestSimulationConfig(unittest.TestCase):
         self.assertEqual(fields[0].Ez, 0.3)
         self.assertEqual(fields[0].frequency, 0.)
         self.assertEqual(fields[0].phase, 0.)
+
+        self.assertEqual(self.config.input('ex_poisson').input_type.name, "spikes")
+        self.assertEqual(self.config.input('ex_poisson').module.name, "poisson")
+        self.assertEqual(self.config.input('ex_poisson').delay, 1)
+        self.assertEqual(self.config.input('ex_poisson').duration, 555)
+        self.assertEqual(self.config.input('ex_poisson').node_set, "All")
+        self.assertEqual(self.config.input('ex_poisson').rate, 4.9)
+        self.assertEqual(self.config.input('ex_poisson').weight, 3.5)
 
         overrides = {o.name: o for o in self.config.connection_overrides()}
         self.assertEqual(overrides['ConL3Exc-Uni'].source, 'Excitatory')

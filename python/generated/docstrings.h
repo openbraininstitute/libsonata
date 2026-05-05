@@ -1016,6 +1016,8 @@ static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_noise = R"
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_ornstein_uhlenbeck = R"doc()doc";
 
+static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_poisson = R"doc()doc";
+
 static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_pulse = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_relative_linear = R"doc()doc";
@@ -1095,6 +1097,12 @@ static const char *__doc_bbp_sonata_SimulationConfig_InputOrnsteinUhlenbeck_reve
 static const char *__doc_bbp_sonata_SimulationConfig_InputOrnsteinUhlenbeck_sigma = R"doc(Signal std dev in nA (current_clamp) or uS (conductance))doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputOrnsteinUhlenbeck_tau = R"doc(Relaxation time constant in ms)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_InputPoissonSpike = R"doc(Poisson Spike input; modelled after Brian2::PoissonInput)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_InputPoissonSpike_rate = R"doc(Rate of the inputs)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_InputPoissonSpike_weight = R"doc(Weight per synapse)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputPulse = R"doc()doc";
 
