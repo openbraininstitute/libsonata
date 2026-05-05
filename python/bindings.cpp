@@ -1281,6 +1281,14 @@ PYBIND11_MODULE(_libsonata, m) {
                       &SimulationConfig::EField::phase,
                       DOC_SIMULATIONCONFIG(EField, phase));
 
+    py::class_<SimulationConfig::InputPoissonSpike, SimulationConfig::InputBase>(simConf, "Poisson")
+        .def_readonly("rate",
+                      &SimulationConfig::InputPoissonSpike::rate,
+                      DOC_SIMULATIONCONFIG(InputPoissonSpike, rate))
+        .def_readonly("weight",
+                      &SimulationConfig::InputPoissonSpike::weight,
+                      DOC_SIMULATIONCONFIG(InputPoissonSpike, weight));
+
     py::enum_<SimulationConfig::InputBase::Module>(inputBase, "Module")
         .value("linear", SimulationConfig::InputBase::Module::linear)
         .value("relative_linear", SimulationConfig::InputBase::Module::relative_linear)
@@ -1298,7 +1306,8 @@ PYBIND11_MODULE(_libsonata, m) {
         .value("relative_ornstein_uhlenbeck",
                SimulationConfig::InputBase::Module::relative_ornstein_uhlenbeck)
         .value("spatially_uniform_e_field",
-               SimulationConfig::InputBase::Module::spatially_uniform_e_field);
+               SimulationConfig::InputBase::Module::spatially_uniform_e_field)
+        .value("poisson", SimulationConfig::InputBase::Module::poisson);
 
     py::enum_<SimulationConfig::InputBase::InputType>(inputBase, "InputType")
         .value("spikes", SimulationConfig::InputBase::InputType::spikes)

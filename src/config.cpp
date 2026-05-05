@@ -113,7 +113,8 @@ NLOHMANN_JSON_SERIALIZE_ENUM(
      {SimulationConfig::InputBase::Module::ornstein_uhlenbeck, "ornstein_uhlenbeck"},
      {SimulationConfig::InputBase::Module::relative_ornstein_uhlenbeck,
       "relative_ornstein_uhlenbeck"},
-     {SimulationConfig::InputBase::Module::spatially_uniform_e_field, "spatially_uniform_e_field"}})
+     {SimulationConfig::InputBase::Module::spatially_uniform_e_field, "spatially_uniform_e_field"},
+     {SimulationConfig::InputBase::Module::poisson, "poisson"}})
 
 NLOHMANN_JSON_SERIALIZE_ENUM(
     SimulationConfig::InputBase::InputType,
@@ -687,6 +688,13 @@ SimulationConfig::Input parseInputModule(const nlohmann::json& valueIt,
         parseOptional(valueIt, "ramp_up_time", ret.rampUpTime, {0.0});
         parseOptional(valueIt, "ramp_down_time", ret.rampDownTime, {0.0});
         parseInputsEFields(valueIt, debugStr, ret.fields, simDt);
+        return ret;
+    }
+    case Module::poisson: {
+        SimulationConfig::InputPoissonSpike ret;
+        parseCommon(ret);
+        parseMandatory(valueIt, "rate", debugStr, ret.rate);
+        parseMandatory(valueIt, "weight", debugStr, ret.weight);
         return ret;
     }
     default:
@@ -1456,7 +1464,8 @@ class SimulationConfig::Parser
                 }
             } break;
             case InputBase::InputType::spikes:
-                if (!nonstd::holds_alternative<SimulationConfig::InputSynapseReplay>(input)) {
+                if (!(nonstd::holds_alternative<SimulationConfig::InputSynapseReplay>(input) ||
+                      nonstd::holds_alternative<SimulationConfig::InputPoissonSpike>(input))) {
                     mismatchingModuleInputType();
                 }
                 break;

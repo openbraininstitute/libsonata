@@ -299,6 +299,15 @@
                     "Ez": 0.3
                 }
             ]
+        },
+        "ex_poisson": {
+            "input_type": "spikes",
+            "module": "poisson",
+            "delay": 1,
+            "duration": 555,
+            "node_set": "All",
+            "weight": 3.5,
+            "rate": 4.9
         }
     },
     "connection_overrides": [
