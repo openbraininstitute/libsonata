@@ -743,7 +743,7 @@ TEST_CASE("SimulationConfig") {
         const auto config = SimulationConfig(contents, basePath);
         const auto network = fs::absolute(basePath / "circuit" / fs::path("circuit_config.json"));
         CHECK(config.getNetwork() == network.lexically_normal());
-        CHECK(config.getTargetSimulator() == SimulatorType::NEURON);  // default
+        CHECK(config.getTargetSimulator() == SimulatorType::UNSPECIFIED);
         CHECK(config.getNodeSetsFile() == "");  // network file is not readable so default empty
         CHECK(config.getNodeSet() == nonstd::nullopt);  // default
         CHECK(config.getRun().stimulusSeed == 0);

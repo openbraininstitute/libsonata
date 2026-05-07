@@ -736,7 +736,8 @@ PYBIND11_MODULE(_libsonata, m) {
         .value("NEURON", SimulatorType::NEURON)
         .value("CORENEURON", SimulatorType::CORENEURON)
         .value("LearningEngine", SimulatorType::LEARNINGENGINE)
-        .value("Brian2", SimulatorType::BRIAN2);
+        .value("Brian2", SimulatorType::BRIAN2)
+        .value("UNSPECIFIED", SimulatorType::UNSPECIFIED);
 
     py::enum_<CircuitConfig::ConfigStatus>(m, "CircuitConfigStatus")
         .value("invalid", CircuitConfig::ConfigStatus::invalid)
