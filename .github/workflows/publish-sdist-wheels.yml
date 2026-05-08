@@ -18,14 +18,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04, macos-14, macos-15-intel]
+        os: [ubuntu-24.04, ubuntu-24.04-arm, macos-14, macos-15-intel]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: 'true'
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         name: Install Python
         with:
           python-version: '3.11'
@@ -36,13 +36,13 @@ jobs:
 
       - name: Cache HDF5 On Linux/macOS
         if: runner.os == 'Linux' || runner.os == 'macOS'
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         id: cache-hdf5-posix
         env:
           cache-name: cache-hdf5-posix
         with:
           path: src-cache/
-          key: ${{ runner.os }}-build-${{ env.cache-name }}
+          key: ${{ runner.os }}-${{ runner.arch }}-build-${{ env.cache-name }}
 
       - name: Build wheels on Linux
         if: runner.os == 'Linux'
@@ -58,9 +58,13 @@ jobs:
         run: |
           # used by setup.py to decide if to set `FindHDF5` to use static hdf5 libraries
           export STATIC_HDF5=True
-          export CMAKE_PREFIX_PATH=/opt/hdf5-static/install-x86_64/install/
+          export CMAKE_PREFIX_PATH=/opt/hdf5-static/install-${{ runner.arch }}/install/
 
-          CIBW_MANYLINUX_X86_64_IMAGE=manylinux_2_28 python -m cibuildwheel --output-dir dist
+          if [ "${{ runner.arch }}" = "X64" ]; then
+            CIBW_MANYLINUX_X86_64_IMAGE=manylinux_2_28 python -m cibuildwheel --output-dir dist
+          else
+            CIBW_MANYLINUX_AARCH64_IMAGE=manylinux_2_28 python -m cibuildwheel --output-dir dist
+          fi
 
       - name: Build wheels Mac OS
         if: runner.os == 'macOS'
@@ -93,12 +97,12 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: 'true'
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: 3.11
 

@@ -25,7 +25,7 @@ else
     NPROC=$(nproc)
 fi
 
-INSTALL="$OUTPUT/install"
+INSTALL="${CMAKE_PREFIX_PATH:=${OUTPUT}/install}"
 
 if [[ -f "$INSTALL/lib/libhdf5.a" ]]; then
     echo "using cached build"
