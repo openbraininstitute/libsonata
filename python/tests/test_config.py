@@ -1070,11 +1070,7 @@ class TestSimulationConfig(unittest.TestCase):
 
         # default to NEURON, since no `network` exists to check
         res = SimulationConfig(json.dumps(contents), "./")
-        self.assertEqual(res.target_simulator, SimulationConfig.SimulatorType.NEURON)
-
-        # default to NEURON, since no `network` exists to check
-        res = SimulationConfig(json.dumps(contents), "./")
-        self.assertEqual(res.target_simulator, SimulationConfig.SimulatorType.NEURON)
+        self.assertEqual(res.target_simulator, SimulationConfig.SimulatorType.UNSPECIFIED)
 
         contents["target_simulator"] = "NEURON"
         res = SimulationConfig(json.dumps(contents), "./")

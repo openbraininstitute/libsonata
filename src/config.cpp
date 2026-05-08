@@ -127,11 +127,14 @@ NLOHMANN_JSON_SERIALIZE_ENUM(
      {SimulationConfig::InputBase::InputType::conductance, "conductance"}})
 
 NLOHMANN_JSON_SERIALIZE_ENUM(SimulatorType,
-                             {{SimulatorType::invalid, nullptr},
-                              {SimulatorType::NEURON, "NEURON"},
-                              {SimulatorType::CORENEURON, "CORENEURON"},
-                              {SimulatorType::LEARNINGENGINE, "LearningEngine"},
-                              {SimulatorType::BRIAN2, "Brian2"}})
+                             {
+                                 {SimulatorType::invalid, nullptr},
+                                 {SimulatorType::NEURON, "NEURON"},
+                                 {SimulatorType::CORENEURON, "CORENEURON"},
+                                 {SimulatorType::LEARNINGENGINE, "LearningEngine"},
+                                 {SimulatorType::BRIAN2, "Brian2"},
+                                 {SimulatorType::UNSPECIFIED, "unspecified"},
+                             })
 
 NLOHMANN_JSON_SERIALIZE_ENUM(
     SimulationConfig::ModificationBase::ModificationType,
@@ -1384,8 +1387,7 @@ class SimulationConfig::Parser
                 const auto conf = CircuitConfig::fromFile(circuitFile);
                 return conf.getTargetSimulator();
             } catch (...) {
-                // Don't throw CircuitConfig exceptions in SimulationConfig and return empty string
-                return val;
+                return SimulatorType::UNSPECIFIED;
             }
         }
         return val;
