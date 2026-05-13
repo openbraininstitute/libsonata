@@ -16,3 +16,5 @@ target_link_libraries(_libsonata
     PRIVATE pybind11::module
     PRIVATE nlohmann_json::nlohmann_json
 )
+
+install(TARGETS _libsonata LIBRARY DESTINATION libsonata)

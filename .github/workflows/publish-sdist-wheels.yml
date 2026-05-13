@@ -47,7 +47,7 @@ jobs:
       - name: Build wheels on Linux
         if: runner.os == 'Linux'
         env:
-          CIBW_ENVIRONMENT_PASS: "STATIC_HDF5 CMAKE_PREFIX_PATH"
+          CIBW_ENVIRONMENT_PASS: "CMAKE_ARGS CMAKE_PREFIX_PATH"
           CIBW_BEFORE_BUILD: |
             # CMake complains if the dependencies come from within the same tree
             # as the source, so we'll just pretend they are elsewhere
@@ -56,8 +56,7 @@ jobs:
             bash ci/hdf5-build.sh /opt/hdf5-static
 
         run: |
-          # used by setup.py to decide if to set `FindHDF5` to use static hdf5 libraries
-          export STATIC_HDF5=True
+          export CMAKE_ARGS="-DHDF5_USE_STATIC_LIBRARIES=True"
           export CMAKE_PREFIX_PATH=/opt/hdf5-static/install-${{ runner.arch }}/install/
 
           if [ "${{ runner.arch }}" = "X64" ]; then
@@ -70,7 +69,7 @@ jobs:
         if: runner.os == 'macOS'
 
         env:
-          CIBW_ENVIRONMENT_PASS: "STATIC_HDF5 CMAKE_PREFIX_PATH"
+          CIBW_ENVIRONMENT_PASS: "CMAKE_ARGS CMAKE_PREFIX_PATH"
           CIBW_BEFORE_BUILD: |
             # CMake complains if the dependencies come from within the same tree
             # as the source, so we'll just pretend they are elsewhere
@@ -78,9 +77,7 @@ jobs:
             ln -s $PWD/src-cache /Users/runner/work/src-cache
             bash ci/hdf5-build.sh /Users/runner/work/src-cache
         run: |
-          # used by setup.py to decide if to set `FindHDF5` to use static hdf5 libraries
-          export STATIC_HDF5=True
-
+          export CMAKE_ARGS="-DHDF5_USE_STATIC_LIBRARIES=True"
           export CMAKE_PREFIX_PATH=/Users/runner/work/src-cache/install-`uname -m`/install
           python -m cibuildwheel --output-dir dist
 
