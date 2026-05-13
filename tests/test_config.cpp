@@ -48,7 +48,7 @@ TEST_CASE("CircuitConfig") {
         CHECK(config.getEdgePopulationProperties("edges-AB").type == "chemical");
         CHECK(endswith(config.getEdgePopulationProperties("edges-AB").typesPath, ""));
         CHECK(endswith(config.getEdgePopulationProperties("edges-AB").elementsPath, "tests/data/edges1.h5"));
-        
+
         CHECK_NOTHROW(nlohmann::json::parse(config.getExpandedJSON()));
         CHECK(nlohmann::json::parse(config.getExpandedJSON())
                   .at("components")
