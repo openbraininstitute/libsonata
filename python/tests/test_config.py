@@ -69,6 +69,8 @@ class TestCircuitConfig(unittest.TestCase):
         self.assertTrue(node_prop.morphologies_dir.endswith('morphologies'))
         self.assertTrue(node_prop.biophysical_neuron_models_dir.endswith('biophysical_neuron_models'))
         self.assertEqual(node_prop.alternate_morphology_formats, {})
+        self.assertTrue(node_prop.mechanisms_dir.endswith('mechanisms_dir'))
+        self.assertTrue(node_prop.mechanisms_dir.startswith("/"))
 
         self.assertEqual(node_prop.types_path, '')
         self.assertTrue(node_prop.elements_path.endswith('tests/data/nodes1.h5'))

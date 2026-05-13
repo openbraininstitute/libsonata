@@ -42,6 +42,8 @@ static const char *__doc_bbp_sonata_CircuitConfig_Components_biophysicalNeuronMo
 
 static const char *__doc_bbp_sonata_CircuitConfig_Components_endfeetMeshesFile = R"doc()doc";
 
+static const char *__doc_bbp_sonata_CircuitConfig_Components_mechanismsDir = R"doc()doc";
+
 static const char *__doc_bbp_sonata_CircuitConfig_Components_microdomainsFile = R"doc()doc";
 
 static const char *__doc_bbp_sonata_CircuitConfig_Components_morphologiesDir = R"doc()doc";
@@ -164,9 +166,11 @@ R"doc(Path to underlying elements H5 file. It is discouraged to directly
 access the contents of the file. Instead use 'libsonata' to read this
 file.)doc";
 
+static const char *__doc_bbp_sonata_CommonPopulationProperties_mechanismsDir = R"doc(Path to the mechanisms required for the circuit)doc";
+
 static const char *__doc_bbp_sonata_CommonPopulationProperties_morphologiesDir = R"doc(Path to the directory containing the morphologies)doc";
 
-static const char *__doc_bbp_sonata_CommonPopulationProperties_pointNeuronModelsDir = R"doc(Path to the template templates for point neurons)doc";
+static const char *__doc_bbp_sonata_CommonPopulationProperties_pointNeuronModelsDir = R"doc(Path to the templates for point neurons)doc";
 
 static const char *__doc_bbp_sonata_CommonPopulationProperties_type = R"doc(Population type)doc";
 
