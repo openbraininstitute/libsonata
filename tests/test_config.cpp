@@ -39,7 +39,9 @@ TEST_CASE("CircuitConfig") {
         CHECK_THROWS_AS(config.getNodePopulationProperties("DoesNotExist"), SonataError);
         CHECK_THROWS_AS(config.getEdgePopulationProperties("DoesNotExist"), SonataError);
 
-        CHECK(config.getNodePopulationProperties("nodes-A").type == "biophysical");
+        auto nodesA_properties = config.getNodePopulationProperties("nodes-A");
+        CHECK(nodesA_properties.type == "biophysical");
+        CHECK(endswith(nodesA_properties.mechanismsDir, "/mechanisms_dir"));
         CHECK(endswith(config.getNodePopulationProperties("nodes-A").typesPath, ""));
         CHECK(endswith(config.getNodePopulationProperties("nodes-A").elementsPath, "tests/data/nodes1.h5"));
 
