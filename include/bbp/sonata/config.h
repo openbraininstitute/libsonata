@@ -320,8 +320,6 @@ class SONATA_API SimulationConfig
         int minisSeed = DEFAULT_minisSeed;
         /// A non-negative integer used for seeding stochastic synapses, default is 0.
         int synapseSeed = DEFAULT_synapseSeed;
-        /// Filename that contains the weights for the LFP calculation.
-        std::string electrodesFile;
     };
     /**
      * Parameters to override simulator output for spike reports
@@ -497,6 +495,8 @@ class SONATA_API SimulationConfig
         std::string fileName;
         /// Allows for suppressing a report so that is not created. Default is true
         bool enabled = true;
+        /// Filename that contains the weights for the LFP calculation (LFP reports only).
+        std::string electrodesFile;
     };
 
     using ReportMap = std::unordered_map<std::string, Report>;

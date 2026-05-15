@@ -323,7 +323,7 @@ TEST_CASE("SimulationConfig") {
             fs::path("./data/config/simulation_config.json").parent_path());
 
         const auto electrodesPath = fs::absolute(basePath / "electrodes/electrode_weights.h5");
-        CHECK(config.getRun().electrodesFile == (electrodesPath).lexically_normal());
+        CHECK(config.getReport("lfp").electrodesFile == (electrodesPath).lexically_normal());
 
         CHECK_NOTHROW(config.getOutput());
         const auto outputPath = fs::absolute(basePath / "some/path/output");
@@ -752,7 +752,6 @@ TEST_CASE("SimulationConfig") {
         CHECK(config.getRun().ionchannelSeed == 0);
         CHECK(config.getRun().minisSeed == 0);
         CHECK(config.getRun().synapseSeed == 0);
-        CHECK(config.getRun().electrodesFile == "");
         CHECK(config.getRun().spikeThreshold == -30.0);
     }
 
