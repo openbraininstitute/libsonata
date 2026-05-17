@@ -638,6 +638,9 @@ void parse_compound(const json& j, std::map<std::string, NodeSetRulePtr>& node_s
 Selection NodeSets::materialize(const std::string& name, const NodePopulation& population) const {
     const auto& node_set = node_sets_.find(name);
     if (node_set == node_sets_.end()) {
+        if (name == population.name()) {
+            return population.selectAll();
+        }
         throw SonataError(fmt::format("Unknown node_set {}", name));
     }
     const auto& ns = node_set->second;
