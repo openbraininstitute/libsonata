@@ -10,11 +10,11 @@ find_package(Python COMPONENTS Interpreter Development.Module REQUIRED)
 pybind11_add_module(_libsonata bindings.cpp)
 
 target_link_libraries(_libsonata
-    PRIVATE sonata_static
+    PRIVATE sonata
     PRIVATE HighFive
     PRIVATE fmt::fmt-header-only
     PRIVATE pybind11::module
     PRIVATE nlohmann_json::nlohmann_json
 )
 
-install(TARGETS _libsonata LIBRARY DESTINATION libsonata)
+#install(TARGETS _libsonata LIBRARY DESTINATION libsonata)
