@@ -13,19 +13,12 @@ if ! git describe --tags > /dev/null 2>&1; then
     echo "Likely shallow git clone, faking SONATA_VERSION -> $SONATA_VERSION"
 fi
 
-# cmake && make
-rm -rf "$BUILD_DIR"
-mkdir -p "$BUILD_DIR"
-pushd "$BUILD_DIR"
-
-cmake $SONATA_VERSION                                                      \
-    -DCMAKE_BUILD_TYPE=Release                                             \
-    -DEXTLIB_FROM_SUBMODULES=ON                                            \
-    -DSONATA_CXX_WARNINGS=ON                                               \
-    ../..
-
-make -j all test
-popd
+if command -v sccache; then
+    CMAKE_ARGS+=(
+        -DCMAKE_C_COMPILER_LAUNCHER=sccache
+        -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
+    )
+fi
 
 # cmake --build && ctest
 rm -rf "$BUILD_DIR"
@@ -34,6 +27,7 @@ cmake $SONATA_VERSION                                                      \
     -DCMAKE_BUILD_TYPE=Release                                             \
     -DEXTLIB_FROM_SUBMODULES=ON                                            \
     -DSONATA_CXX_WARNINGS=ON                                               \
+    "${CMAKE_ARGS[@]}"                                                     \
     -B "${BUILD_DIR}"
 
 cmake --build "${BUILD_DIR}" --parallel
@@ -47,6 +41,7 @@ cmake $SONATA_VERSION                                                      \
     -DEXTLIB_FROM_SUBMODULES=ON                                            \
     -DSONATA_CXX_WARNINGS=ON                                               \
     -DCMAKE_INSTALL_PREFIX=install                                         \
+    "${CMAKE_ARGS[@]}"                                                     \
     -B "${BUILD_DIR}"
 
 cmake --build "${BUILD_DIR}" --parallel --target install
