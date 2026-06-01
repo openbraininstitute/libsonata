@@ -1329,7 +1329,7 @@ class TestSimulationConfig(unittest.TestCase):
             SimulationConfig(contents, "./")
         self.assertEqual(e.exception.args,("Duplicate name 'TTXdup' in 'modifications'",))
 
-    def test_lfp_report_optional_variable_name(self):
+    def test_lfp_report_without_variable_name(self):
         """LFP report without variable_name should parse without error."""
         contents = {
             "run": {"tstop": 100, "dt": 0.025, "random_seed": 1},
