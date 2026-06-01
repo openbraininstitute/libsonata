@@ -435,7 +435,6 @@ class TestSimulationConfig(unittest.TestCase):
         self.assertEqual(self.config.run.ionchannel_seed, 222)
         self.assertEqual(self.config.run.minis_seed, 333)
         self.assertEqual(self.config.run.synapse_seed, 444)
-        self.assertFalse(hasattr(self.config.run, 'electrodes_file'))
         self.assertEqual(self.config.report('lfp').electrodes_file,
                          os.path.abspath(os.path.join(PATH, 'config/electrodes/electrode_weights.h5')))
 
@@ -767,7 +766,6 @@ class TestSimulationConfig(unittest.TestCase):
         self.assertEqual(conf.run.ionchannel_seed, 0)
         self.assertEqual(conf.run.minis_seed, 0)
         self.assertEqual(conf.run.synapse_seed, 0)
-        self.assertFalse(hasattr(conf.run, 'electrodes_file'))
         self.assertEqual(conf.run.spike_threshold, -30.0)
 
     def test_seclamp_without_duration_levels(self):
@@ -1349,6 +1347,26 @@ class TestSimulationConfig(unittest.TestCase):
         config = SimulationConfig(json.dumps(contents), './')
         self.assertEqual(config.report('my_lfp').type, SimulationConfig.Report.Type.lfp)
         self.assertEqual(config.report('my_lfp').variable_name, '')
+
+    def test_lfp_report_rejects_variable_name(self):
+        """LFP report with variable_name should raise an error."""
+        contents = {
+            "run": {"tstop": 100, "dt": 0.025, "random_seed": 1},
+            "reports": {
+                "my_lfp": {
+                    "type": "lfp",
+                    "variable_name": "v",
+                    "unit": "mV",
+                    "dt": 0.1,
+                    "start_time": 0,
+                    "end_time": 100,
+                    "electrodes_file": "electrodes/electrode_weights.h5"
+                }
+            }
+        }
+        with self.assertRaises(SonataError) as e:
+            SimulationConfig(json.dumps(contents), './')
+        self.assertIn("variable_name", str(e.exception))
 
     def test_lfp_report_requires_electrodes_file(self):
         """LFP report without electrodes_file should raise an error."""

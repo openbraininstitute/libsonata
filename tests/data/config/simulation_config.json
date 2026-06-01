@@ -355,7 +355,6 @@
          "lfp": {
             "cells": "All",
             "type": "lfp",
-            "variable_name": "v",
             "unit": "mV",
             "dt": 0.1,
             "start_time": 0.0,

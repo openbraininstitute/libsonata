@@ -1352,9 +1352,16 @@ class SimulationConfig::Parser
                                       : Report::Compartments::all)});
             parseOptional(valueIt, "scaling", report.scaling, {Report::Scaling::area});
 
-            // Variable name: mandatory for non-LFP, optional for LFP
+            // Variable name: mandatory for non-LFP, not allowed for LFP
             if (report.type == Report::Type::lfp) {
-                parseOptional(valueIt, "variable_name", report.variableName, {""});
+                if (valueIt.find("variable_name") != valueIt.end()) {
+                    throw SonataError(
+                        fmt::format("Field 'variable_name' is not allowed in {} (type 'lfp'). "
+                                    "LFP reports always use the membrane current "
+                                    "(i_membrane). Please remove 'variable_name' from the "
+                                    "report configuration.",
+                                    debugStr));
+                }
             } else {
                 parseMandatory(valueIt, "variable_name", debugStr, report.variableName);
             }
@@ -1379,7 +1386,6 @@ class SimulationConfig::Parser
                 }
             }
 
-            // Electrodes file: mandatory for LFP reports, rejected for all others
             if (report.type == Report::Type::lfp) {
                 parseMandatory(valueIt, "electrodes_file", debugStr, report.electrodesFile);
                 if (!report.electrodesFile.empty()) {
