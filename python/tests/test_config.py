@@ -1427,3 +1427,20 @@ class TestSimulationConfig(unittest.TestCase):
             }
         }
         self.assertRaises(SonataError, SimulationConfig, json.dumps(contents), './')
+
+    def test_report_rejects_empty_variable_name(self):
+        """Non-LFP report with empty variable_name should raise an error."""
+        contents = {
+            "run": {"tstop": 100, "dt": 0.025, "random_seed": 1},
+            "reports": {
+                "my_report": {
+                    "type": "compartment",
+                    "variable_name": "",
+                    "unit": "mV",
+                    "dt": 0.1,
+                    "start_time": 0,
+                    "end_time": 100
+                }
+            }
+        }
+        self.assertRaises(SonataError, SimulationConfig, json.dumps(contents), './')

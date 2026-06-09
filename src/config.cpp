@@ -1364,18 +1364,13 @@ class SimulationConfig::Parser
                 }
             } else {
                 parseMandatory(valueIt, "variable_name", debugStr, report.variableName);
-            }
-
-            parseOptional(valueIt, "unit", report.unit, {"mV"});
-            parseMandatory(valueIt, "dt", debugStr, report.dt);
-            parseMandatory(valueIt, "start_time", debugStr, report.startTime);
-            parseMandatory(valueIt, "end_time", debugStr, report.endTime);
-            parseOptional(valueIt, "file_name", report.fileName, {it.key() + ".h5"});
-            parseOptional(valueIt, "enabled", report.enabled, {true});
-
-            // variable names can look like:
-            // `v`, or `i_clamp`, or `Foo.bar` but not `..asdf`, or `asdf..` or `asdf.asdf.asdf`
-            if (!report.variableName.empty()) {
+                if (report.variableName.empty()) {
+                    throw SonataError(
+                        fmt::format("'variable_name' must not be empty in {}", debugStr));
+                }
+                // variable names can look like:
+                // `v`, or `i_clamp`, or `Foo.bar` but not `..asdf`, or `asdf..`
+                // or `asdf.asdf.asdf`
                 const char* const varName = R"(\w+(?:\.?\w+)?)";
                 // variable names are separated by `,` with any amount of whitespace separating
                 // them
@@ -1385,6 +1380,13 @@ class SimulationConfig::Parser
                                                   report.variableName));
                 }
             }
+
+            parseOptional(valueIt, "unit", report.unit, {"mV"});
+            parseMandatory(valueIt, "dt", debugStr, report.dt);
+            parseMandatory(valueIt, "start_time", debugStr, report.startTime);
+            parseMandatory(valueIt, "end_time", debugStr, report.endTime);
+            parseOptional(valueIt, "file_name", report.fileName, {it.key() + ".h5"});
+            parseOptional(valueIt, "enabled", report.enabled, {true});
 
             if (report.type == Report::Type::lfp) {
                 parseMandatory(valueIt, "electrodes_file", debugStr, report.electrodesFile);
