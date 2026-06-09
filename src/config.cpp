@@ -1352,7 +1352,14 @@ class SimulationConfig::Parser
                                       : Report::Compartments::all)});
             parseOptional(valueIt, "scaling", report.scaling, {Report::Scaling::area});
 
-            // Variable name: mandatory for non-LFP, not allowed for LFP
+            parseOptional(valueIt, "unit", report.unit, {"mV"});
+            parseMandatory(valueIt, "dt", debugStr, report.dt);
+            parseMandatory(valueIt, "start_time", debugStr, report.startTime);
+            parseMandatory(valueIt, "end_time", debugStr, report.endTime);
+            parseOptional(valueIt, "file_name", report.fileName, {it.key() + ".h5"});
+            parseOptional(valueIt, "enabled", report.enabled, {true});
+
+            // LFP-specific vs non-LFP validation
             if (report.type == Report::Type::lfp) {
                 if (valueIt.find("variable_name") != valueIt.end()) {
                     throw SonataError(
@@ -1362,6 +1369,13 @@ class SimulationConfig::Parser
                                     "report configuration.",
                                     debugStr));
                 }
+
+                parseMandatory(valueIt, "electrodes_file", debugStr, report.electrodesFile);
+                if (report.electrodesFile.empty()) {
+                    throw SonataError(
+                        fmt::format("'electrodes_file' must not be empty in {}", debugStr));
+                }
+                report.electrodesFile = toAbsolute(_basePath, report.electrodesFile);
             } else {
                 parseMandatory(valueIt, "variable_name", debugStr, report.variableName);
                 if (report.variableName.empty()) {
@@ -1379,23 +1393,7 @@ class SimulationConfig::Parser
                     throw SonataError(fmt::format("Invalid comma separated variable names '{}'",
                                                   report.variableName));
                 }
-            }
 
-            parseOptional(valueIt, "unit", report.unit, {"mV"});
-            parseMandatory(valueIt, "dt", debugStr, report.dt);
-            parseMandatory(valueIt, "start_time", debugStr, report.startTime);
-            parseMandatory(valueIt, "end_time", debugStr, report.endTime);
-            parseOptional(valueIt, "file_name", report.fileName, {it.key() + ".h5"});
-            parseOptional(valueIt, "enabled", report.enabled, {true});
-
-            if (report.type == Report::Type::lfp) {
-                parseMandatory(valueIt, "electrodes_file", debugStr, report.electrodesFile);
-                if (report.electrodesFile.empty()) {
-                    throw SonataError(
-                        fmt::format("'electrodes_file' must not be empty in {}", debugStr));
-                }
-                report.electrodesFile = toAbsolute(_basePath, report.electrodesFile);
-            } else {
                 if (valueIt.find("electrodes_file") != valueIt.end()) {
                     throw SonataError(
                         fmt::format("Field 'electrodes_file' is not allowed in {}. "
