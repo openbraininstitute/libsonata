@@ -1388,9 +1388,11 @@ class SimulationConfig::Parser
 
             if (report.type == Report::Type::lfp) {
                 parseMandatory(valueIt, "electrodes_file", debugStr, report.electrodesFile);
-                if (!report.electrodesFile.empty()) {
-                    report.electrodesFile = toAbsolute(_basePath, report.electrodesFile);
+                if (report.electrodesFile.empty()) {
+                    throw SonataError(
+                        fmt::format("'electrodes_file' must not be empty in {}", debugStr));
                 }
+                report.electrodesFile = toAbsolute(_basePath, report.electrodesFile);
             } else {
                 if (valueIt.find("electrodes_file") != valueIt.end()) {
                     throw SonataError(

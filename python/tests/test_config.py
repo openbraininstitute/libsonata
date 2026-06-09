@@ -1384,6 +1384,23 @@ class TestSimulationConfig(unittest.TestCase):
         }
         self.assertRaises(SonataError, SimulationConfig, json.dumps(contents), './')
 
+    def test_lfp_report_rejects_empty_electrodes_file(self):
+        """LFP report with empty electrodes_file should raise an error."""
+        contents = {
+            "run": {"tstop": 100, "dt": 0.025, "random_seed": 1},
+            "reports": {
+                "my_lfp": {
+                    "type": "lfp",
+                    "unit": "mV",
+                    "dt": 0.1,
+                    "start_time": 0,
+                    "end_time": 100,
+                    "electrodes_file": ""
+                }
+            }
+        }
+        self.assertRaises(SonataError, SimulationConfig, json.dumps(contents), './')
+
     def test_run_rejects_electrodes_file(self):
         """electrodes_file in run section should raise an error."""
         contents = {
