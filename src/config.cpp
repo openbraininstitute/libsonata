@@ -1359,7 +1359,6 @@ class SimulationConfig::Parser
             parseOptional(valueIt, "file_name", report.fileName, {it.key() + ".h5"});
             parseOptional(valueIt, "enabled", report.enabled, {true});
 
-            // LFP-specific vs non-LFP validation
             if (report.type == Report::Type::lfp) {
                 if (valueIt.find("variable_name") != valueIt.end()) {
                     throw SonataError(
