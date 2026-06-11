@@ -1,5 +1,12 @@
 name: Publish sdist and wheels for macos, and manylinux, publish to pypi if a release
-on: [pull_request, push]
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+  release:
+    types: [published]
+  workflow_dispatch:
 
 env:
   apt_options: -o Acquire::Retries=3
@@ -13,7 +20,7 @@ jobs:
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
 
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
 
     runs-on: ${{ matrix.os }}
     strategy:
@@ -93,7 +100,7 @@ jobs:
 
   build_sdist:
     name: Build sdist
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
 
     runs-on: ubuntu-latest
     steps:
@@ -124,7 +131,7 @@ jobs:
 
   upload_artifacts:
     name: Upload wheels to PyPI
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+    if: github.event_name == 'release' && github.event.action == 'published'
     permissions:
       id-token: write
 
