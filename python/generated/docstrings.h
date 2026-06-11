@@ -1397,6 +1397,10 @@ R"doc(For compartment type, select compartments to report. Default value:
 
 static const char *__doc_bbp_sonata_SimulationConfig_Report_dt = R"doc(Interval between reporting steps in milliseconds)doc";
 
+static const char *__doc_bbp_sonata_SimulationConfig_Report_electrodesFile =
+R"doc(Filename that contains the weights for the LFP calculation (LFP
+reports only).)doc";
+
 static const char *__doc_bbp_sonata_SimulationConfig_Report_enabled =
 R"doc(Allows for suppressing a report so that is not created. Default is
 true)doc";
@@ -1435,8 +1439,6 @@ static const char *__doc_bbp_sonata_SimulationConfig_Run_IntegrationMethod_euler
 static const char *__doc_bbp_sonata_SimulationConfig_Run_IntegrationMethod_invalid = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_Run_dt = R"doc(Integration step duration in milliseconds)doc";
-
-static const char *__doc_bbp_sonata_SimulationConfig_Run_electrodesFile = R"doc(Filename that contains the weights for the LFP calculation.)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_Run_integrationMethod =
 R"doc(Selects the NEURON/CoreNEURON integration method. This parameter sets

@@ -1250,10 +1250,11 @@ class SimulationConfig::Parser
                       {Run::DEFAULT_ionchannelSeed});
         parseOptional(*runIt, "minis_seed", result.minisSeed, {Run::DEFAULT_minisSeed});
         parseOptional(*runIt, "synapse_seed", result.synapseSeed, {Run::DEFAULT_synapseSeed});
-        parseOptional(*runIt, "electrodes_file", result.electrodesFile, {""});
 
-        if (!result.electrodesFile.empty()) {
-            result.electrodesFile = toAbsolute(_basePath, result.electrodesFile);
+        if (runIt->find("electrodes_file") != runIt->end()) {
+            throw SonataError(
+                "Field 'electrodes_file' is no longer valid in the 'run' section. "
+                "Please specify 'electrodes_file' in each LFP report block instead.");
         }
 
         return result;
@@ -1350,7 +1351,7 @@ class SimulationConfig::Parser
                                       ? Report::Compartments::center
                                       : Report::Compartments::all)});
             parseOptional(valueIt, "scaling", report.scaling, {Report::Scaling::area});
-            parseMandatory(valueIt, "variable_name", debugStr, report.variableName);
+
             parseOptional(valueIt, "unit", report.unit, {"mV"});
             parseMandatory(valueIt, "dt", debugStr, report.dt);
             parseMandatory(valueIt, "start_time", debugStr, report.startTime);
@@ -1358,14 +1359,46 @@ class SimulationConfig::Parser
             parseOptional(valueIt, "file_name", report.fileName, {it.key() + ".h5"});
             parseOptional(valueIt, "enabled", report.enabled, {true});
 
-            // variable names can look like:
-            // `v`, or `i_clamp`, or `Foo.bar` but not `..asdf`, or `asdf..` or `asdf.asdf.asdf`
-            const char* const varName = R"(\w+(?:\.?\w+)?)";
-            // variable names are separated by `,` with any amount of whitespace separating them
-            const std::regex expr(fmt::format(R"({}(?:\s*,\s*{})*)", varName, varName));
-            if (!std::regex_match(report.variableName, expr)) {
-                throw SonataError(fmt::format("Invalid comma separated variable names '{}'",
-                                              report.variableName));
+            if (report.type == Report::Type::lfp) {
+                if (valueIt.find("variable_name") != valueIt.end()) {
+                    throw SonataError(
+                        fmt::format("Field 'variable_name' is not allowed in {} (type 'lfp'). "
+                                    "LFP reports always use the membrane current "
+                                    "(i_membrane). Please remove 'variable_name' from the "
+                                    "report configuration.",
+                                    debugStr));
+                }
+
+                parseMandatory(valueIt, "electrodes_file", debugStr, report.electrodesFile);
+                if (report.electrodesFile.empty()) {
+                    throw SonataError(
+                        fmt::format("'electrodes_file' must not be empty in {}", debugStr));
+                }
+                report.electrodesFile = toAbsolute(_basePath, report.electrodesFile);
+            } else {
+                parseMandatory(valueIt, "variable_name", debugStr, report.variableName);
+                if (report.variableName.empty()) {
+                    throw SonataError(
+                        fmt::format("'variable_name' must not be empty in {}", debugStr));
+                }
+                // variable names can look like:
+                // `v`, or `i_clamp`, or `Foo.bar` but not `..asdf`, or `asdf..`
+                // or `asdf.asdf.asdf`
+                const char* const varName = R"(\w+(?:\.?\w+)?)";
+                // variable names are separated by `,` with any amount of whitespace separating
+                // them
+                const std::regex expr(fmt::format(R"({}(?:\s*,\s*{})*)", varName, varName));
+                if (!std::regex_match(report.variableName, expr)) {
+                    throw SonataError(fmt::format("Invalid comma separated variable names '{}'",
+                                                  report.variableName));
+                }
+
+                if (valueIt.find("electrodes_file") != valueIt.end()) {
+                    throw SonataError(
+                        fmt::format("Field 'electrodes_file' is not allowed in {}. "
+                                    "It is only valid for LFP reports.",
+                                    debugStr));
+                }
             }
 
             const auto extension = fs::path(report.fileName).extension().string();
