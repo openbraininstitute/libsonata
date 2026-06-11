@@ -1382,7 +1382,9 @@ class TestSimulationConfig(unittest.TestCase):
                 }
             }
         }
-        self.assertRaises(SonataError, SimulationConfig, json.dumps(contents), './')
+        with self.assertRaises(SonataError) as ctx:
+            SimulationConfig(json.dumps(contents), './')
+        self.assertIn("electrodes_file", str(ctx.exception))
 
     def test_lfp_report_rejects_empty_electrodes_file(self):
         """LFP report with empty electrodes_file should raise an error."""
