@@ -432,4 +432,3 @@ Copyright (c) 2025-2026 Open Brain Institute
 
 .. substitutions
 .. |banner| image:: docs/source/_images/libSonataLogo.jpg
-
