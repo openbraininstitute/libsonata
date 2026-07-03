@@ -5,6 +5,7 @@
 #include <bbp/sonata/common.h>
 #include <bbp/sonata/config.h>
 #include <bbp/sonata/edges.h>
+#include <bbp/sonata/electrode_reader.h>
 #include <bbp/sonata/node_sets.h>
 #include <bbp/sonata/compartment_sets.h>
 #include <bbp/sonata/nodes.h>
@@ -1564,6 +1565,83 @@ PYBIND11_MODULE(_libsonata, m) {
 
     bindReportReader<SomaReportReader, NodeID>(m, "Soma");
     bindReportReader<ElementReportReader, CompartmentID>(m, "Element");
+
+    // ElectrodeReader bindings
+    py::class_<ElectrodeDataFrame>(m, "ElectrodeDataFrame",
+                                   "A container of electrode scaling factor data")
+        .def_property_readonly("ids",
+                               [](const ElectrodeDataFrame& df) {
+                                   std::array<ssize_t, 1> dims{ssize_t(df.ids.size())};
+                                   return managedMemoryArray(df.ids.data(), dims, df);
+                               },
+                               "Row identifiers: (node_id, compartment_index) per row")
+        .def_property_readonly("electrodes",
+                               [](const ElectrodeDataFrame& df) {
+                                   std::array<ssize_t, 1> dims{ssize_t(df.electrodes.size())};
+                                   return managedMemoryArray(df.electrodes.data(), dims, df);
+                               },
+                               "Column identifiers: electrode indices returned")
+        .def_property_readonly("data",
+                               [](const ElectrodeDataFrame& df) {
+                                   std::array<ssize_t, 2> dims{0l,
+                                                               ssize_t(df.electrodes.size())};
+                                   if (dims[1] > 0) {
+                                       dims[0] = df.data.size() / dims[1];
+                                   }
+                                   return managedMemoryArray(df.data.data(), dims, df);
+                               },
+                               "Scaling factor matrix (n_compartments, n_electrodes)");
+
+    py::class_<ElectrodeReader::Population>(m, "ElectrodePopulation",
+                                            "A population inside an ElectrodeReader")
+        .def("get",
+             &ElectrodeReader::Population::get,
+             "Return scaling factors for selected nodes and electrodes",
+             "node_ids"_a = nonstd::nullopt,
+             "electrode_ids"_a = nonstd::nullopt)
+        .def_property_readonly("node_ids",
+                               [](const ElectrodeReader::Population& pop) {
+                                   return asArray(pop.getNodeIds());
+                               },
+                               "All node IDs in this population")
+        .def_property_readonly("number_of_electrodes",
+                               &ElectrodeReader::Population::getNumberOfElectrodes,
+                               "Number of electrodes in this population")
+        .def_property_readonly("electrode_names",
+                               &ElectrodeReader::Population::getElectrodeNames,
+                               "Electrode names ordered by column index")
+        .def_property_readonly(
+            "electrode_positions",
+            [](const ElectrodeReader::Population& pop) {
+                auto positions = pop.getElectrodePositions();
+                auto ptr = new std::vector<std::array<double, 3>>(std::move(positions));
+                std::array<ssize_t, 2> dims{ssize_t(ptr->size()), 3l};
+                return py::array(dims,
+                                 reinterpret_cast<const double*>(ptr->data()),
+                                 freeWhenDone(ptr));
+            },
+            "Electrode positions (n_electrodes, 3) in micrometers")
+        .def_property_readonly("electrode_types",
+                               &ElectrodeReader::Population::getElectrodeTypes,
+                               "Electrode types ordered by column index");
+
+    py::class_<ElectrodeReader>(m, "ElectrodeReader",
+                                "Reader for SONATA electrode weight files")
+        .def(py::init([](py::object h5_filepath) {
+                 return ElectrodeReader(py::str(h5_filepath));
+             }),
+             "h5_filepath"_a)
+        .def_property_readonly("population_names",
+                               &ElectrodeReader::getPopulationNames,
+                               "List of population names in the file")
+        .def("open_population",
+             &ElectrodeReader::openPopulation,
+             "name"_a,
+             py::return_value_policy::reference_internal,
+             "Open a population by name")
+        .def("__getitem__",
+             &ElectrodeReader::openPopulation,
+             py::return_value_policy::reference_internal);
 
     py::register_exception<SonataError>(m, "SonataError");
 }
