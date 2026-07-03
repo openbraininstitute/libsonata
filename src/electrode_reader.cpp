@@ -84,9 +84,8 @@ std::vector<ElectrodeInfo> discoverElectrodeMetadata(const HighFive::Group& elec
 
 /// Resolve an optional electrode Selection into concrete column indices.
 /// Returns all indices if nullopt, filtered valid indices if provided, empty if empty selection.
-std::vector<uint64_t> resolveElectrodeSelection(
-    const nonstd::optional<Selection>& electrode_ids,
-    size_t n_electrodes) {
+std::vector<uint64_t> resolveElectrodeSelection(const nonstd::optional<Selection>& electrode_ids,
+                                                size_t n_electrodes) {
     std::vector<uint64_t> selected;
     if (!electrode_ids) {
         selected.resize(n_electrodes);
@@ -110,11 +109,10 @@ struct NodeLayout {
 
 /// Resolve an optional node Selection into matching node IDs and their row ranges.
 /// Uses binary search on the sorted index. Nodes not found are silently skipped.
-NodeLayout resolveNodeSelection(
-    const nonstd::optional<Selection>& node_ids,
-    const std::vector<NodeID>& all_node_ids,
-    const Selection::Ranges& all_ranges,
-    const std::vector<uint64_t>& sorted_index) {
+NodeLayout resolveNodeSelection(const nonstd::optional<Selection>& node_ids,
+                                const std::vector<NodeID>& all_node_ids,
+                                const Selection::Ranges& all_ranges,
+                                const std::vector<uint64_t>& sorted_index) {
     NodeLayout layout;
 
     if (!node_ids) {
@@ -125,11 +123,11 @@ NodeLayout resolveNodeSelection(
         }
     } else if (!node_ids->empty()) {
         for (const auto node_id : node_ids->flatten()) {
-            const auto it = std::lower_bound(
-                sorted_index.begin(),
-                sorted_index.end(),
-                node_id,
-                [&](size_t i, NodeID nid) { return all_node_ids[i] < nid; });
+            const auto it =
+                std::lower_bound(sorted_index.begin(),
+                                 sorted_index.end(),
+                                 node_id,
+                                 [&](size_t i, NodeID nid) { return all_node_ids[i] < nid; });
 
             if (it != sorted_index.end() && all_node_ids[*it] == node_id) {
                 layout.node_ids.emplace_back(node_id);
@@ -265,8 +263,8 @@ ElectrodeDataFrame ElectrodeReader::Population::get(
             result.ids.push_back({layout.node_ids[n], comp});
 
             for (size_t col = 0; col < n_cols; ++col) {
-                result.data[out_row * n_cols + col] =
-                    static_cast<float>(raw_data_2d[comp][selected_electrodes[col]]);
+                result.data[out_row * n_cols + col] = static_cast<float>(
+                    raw_data_2d[comp][selected_electrodes[col]]);
             }
             ++out_row;
         }

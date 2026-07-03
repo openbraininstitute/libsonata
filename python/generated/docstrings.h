@@ -333,6 +333,78 @@ static const char *__doc_bbp_sonata_DataFrame_ids = R"doc()doc";
 
 static const char *__doc_bbp_sonata_DataFrame_times = R"doc()doc";
 
+static const char *__doc_bbp_sonata_ElectrodeDataFrame = R"doc(Container for electrode scaling factor data.
+
+Represents a 2D matrix of shape (n_compartments, n_electrodes) with
+row and column identity information.)doc";
+
+static const char *__doc_bbp_sonata_ElectrodeDataFrame_data = R"doc(Flattened row-major data. data[row * n_cols + col] where n_cols = electrodes.size())doc";
+
+static const char *__doc_bbp_sonata_ElectrodeDataFrame_electrodes = R"doc(Per-column identity: electrode indices returned.)doc";
+
+static const char *__doc_bbp_sonata_ElectrodeDataFrame_ids = R"doc(Per-row identity: [node_id, local_compartment_index])doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader = R"doc(Reader for SONATA electrode weight files (HDF5).
+
+Provides access to electrode scaling factors used for LFP computation.
+Follows the ReportReader/SpikeReader pattern with lazy-loaded populations.)doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_ElectrodeReader = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_get = R"doc(Return scaling factors for the given node and electrode selections.
+
+Parameter ``node_ids``:
+    selection of node IDs to include. nullopt means all nodes.
+
+Parameter ``electrode_ids``:
+    selection of electrode column indices to include. nullopt means all electrodes.)doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_getElectrodeNames = R"doc(Return electrode names ordered by column index.)doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_getElectrodePositions = R"doc(Return electrode positions ordered by column index. Each entry is [x, y, z] in micrometers.)doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_getElectrodeTypes = R"doc(Return electrode types ordered by column index.)doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_getNodeIds = R"doc(Return all node IDs present in this population.)doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_getNumberOfElectrodes = R"doc(Return the number of electrodes in this population.)doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_electrode_names = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_electrode_positions = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_electrode_types = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_electrodes_group = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_n_electrodes = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_node_ids = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_node_index = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_node_ranges = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_offsets = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_population_name = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_file = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_getPopulationNames = R"doc(Return a list of all population names found in the file.)doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_openPopulation =
+R"doc(Open (or return cached) population by name.
+
+Throws:
+    SonataError if no such population exists.)doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_population_names = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_populations = R"doc()doc";
+
 static const char *__doc_bbp_sonata_EdgePopulation = R"doc()doc";
 
 static const char *__doc_bbp_sonata_EdgePopulationProperties = R"doc(Edge population-specific network information.)doc";
