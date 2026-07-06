@@ -20,13 +20,37 @@ struct ElectrodeInfo {
     std::string type;
 };
 
-/// Pairs a node_id with its row range in scaling_factors.
-/// AoS (vs SoA) is used here because the two fields are always accessed together
-/// and the number of nodes is small relative to total compartments — the bottleneck
-/// is HDF5 I/O, not struct layout.
-struct NodeSlice {
-    NodeID node_id;
-    Selection::Range range;
+/// Resolved node selection: parallel vectors of node IDs and their row ranges.
+struct NodeLayout {
+    std::vector<NodeID> node_ids;
+    Selection::Ranges ranges;
+
+    void reserve(size_t n) {
+        node_ids.reserve(n);
+        ranges.reserve(n);
+    }
+
+    void add(NodeID node_id, Selection::Range range) {
+        node_ids.emplace_back(node_id);
+        ranges.emplace_back(range);
+    }
+
+    void add(const std::vector<NodeID>& ids,
+             const Selection::Ranges& rngs,
+             const std::vector<uint64_t>& indices) {
+        assert(ids.size() == rngs.size());
+        reserve(indices.size());
+        for (size_t idx : indices) {
+            add(ids[idx], rngs[idx]);
+        }
+    }
+
+    bool empty() const {
+        return node_ids.empty();
+    }
+    size_t size() const {
+        return node_ids.size();
+    }
 };
 
 
@@ -110,18 +134,100 @@ std::vector<uint64_t> resolveElectrodeSelection(const nonstd::optional<Selection
 }
 
 
-/// Resolve an optional node Selection into matching node IDs and their row ranges.
+/// Build I/O order sorted by file row position.
+std::vector<size_t> buildIOOrder(const NodeLayout& slices) {
+    std::vector<size_t> io_order(slices.size());
+    std::iota(io_order.begin(), io_order.end(), 0);
+    std::sort(io_order.begin(), io_order.end(), [&](size_t a, size_t b) {
+        return slices.ranges[a][0] < slices.ranges[b][0];
+    });
+    return io_order;
+}
+
+
+/// Coalesce sorted I/O order into contiguous read blocks.
+/// Adjacent nodes with gap <= block_gap_limit are merged into a single read.
+Selection::Ranges coalesceIOBlocks(const NodeLayout& slices,
+                                   const std::vector<size_t>& io_order,
+                                   size_t block_gap_limit) {
+    Selection::Ranges blocks;
+    size_t block_start = 0;
+    for (size_t i = 0; (i + 1) < io_order.size(); ++i) {
+        const auto cur_end = slices.ranges[io_order[i]][1];
+        const auto next_start = slices.ranges[io_order[i + 1]][0];
+        if (next_start - cur_end > block_gap_limit) {
+            blocks.push_back({block_start, i + 1});
+            block_start = i + 1;
+        }
+    }
+    blocks.push_back({block_start, io_order.size()});
+    return blocks;
+}
+
+
+/// Compute per-node output offsets (cumulative compartment counts).
+std::vector<size_t> computeOutputOffsets(const NodeLayout& slices) {
+    const size_t n = slices.size();
+    std::vector<size_t> offsets(n + 1, 0);
+    for (size_t i = 0; i < n; ++i) {
+        offsets[i + 1] = offsets[i] + (slices.ranges[i][1] - slices.ranges[i][0]);
+    }
+    return offsets;
+}
+
+
+/// Read scaling factors from HDF5 in coalesced blocks and scatter into output.
+void readAndScatter(const HighFive::DataSet& sf_dset,
+                    const NodeLayout& slices,
+                    const std::vector<size_t>& io_order,
+                    const Selection::Ranges& io_blocks,
+                    const std::vector<size_t>& output_offsets,
+                    const std::vector<uint64_t>& selected_electrodes,
+                    size_t n_electrodes,
+                    ElectrodeDataFrame& result) {
+    const size_t n_cols = selected_electrodes.size();
+
+    for (const auto& block : io_blocks) {
+        const size_t first_io = block[0];
+        const size_t last_io = block[1] - 1;
+        const size_t file_row_start = slices.ranges[io_order[first_io]][0];
+        const size_t file_row_end = slices.ranges[io_order[last_io]][1];
+
+        std::vector<std::vector<double>> block_data;
+        sf_dset.select({file_row_start, 0}, {file_row_end - file_row_start, n_electrodes})
+            .read(block_data);
+
+        for (size_t i = first_io; i <= last_io; ++i) {
+            const size_t n = io_order[i];
+            const auto& range = slices.ranges[n];
+            const size_t n_compartments = range[1] - range[0];
+            const size_t local_row_start = range[0] - file_row_start;
+            const size_t out_start = output_offsets[n];
+
+            for (size_t comp = 0; comp < n_compartments; ++comp) {
+                const size_t out_row = out_start + comp;
+                result.ids[out_row] = {slices.node_ids[n], comp};
+
+                const auto& src_row = block_data[local_row_start + comp];
+                for (size_t col = 0; col < n_cols; ++col) {
+                    result.data[out_row * n_cols + col] =
+                        static_cast<float>(src_row[selected_electrodes[col]]);
+                }
+            }
+        }
+    }
+}
+
+
 /// Uses binary search on the sorted index. Nodes not found are silently skipped.
-std::vector<NodeSlice> resolveNodeSelection(const nonstd::optional<Selection>& node_ids,
-                                            const std::vector<NodeID>& all_node_ids,
-                                            const Selection::Ranges& all_ranges,
-                                            const std::vector<uint64_t>& sorted_index) {
-    std::vector<NodeSlice> slices;
+NodeLayout resolveNodeSelection(const nonstd::optional<Selection>& node_ids,
+                                const std::vector<NodeID>& all_node_ids,
+                                const Selection::Ranges& all_ranges,
+                                const std::vector<uint64_t>& sorted_index) {
+    NodeLayout layout;
 
     if (!node_ids) {
-        for (size_t idx : sorted_index) {
-            slices.push_back({all_node_ids[idx], all_ranges[idx]});
-        }
+        layout.add(all_node_ids, all_ranges, sorted_index);
     } else if (!node_ids->empty()) {
         for (const auto node_id : node_ids->flatten()) {
             const auto it =
@@ -131,12 +237,12 @@ std::vector<NodeSlice> resolveNodeSelection(const nonstd::optional<Selection>& n
                                  [&](size_t i, NodeID nid) { return all_node_ids[i] < nid; });
 
             if (it != sorted_index.end() && all_node_ids[*it] == node_id) {
-                slices.push_back({node_id, all_ranges[*it]});
+                layout.add(node_id, all_ranges[*it]);
             }
         }
     }
 
-    return slices;
+    return layout;
 }
 
 }  // anonymous namespace
@@ -236,51 +342,23 @@ ElectrodeDataFrame ElectrodeReader::Population::get(
 
     result.electrodes = selected_electrodes;
     const size_t n_cols = selected_electrodes.size();
-    const size_t n_nodes = slices.size();
 
-    // Compute per-node output offsets and total rows
-    std::vector<size_t> output_offsets(n_nodes + 1, 0);
-    for (size_t n = 0; n < n_nodes; ++n) {
-        output_offsets[n + 1] =
-            output_offsets[n] + (slices[n].range[1] - slices[n].range[0]);
-    }
+    const auto output_offsets = computeOutputOffsets(slices);
     const size_t total_rows = output_offsets.back();
 
     result.ids.resize(total_rows);
     result.data.resize(total_rows * n_cols);
 
-    // Build I/O order: sort nodes by file row position for sequential reads
-    std::vector<size_t> io_order(n_nodes);
-    std::iota(io_order.begin(), io_order.end(), 0);
-    std::sort(io_order.begin(), io_order.end(), [&](size_t a, size_t b) {
-        return slices[a].range[0] < slices[b].range[0];
-    });
+    const auto io_order = buildIOOrder(slices);
+    constexpr size_t block_gap_limit = 32;
+    const auto io_blocks = coalesceIOBlocks(slices, io_order, block_gap_limit);
 
     const auto sf_path = std::string("electrodes/") + population_name_ + "/scaling_factors";
     const auto sf_dset = electrodes_group_.getFile().getDataSet(sf_path);
 
-    // Read in file order, write to correct output position
-    for (const auto n : io_order) {
-        const auto& range = slices[n].range;
-        const size_t n_compartments = range[1] - range[0];
-        if (n_compartments == 0) {
-            continue;
-        }
-
-        std::vector<std::vector<double>> raw_data_2d;
-        sf_dset.select({range[0], 0}, {n_compartments, n_electrodes_}).read(raw_data_2d);
-
-        const size_t out_start = output_offsets[n];
-        for (size_t comp = 0; comp < n_compartments; ++comp) {
-            const size_t out_row = out_start + comp;
-            result.ids[out_row] = {slices[n].node_id, comp};
-
-            for (size_t col = 0; col < n_cols; ++col) {
-                result.data[out_row * n_cols + col] =
-                    static_cast<float>(raw_data_2d[comp][selected_electrodes[col]]);
-            }
-        }
-    }
+    readAndScatter(
+        sf_dset, slices, io_order, io_blocks, output_offsets, selected_electrodes, n_electrodes_,
+        result);
 
     return result;
 }
