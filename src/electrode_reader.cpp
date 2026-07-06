@@ -101,25 +101,23 @@ std::vector<uint64_t> resolveElectrodeSelection(const nonstd::optional<Selection
 }
 
 
-struct NodeLayout {
-    std::vector<NodeID> node_ids;
-    Selection::Ranges ranges;
+struct NodeSlice {
+    NodeID node_id;
+    Selection::Range range;
 };
 
 
 /// Resolve an optional node Selection into matching node IDs and their row ranges.
 /// Uses binary search on the sorted index. Nodes not found are silently skipped.
-NodeLayout resolveNodeSelection(const nonstd::optional<Selection>& node_ids,
-                                const std::vector<NodeID>& all_node_ids,
-                                const Selection::Ranges& all_ranges,
-                                const std::vector<uint64_t>& sorted_index) {
-    NodeLayout layout;
+std::vector<NodeSlice> resolveNodeSelection(const nonstd::optional<Selection>& node_ids,
+                                            const std::vector<NodeID>& all_node_ids,
+                                            const Selection::Ranges& all_ranges,
+                                            const std::vector<uint64_t>& sorted_index) {
+    std::vector<NodeSlice> slices;
 
     if (!node_ids) {
-        // All nodes in sorted order
         for (size_t idx : sorted_index) {
-            layout.node_ids.emplace_back(all_node_ids[idx]);
-            layout.ranges.emplace_back(all_ranges[idx]);
+            slices.push_back({all_node_ids[idx], all_ranges[idx]});
         }
     } else if (!node_ids->empty()) {
         for (const auto node_id : node_ids->flatten()) {
@@ -130,13 +128,12 @@ NodeLayout resolveNodeSelection(const nonstd::optional<Selection>& node_ids,
                                  [&](size_t i, NodeID nid) { return all_node_ids[i] < nid; });
 
             if (it != sorted_index.end() && all_node_ids[*it] == node_id) {
-                layout.node_ids.emplace_back(node_id);
-                layout.ranges.emplace_back(all_ranges[*it]);
+                slices.push_back({node_id, all_ranges[*it]});
             }
         }
     }
 
-    return layout;
+    return slices;
 }
 
 }  // anonymous namespace
@@ -229,19 +226,20 @@ ElectrodeDataFrame ElectrodeReader::Population::get(
         return result;
     }
 
-    const auto layout = resolveNodeSelection(node_ids, node_ids_, node_ranges_, node_index_);
-    if (layout.node_ids.empty()) {
+    const auto slices = resolveNodeSelection(node_ids, node_ids_, node_ranges_, node_index_);
+    if (slices.empty()) {
         return result;
     }
 
     result.electrodes = selected_electrodes;
     const size_t n_cols = selected_electrodes.size();
-    const size_t n_nodes = layout.node_ids.size();
+    const size_t n_nodes = slices.size();
 
     // Compute per-node output offsets and total rows
     std::vector<size_t> output_offsets(n_nodes + 1, 0);
     for (size_t n = 0; n < n_nodes; ++n) {
-        output_offsets[n + 1] = output_offsets[n] + (layout.ranges[n][1] - layout.ranges[n][0]);
+        output_offsets[n + 1] =
+            output_offsets[n] + (slices[n].range[1] - slices[n].range[0]);
     }
     const size_t total_rows = output_offsets.back();
 
@@ -252,7 +250,7 @@ ElectrodeDataFrame ElectrodeReader::Population::get(
     std::vector<size_t> io_order(n_nodes);
     std::iota(io_order.begin(), io_order.end(), 0);
     std::sort(io_order.begin(), io_order.end(), [&](size_t a, size_t b) {
-        return layout.ranges[a][0] < layout.ranges[b][0];
+        return slices[a].range[0] < slices[b].range[0];
     });
 
     const auto sf_path = std::string("electrodes/") + population_name_ + "/scaling_factors";
@@ -260,7 +258,7 @@ ElectrodeDataFrame ElectrodeReader::Population::get(
 
     // Read in file order, write to correct output position
     for (const auto n : io_order) {
-        const auto& range = layout.ranges[n];
+        const auto& range = slices[n].range;
         const size_t n_compartments = range[1] - range[0];
         if (n_compartments == 0) {
             continue;
@@ -272,7 +270,7 @@ ElectrodeDataFrame ElectrodeReader::Population::get(
         const size_t out_start = output_offsets[n];
         for (size_t comp = 0; comp < n_compartments; ++comp) {
             const size_t out_row = out_start + comp;
-            result.ids[out_row] = {layout.node_ids[n], comp};
+            result.ids[out_row] = {slices[n].node_id, comp};
 
             for (size_t col = 0; col < n_cols; ++col) {
                 result.data[out_row * n_cols + col] =
