@@ -1,14 +1,13 @@
-import os
 import unittest
+from pathlib import Path
 
 import numpy as np
 import numpy.testing as npt
 
 from libsonata import ElectrodeReader, Selection, SonataError
 
-PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                    '../../tests/data')
-ELECTRODE_FILE = os.path.join(PATH, 'electrodes/electrode_weights.h5')
+PATH = Path(__file__).resolve().parent / '../../tests/data'
+ELECTRODE_FILE = str(PATH / 'electrodes/electrode_weights.h5')
 
 
 class TestElectrodeReader(unittest.TestCase):

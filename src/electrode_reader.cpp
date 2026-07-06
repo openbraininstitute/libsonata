@@ -236,20 +236,30 @@ ElectrodeDataFrame ElectrodeReader::Population::get(
 
     result.electrodes = selected_electrodes;
     const size_t n_cols = selected_electrodes.size();
+    const size_t n_nodes = layout.node_ids.size();
 
-    size_t total_rows = 0;
-    for (const auto& range : layout.ranges) {
-        total_rows += (range[1] - range[0]);
+    // Compute per-node output offsets and total rows
+    std::vector<size_t> output_offsets(n_nodes + 1, 0);
+    for (size_t n = 0; n < n_nodes; ++n) {
+        output_offsets[n + 1] = output_offsets[n] + (layout.ranges[n][1] - layout.ranges[n][0]);
     }
+    const size_t total_rows = output_offsets.back();
 
-    result.ids.reserve(total_rows);
+    result.ids.resize(total_rows);
     result.data.resize(total_rows * n_cols);
+
+    // Build I/O order: sort nodes by file row position for sequential reads
+    std::vector<size_t> io_order(n_nodes);
+    std::iota(io_order.begin(), io_order.end(), 0);
+    std::sort(io_order.begin(), io_order.end(), [&](size_t a, size_t b) {
+        return layout.ranges[a][0] < layout.ranges[b][0];
+    });
 
     const auto sf_path = std::string("electrodes/") + population_name_ + "/scaling_factors";
     const auto sf_dset = electrodes_group_.getFile().getDataSet(sf_path);
 
-    size_t out_row = 0;
-    for (size_t n = 0; n < layout.node_ids.size(); ++n) {
+    // Read in file order, write to correct output position
+    for (const auto n : io_order) {
         const auto& range = layout.ranges[n];
         const size_t n_compartments = range[1] - range[0];
         if (n_compartments == 0) {
@@ -259,14 +269,15 @@ ElectrodeDataFrame ElectrodeReader::Population::get(
         std::vector<std::vector<double>> raw_data_2d;
         sf_dset.select({range[0], 0}, {n_compartments, n_electrodes_}).read(raw_data_2d);
 
+        const size_t out_start = output_offsets[n];
         for (size_t comp = 0; comp < n_compartments; ++comp) {
-            result.ids.push_back({layout.node_ids[n], comp});
+            const size_t out_row = out_start + comp;
+            result.ids[out_row] = {layout.node_ids[n], comp};
 
             for (size_t col = 0; col < n_cols; ++col) {
-                result.data[out_row * n_cols + col] = static_cast<float>(
-                    raw_data_2d[comp][selected_electrodes[col]]);
+                result.data[out_row * n_cols + col] =
+                    static_cast<float>(raw_data_2d[comp][selected_electrodes[col]]);
             }
-            ++out_row;
         }
     }
 
