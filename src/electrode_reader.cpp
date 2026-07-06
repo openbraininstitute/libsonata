@@ -213,7 +213,7 @@ void readAndScatter(const HighFive::DataSet& sf_dset,
                 const size_t src_offset = (local_row_start + comp) * n_electrodes;
                 for (size_t col = 0; col < n_cols; ++col) {
                     result.data[out_row * n_cols + col] =
-                        static_cast<float>(block_data[src_offset + selected_electrodes[col]]);
+                        block_data[src_offset + selected_electrodes[col]];
                 }
             }
         }

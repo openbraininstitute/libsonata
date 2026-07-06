@@ -70,7 +70,7 @@ class TestElectrodeDataFrame(unittest.TestCase):
         self.assertEqual(df.ids.dtype, np.uint64)
         npt.assert_array_equal(df.electrodes, [0, 1])
         self.assertEqual(df.data.shape, (9, 2))
-        self.assertEqual(df.data.dtype, np.float32)
+        self.assertEqual(df.data.dtype, np.float64)
 
         # Sorted order: node 2 (2 comp), node 5 (3 comp), node 8 (4 comp)
         expected_ids = np.array([
@@ -85,7 +85,7 @@ class TestElectrodeDataFrame(unittest.TestCase):
             [0.4, 0.41], [0.5, 0.51],
             [0.1, 0.11], [0.2, 0.21], [0.3, 0.31],
             [0.6, 0.61], [0.7, 0.71], [0.8, 0.81], [0.9, 0.91],
-        ], dtype=np.float32)
+        ], dtype=np.float64)
         npt.assert_allclose(df.data, expected_data, atol=1e-6)
 
     def test_get_node_selection(self):
@@ -102,7 +102,7 @@ class TestElectrodeDataFrame(unittest.TestCase):
         npt.assert_array_equal(df.electrodes, [1])
         expected_col1 = np.array(
             [0.41, 0.51, 0.11, 0.21, 0.31, 0.61, 0.71, 0.81, 0.91],
-            dtype=np.float32)
+            dtype=np.float64)
         npt.assert_allclose(df.data[:, 0], expected_col1, atol=1e-6)
 
     def test_get_both_selections(self):
@@ -141,7 +141,7 @@ class TestElectrodeDataFrame(unittest.TestCase):
         # Values: (i+1)*0.5 + j*0.05
         expected = np.array(
             [[(i + 1) * 0.5 + j * 0.05 for j in range(3)] for i in range(5)],
-            dtype=np.float32,
+            dtype=np.float64,
         )
         npt.assert_allclose(df.data, expected, atol=1e-6)
 

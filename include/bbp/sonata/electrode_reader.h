@@ -31,7 +31,7 @@ struct SONATA_API ElectrodeDataFrame {
     std::vector<uint64_t> electrodes;
 
     /// Flattened row-major data. data[row * n_cols + col] where n_cols = electrodes.size()
-    std::vector<float> data;
+    std::vector<double> data;
 };
 
 /**
