@@ -192,10 +192,12 @@ void readAndScatter(const HighFive::DataSet& sf_dset,
         const size_t last_io = block[1] - 1;
         const size_t file_row_start = slices.ranges[io_order[first_io]][0];
         const size_t file_row_end = slices.ranges[io_order[last_io]][1];
+        const size_t block_rows = file_row_end - file_row_start;
 
-        std::vector<std::vector<double>> block_data;
-        sf_dset.select({file_row_start, 0}, {file_row_end - file_row_start, n_electrodes})
-            .read(block_data);
+        // Read into a flat contiguous buffer (avoids millions of per-row allocations)
+        std::vector<double> block_data(block_rows * n_electrodes);
+        sf_dset.select({file_row_start, 0}, {block_rows, n_electrodes})
+            .read_raw(block_data.data());
 
         for (size_t i = first_io; i <= last_io; ++i) {
             const size_t n = io_order[i];
@@ -208,10 +210,10 @@ void readAndScatter(const HighFive::DataSet& sf_dset,
                 const size_t out_row = out_start + comp;
                 result.ids[out_row] = {slices.node_ids[n], comp};
 
-                const auto& src_row = block_data[local_row_start + comp];
+                const size_t src_offset = (local_row_start + comp) * n_electrodes;
                 for (size_t col = 0; col < n_cols; ++col) {
                     result.data[out_row * n_cols + col] =
-                        static_cast<float>(src_row[selected_electrodes[col]]);
+                        static_cast<float>(block_data[src_offset + selected_electrodes[col]]);
                 }
             }
         }
