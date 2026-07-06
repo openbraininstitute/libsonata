@@ -196,8 +196,7 @@ void readAndScatter(const HighFive::DataSet& sf_dset,
 
         // Read into a flat contiguous buffer (avoids millions of per-row allocations)
         std::vector<double> block_data(block_rows * n_electrodes);
-        sf_dset.select({file_row_start, 0}, {block_rows, n_electrodes})
-            .read_raw(block_data.data());
+        sf_dset.select({file_row_start, 0}, {block_rows, n_electrodes}).read_raw(block_data.data());
 
         for (size_t i = first_io; i <= last_io; ++i) {
             const size_t n = io_order[i];
@@ -358,9 +357,14 @@ ElectrodeDataFrame ElectrodeReader::Population::get(
     const auto sf_path = std::string("electrodes/") + population_name_ + "/scaling_factors";
     const auto sf_dset = electrodes_group_.getFile().getDataSet(sf_path);
 
-    readAndScatter(
-        sf_dset, slices, io_order, io_blocks, output_offsets, selected_electrodes, n_electrodes_,
-        result);
+    readAndScatter(sf_dset,
+                   slices,
+                   io_order,
+                   io_blocks,
+                   output_offsets,
+                   selected_electrodes,
+                   n_electrodes_,
+                   result);
 
     return result;
 }
