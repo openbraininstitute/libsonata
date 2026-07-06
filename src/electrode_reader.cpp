@@ -20,6 +20,15 @@ struct ElectrodeInfo {
     std::string type;
 };
 
+/// Pairs a node_id with its row range in scaling_factors.
+/// AoS (vs SoA) is used here because the two fields are always accessed together
+/// and the number of nodes is small relative to total compartments — the bottleneck
+/// is HDF5 I/O, not struct layout.
+struct NodeSlice {
+    NodeID node_id;
+    Selection::Range range;
+};
+
 
 /// Build an index that maps sorted position to original position in node_ids.
 std::vector<uint64_t> buildSortedIndex(const std::vector<NodeID>& node_ids) {
@@ -99,12 +108,6 @@ std::vector<uint64_t> resolveElectrodeSelection(const nonstd::optional<Selection
     }
     return selected;
 }
-
-
-struct NodeSlice {
-    NodeID node_id;
-    Selection::Range range;
-};
 
 
 /// Resolve an optional node Selection into matching node IDs and their row ranges.
