@@ -31,6 +31,49 @@ TEST_CASE("Selection", "[base]") {
         CHECK(selection.flatSize() == 5);
         CHECK(!selection.empty());
     }
+    SECTION("iterator") {
+        // Empty selection
+        {
+            const auto sel = Selection({});
+            CHECK(sel.begin() == sel.end());
+            std::vector<uint64_t> collected(sel.begin(), sel.end());
+            CHECK(collected.empty());
+        }
+        // Single range
+        {
+            const auto sel = Selection({{3, 7}});
+            std::vector<uint64_t> collected(sel.begin(), sel.end());
+            CHECK(collected == std::vector<uint64_t>{3, 4, 5, 6});
+        }
+        // Multiple ranges — order preserved (not sorted)
+        {
+            const auto sel = Selection({{3, 5}, {0, 3}});
+            std::vector<uint64_t> collected(sel.begin(), sel.end());
+            CHECK(collected == std::vector<uint64_t>{3, 4, 0, 1, 2});
+        }
+        // Matches flatten() output
+        {
+            const auto sel = Selection({{10, 12}, {5, 8}, {0, 2}});
+            std::vector<uint64_t> collected(sel.begin(), sel.end());
+            CHECK(collected == sel.flatten());
+        }
+        // Range-based for loop
+        {
+            const auto sel = Selection({{1, 4}});
+            std::vector<uint64_t> collected;
+            for (auto v : sel) {
+                collected.push_back(v);
+            }
+            CHECK(collected == std::vector<uint64_t>{1, 2, 3});
+        }
+        // Post-increment returns previous value
+        {
+            const auto sel = Selection({{5, 8}});
+            auto it = sel.begin();
+            CHECK(*it++ == 5);
+            CHECK(*it == 6);
+        }
+    }
     SECTION("comparison") {
         const auto empty = Selection({});
         const auto range_selection = Selection({{0, 2}, {3, 4}});

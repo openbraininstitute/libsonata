@@ -104,6 +104,35 @@ class TestSelection(unittest.TestCase):
         self.assertEqual(empty, odd & even)
         self.assertEqual(Selection(list(range(10))), odd | even)
 
+    def test_iterator(self):
+        # Basic iteration matches flatten
+        sel = Selection([(3, 5), (0, 3)])
+        self.assertEqual(list(sel), sel.flatten().tolist())
+
+        # Empty selection yields nothing
+        empty = Selection([])
+        self.assertEqual(list(empty), [])
+
+        # Order preserved (not sorted)
+        sel2 = Selection([(10, 12), (5, 8), (0, 2)])
+        self.assertEqual(list(sel2), [10, 11, 5, 6, 7, 0, 1])
+        self.assertEqual(list(sel2), sel2.flatten().tolist())
+
+        # Works with set, sum, generator expressions
+        sel3 = Selection([(0, 5)])
+        self.assertEqual(sum(sel3), 0 + 1 + 2 + 3 + 4)
+        self.assertEqual(set(sel3), {0, 1, 2, 3, 4})
+
+        # iter() returns an iterator, next() works
+        it = iter(sel)
+        self.assertEqual(next(it), 3)
+        self.assertEqual(next(it), 4)
+        self.assertEqual(next(it), 0)
+        self.assertEqual(next(it), 1)
+        self.assertEqual(next(it), 2)
+        with self.assertRaises(StopIteration):
+            next(it)
+
 
 class TestNodePopulation(unittest.TestCase):
     def setUp(self):

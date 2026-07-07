@@ -503,7 +503,13 @@ PYBIND11_MODULE(_libsonata, m) {
             return fmt::format("Selection([{}, ..., {}])",
                                fmt::join(ranges.begin(), ranges.begin() + 3, ", "),
                                fmt::join(ranges.end() - 3, ranges.end(), ", "));
-        });
+        })
+        .def(
+            "__iter__",
+            [](const Selection& obj) {
+                return py::make_iterator(obj.begin(), obj.end());
+            },
+            py::keep_alive<0, 1>());
     py::implicitly_convertible<py::list, Selection>();
     py::implicitly_convertible<py::tuple, Selection>();
 
