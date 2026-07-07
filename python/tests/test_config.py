@@ -440,7 +440,8 @@ class TestSimulationConfig(unittest.TestCase):
 
         self.assertEqual(self.config.output.output_dir,
                          os.path.abspath(os.path.join(PATH, 'config/some/path/output')))
-        self.assertEqual(self.config.output.spikes_file, 'out.h5')
+        self.assertEqual(self.config.output.spikes_file,
+                         os.path.abspath(os.path.join(PATH, 'config/out.h5')))
         self.assertEqual(self.config.output.log_file, '')
         self.assertEqual(self.config.output.spikes_sort_order,
                          SimulationConfig.Output.SpikesSortOrder.by_id)
@@ -1446,3 +1447,30 @@ class TestSimulationConfig(unittest.TestCase):
             }
         }
         self.assertRaises(SonataError, SimulationConfig, json.dumps(contents), './')
+
+    def test_output_absolute_paths(self):
+        contents = {
+            "run": {"tstop": 100, "dt": 0.025, "random_seed": 1},
+        }
+        sc = SimulationConfig(json.dumps(contents), '/some/path/')
+        self.assertEqual(sc.output.output_dir, "/some/path/output")
+        self.assertEqual(sc.output.log_file, "")
+        self.assertEqual(sc.output.spikes_file, "/some/path/out.h5")
+
+        contents = {
+            "run": {"tstop": 100, "dt": 0.025, "random_seed": 1},
+            "output": {}
+        }
+        sc = SimulationConfig(json.dumps(contents), '/some/path/')
+        self.assertEqual(sc.output.output_dir, "/some/path/output")
+        self.assertEqual(sc.output.log_file, "")
+        self.assertEqual(sc.output.spikes_file, "/some/path/out.h5")
+
+        contents = {
+            "run": {"tstop": 100, "dt": 0.025, "random_seed": 1},
+            "output": {"log_file": "log_file"}
+        }
+        sc = SimulationConfig(json.dumps(contents), '/some/path/')
+        self.assertEqual(sc.output.output_dir, "/some/path/output")
+        self.assertEqual(sc.output.log_file, "/some/path/log_file")
+        self.assertEqual(sc.output.spikes_file, "/some/path/out.h5")
