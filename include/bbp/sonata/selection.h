@@ -102,7 +102,7 @@ class SONATA_API Selection
         const_iterator(Ranges::const_iterator range_it, Ranges::const_iterator range_end)
             : range_it_(range_it)
             , range_end_(range_end)
-            , current_(range_it != range_end ? std::get<0>(*range_it) : 0) {}
+            , current_(range_it != range_end ? std::get<0>(*range_it) : 0) { }
 
         Ranges::const_iterator range_it_{};
         Ranges::const_iterator range_end_{};
