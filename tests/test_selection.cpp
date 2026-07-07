@@ -73,6 +73,22 @@ TEST_CASE("Selection", "[base]") {
             CHECK(*it++ == 5);
             CHECK(*it == 6);
         }
+        // Iterator matches flatten() after union (sorted/merged ranges)
+        {
+            const auto a = Selection({{7, 10}, {3, 4}});
+            const auto b = Selection({{5, 9}, {0, 2}});
+            const auto merged = a | b;
+            std::vector<uint64_t> collected(merged.begin(), merged.end());
+            CHECK(collected == merged.flatten());
+        }
+        // Iterator matches flatten() after intersection
+        {
+            const auto a = Selection({{0, 10}, {20, 25}});
+            const auto b = Selection({{5, 22}});
+            const auto inter = a & b;
+            std::vector<uint64_t> collected(inter.begin(), inter.end());
+            CHECK(collected == inter.flatten());
+        }
     }
     SECTION("comparison") {
         const auto empty = Selection({});
