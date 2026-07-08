@@ -932,6 +932,32 @@ R"doc(Create Selection from a list of ranges
 Parameter ``ranges``:
     is a list of ranges constituting Selection)doc";
 
+static const char *__doc_bbp_sonata_Selection_begin = R"doc(Iterator to the first element of the selection)doc";
+
+static const char *__doc_bbp_sonata_Selection_const_iterator =
+R"doc(Forward iterator over individual element values in range-order. Yields
+the same sequence as flatten() without allocating a vector.)doc";
+
+static const char *__doc_bbp_sonata_Selection_const_iterator_const_iterator = R"doc()doc";
+
+static const char *__doc_bbp_sonata_Selection_const_iterator_const_iterator_2 = R"doc()doc";
+
+static const char *__doc_bbp_sonata_Selection_const_iterator_current = R"doc()doc";
+
+static const char *__doc_bbp_sonata_Selection_const_iterator_operator_eq = R"doc()doc";
+
+static const char *__doc_bbp_sonata_Selection_const_iterator_operator_inc = R"doc()doc";
+
+static const char *__doc_bbp_sonata_Selection_const_iterator_operator_inc_2 = R"doc()doc";
+
+static const char *__doc_bbp_sonata_Selection_const_iterator_operator_mul = R"doc()doc";
+
+static const char *__doc_bbp_sonata_Selection_const_iterator_operator_ne = R"doc()doc";
+
+static const char *__doc_bbp_sonata_Selection_const_iterator_range_end = R"doc()doc";
+
+static const char *__doc_bbp_sonata_Selection_const_iterator_range_it = R"doc()doc";
+
 static const char *__doc_bbp_sonata_Selection_contains =
 R"doc(Check if Selection contains a given node id
 
@@ -942,6 +968,8 @@ Returns:
     true if Selection contains the node id, false otherwise)doc";
 
 static const char *__doc_bbp_sonata_Selection_empty = R"doc()doc";
+
+static const char *__doc_bbp_sonata_Selection_end = R"doc(Past-the-end iterator)doc";
 
 static const char *__doc_bbp_sonata_Selection_flatSize = R"doc(Total number of elements constituting Selection)doc";
 

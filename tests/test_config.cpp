@@ -326,9 +326,9 @@ TEST_CASE("SimulationConfig") {
         CHECK(config.getReport("lfp").electrodesFile == (electrodesPath).lexically_normal());
 
         CHECK_NOTHROW(config.getOutput());
-        const auto outputPath = fs::absolute(basePath / "some/path/output");
-        CHECK(config.getOutput().outputDir == (outputPath).lexically_normal());
-        CHECK(config.getOutput().spikesFile == "out.h5");
+        const auto outputPath = fs::absolute(basePath / "some/path/output").lexically_normal();
+        CHECK(config.getOutput().outputDir == outputPath);
+        CHECK(config.getOutput().spikesFile == (basePath / "out.h5").lexically_normal());
         CHECK(config.getOutput().logFile.empty());
         CHECK(config.getOutput().sortOrder == SimulationConfig::Output::SpikesSortOrder::by_id);
 

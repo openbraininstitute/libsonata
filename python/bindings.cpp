@@ -493,18 +493,23 @@ PYBIND11_MODULE(_libsonata, m) {
         .def("__ne__", &bbp::sonata::operator!=, "Compare selection contents are not equal")
         .def("__or__", &bbp::sonata::operator|, "Union of selections")
         .def("__and__", &bbp::sonata::operator&, "Intersection of selections")
-        .def("__repr__", [](Selection& obj) {
-            const auto& ranges = obj.ranges();
-            const size_t max_count = 10;
+        .def("__repr__",
+             [](Selection& obj) {
+                 const auto& ranges = obj.ranges();
+                 const size_t max_count = 10;
 
-            if (ranges.size() < max_count) {
-                return fmt::format("Selection([{}])", fmt::join(ranges, ", "));
-            }
+                 if (ranges.size() < max_count) {
+                     return fmt::format("Selection([{}])", fmt::join(ranges, ", "));
+                 }
 
-            return fmt::format("Selection([{}, ..., {}])",
-                               fmt::join(ranges.begin(), ranges.begin() + 3, ", "),
-                               fmt::join(ranges.end() - 3, ranges.end(), ", "));
-        });
+                 return fmt::format("Selection([{}, ..., {}])",
+                                    fmt::join(ranges.begin(), ranges.begin() + 3, ", "),
+                                    fmt::join(ranges.end() - 3, ranges.end(), ", "));
+             })
+        .def(
+            "__iter__",
+            [](const Selection& obj) { return py::make_iterator(obj.begin(), obj.end()); },
+            py::keep_alive<0, 1>());
     py::implicitly_convertible<py::list, Selection>();
     py::implicitly_convertible<py::tuple, Selection>();
 
