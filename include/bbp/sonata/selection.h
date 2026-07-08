@@ -89,7 +89,14 @@ class SONATA_API Selection
         }
 
         bool operator==(const const_iterator& other) const {
-            return range_it_ == other.range_it_;
+            if (range_it_ != other.range_it_) {
+                return false;
+            }
+            // Both at end — current_ is irrelevant
+            if (range_it_ == range_end_) {
+                return true;
+            }
+            return current_ == other.current_;
         }
 
         bool operator!=(const const_iterator& other) const {
@@ -109,16 +116,10 @@ class SONATA_API Selection
         Value current_ = 0;
     };
 
-    /**
-     * Iterator to the first element of the selection
-     */
     const_iterator begin() const {
         return const_iterator(ranges_.cbegin(), ranges_.cend());
     }
 
-    /**
-     * Past-the-end iterator
-     */
     const_iterator end() const {
         return const_iterator(ranges_.cend(), ranges_.cend());
     }

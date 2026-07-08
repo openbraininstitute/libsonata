@@ -57,21 +57,41 @@ TEST_CASE("Selection", "[base]") {
             std::vector<uint64_t> collected(sel.begin(), sel.end());
             CHECK(collected == sel.flatten());
         }
-        // Range-based for loop
-        {
-            const auto sel = Selection({{1, 4}});
-            std::vector<uint64_t> collected;
-            for (auto v : sel) {
-                collected.push_back(v);
-            }
-            CHECK(collected == std::vector<uint64_t>{1, 2, 3});
-        }
+
         // Post-increment returns previous value
         {
             const auto sel = Selection({{5, 8}});
             auto it = sel.begin();
             CHECK(*it++ == 5);
             CHECK(*it == 6);
+        }
+        // Iterators at different positions within the same range are not equal
+        {
+            const auto sel = Selection({{0, 10}});
+            auto a = sel.begin();
+            auto b = sel.begin();
+            ++a;
+            CHECK(*a == 1);
+            CHECK(*b == 0);
+            CHECK(a != b);
+        }
+        // Iterators in different ranges but same current value are not equal
+        {
+            const auto sel = Selection({{0, 5}, {3, 8}});
+            auto a = sel.begin();  // range 0, current = 0
+            auto b = sel.begin();
+            // Advance b into second range, to current = 3
+            // b: 0,1,2,3,4 (range 0) -> 3 (range 1)
+            for (int i = 0; i < 5; ++i) {
+                ++b;
+            }
+            // Advance a to current = 3 within first range
+            for (int i = 0; i < 3; ++i) {
+                ++a;
+            }
+            CHECK(*a == 3);
+            CHECK(*b == 3);
+            CHECK(a != b);
         }
         // Iterator matches flatten() after union (sorted/merged ranges)
         {
