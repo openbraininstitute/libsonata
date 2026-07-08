@@ -300,7 +300,7 @@ nlohmann::json expandVariables(const nlohmann::json& json,
 
             if (startPos != std::string::npos) {
                 valueStr.replace(startPos, varName.length(), varValue);
-                value = fs::path(valueStr).lexically_normal();
+                value = fs::path(valueStr).lexically_normal().string();
             }
         }
     }
