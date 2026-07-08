@@ -116,10 +116,16 @@ class SONATA_API Selection
         Value current_ = 0;
     };
 
+    /**
+     * Iterator to the first element of the selection
+     */
     const_iterator begin() const {
         return const_iterator(ranges_.cbegin(), ranges_.cend());
     }
 
+    /**
+     * Past-the-end iterator
+     */
     const_iterator end() const {
         return const_iterator(ranges_.cend(), ranges_.cend());
     }
