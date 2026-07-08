@@ -104,6 +104,19 @@ class TestSelection(unittest.TestCase):
         self.assertEqual(empty, odd & even)
         self.assertEqual(Selection(list(range(10))), odd | even)
 
+    def test_iterator(self):
+        # Empty selection yields nothing
+        empty = Selection([])
+        self.assertEqual(list(empty), [])
+
+        # Order preserved, not sorted
+        sel = Selection([(10, 12), (5, 8), (0, 2)])
+        self.assertEqual(list(sel), [10, 11, 5, 6, 7, 0, 1])
+
+        # Overlapping ranges yield repeated values in range-order
+        sel2 = Selection([(0, 5), (3, 8)])
+        self.assertEqual(list(sel2), [0, 1, 2, 3, 4, 3, 4, 5, 6, 7])
+
 
 class TestNodePopulation(unittest.TestCase):
     def setUp(self):
