@@ -284,19 +284,11 @@ class CompartmentSets
         }
     }
 
-    static const fs::path& validate_path(const fs::path& path) {
-        if (!fs::exists(path)) {
-            throw SonataError(fmt::format("Path does not exist: {}", std::string(path)));
-        }
-        return path;
-    }
-
-    CompartmentSets(const fs::path& path)
-        : CompartmentSets(json::parse(std::ifstream(validate_path(path)))) { }
-
     static CompartmentSets fromFile(const std::string& path_) {
-        fs::path path(path_);
-        return path;
+        if (!fs::exists(path_)) {
+            throw SonataError(fmt::format("Path does not exist: {}", path_));
+        }
+        return CompartmentSets(json::parse(std::ifstream(path_)));
     }
 
     CompartmentSets(const std::string& content)

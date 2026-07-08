@@ -85,19 +85,11 @@ class NodeSets
         parse_compound(j, node_sets_);
     }
 
-    static const fs::path& validate_path(const fs::path& path) {
-        if (!fs::exists(path)) {
-            throw SonataError(fmt::format("Path does not exist: {}", std::string(path)));
-        }
-        return path;
-    }
-
-    explicit NodeSets(const fs::path& path)
-        : NodeSets(json::parse(std::ifstream(validate_path(path)))) { }
-
     static std::unique_ptr<NodeSets> fromFile(const std::string& path_) {
-        fs::path path(path_);
-        return std::make_unique<detail::NodeSets>(path);
+        if (!fs::exists(path_)) {
+            throw SonataError(fmt::format("Path does not exist: {}", path_));
+        }
+        return std::make_unique<detail::NodeSets>(json::parse(std::ifstream(path_)));
     }
 
     explicit NodeSets(const std::string& content)
