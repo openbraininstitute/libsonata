@@ -1266,7 +1266,7 @@ class SimulationConfig::Parser
         const auto outputIt = _json.find("output");
         if (outputIt == _json.end()) {
             result.outputDir = toAbsolute(_basePath, result.outputDir);
-            result.spikesFile = toAbsolute(_basePath, result.spikesFile);
+            result.spikesFile = toAbsolute(result.outputDir, result.spikesFile);
             return result;
         }
         parseOptional(*outputIt, "output_dir", result.outputDir, {Output::DEFAULT_outputDir});
@@ -1278,9 +1278,9 @@ class SimulationConfig::Parser
                       {Output::DEFAULT_sortOrder});
 
         result.outputDir = toAbsolute(_basePath, result.outputDir);
-        result.spikesFile = toAbsolute(_basePath, result.spikesFile);
+        result.spikesFile = toAbsolute(result.outputDir, result.spikesFile);
         if (!result.logFile.empty()) {
-            result.logFile = toAbsolute(_basePath, result.logFile);
+            result.logFile = toAbsolute(result.outputDir, result.logFile);
         }
 
         return result;
