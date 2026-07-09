@@ -357,7 +357,11 @@ ElectrodeScalingFactors ElectrodeReader::Population::get(
     result.data.resize(total_rows * n_cols);
 
     const auto io_order = buildIOOrder(slices);
-    constexpr size_t block_gap_limit = 32;
+    // Coalescing gap: merge adjacent reads if the gap between them is within budget.
+    // Use a 4 MB over-read tolerance (same as ReportReader), converted to rows.
+    constexpr size_t block_gap_bytes = 4 * 1024 * 1024;
+    const size_t row_bytes = n_electrodes_ * sizeof(double);
+    const size_t block_gap_limit = block_gap_bytes / row_bytes;
     const auto io_blocks = coalesceIOBlocks(slices, io_order, block_gap_limit);
 
     const auto sf_path = std::string("electrodes/") + population_name_ + "/scaling_factors";
