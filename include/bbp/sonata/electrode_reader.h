@@ -20,7 +20,7 @@ namespace sonata {
  * Represents a 2D matrix of shape (n_compartments, n_electrodes) with
  * row and column identity information.
  */
-struct SONATA_API ElectrodeDataFrame {
+struct SONATA_API ElectrodeScalingFactors {
     using DataType = std::vector<CompartmentID>;
 
     /// Per-row identity: [node_id, local_compartment_index]
@@ -62,9 +62,9 @@ class SONATA_API ElectrodeReader
          * \param node_ids selection of node IDs to include. nullopt means all nodes.
          * \param electrode_ids selection of electrode column indices to include.
          *        nullopt means all electrodes.
-         * \return ElectrodeDataFrame with the submatrix of scaling factors.
+         * \return ElectrodeScalingFactors with the submatrix of scaling factors.
          */
-        ElectrodeDataFrame get(
+        ElectrodeScalingFactors get(
             const nonstd::optional<Selection>& node_ids = nonstd::nullopt,
             const nonstd::optional<Selection>& electrode_ids = nonstd::nullopt) const;
 
@@ -77,7 +77,7 @@ class SONATA_API ElectrodeReader
          * Return electrode positions ordered by column index.
          * Each entry is [x, y, z] in micrometers.
          */
-        std::vector<std::array<double, 3>> getElectrodePositions() const;
+        std::vector<std::array<float, 3>> getElectrodePositions() const;
 
         /**
          * Return electrode types ordered by column index.
@@ -97,7 +97,7 @@ class SONATA_API ElectrodeReader
 
         // Electrode metadata (ordered by column index)
         std::vector<std::string> electrode_names_;
-        std::vector<std::array<double, 3>> electrode_positions_;
+        std::vector<std::array<float, 3>> electrode_positions_;
         std::vector<std::string> electrode_types_;
 
         friend ElectrodeReader;

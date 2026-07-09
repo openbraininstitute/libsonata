@@ -208,3 +208,9 @@ TEST_CASE("ElectrodeReader::Population NodeB", "[electrode]") {
     REQUIRE(df.data[12] == Catch::Approx(2.5f));   // row 4, col 0
     REQUIRE(df.data[14] == Catch::Approx(2.6f));   // row 4, col 2
 }
+
+TEST_CASE("ElectrodeReader bad position throws", "[electrode]") {
+    const std::string bad_file = "./data/electrodes/electrode_bad_position.h5";
+    const ElectrodeReader reader(bad_file);
+    REQUIRE_THROWS_AS(reader.openPopulation("BadPop"), SonataError);
+}

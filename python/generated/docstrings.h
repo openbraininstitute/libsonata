@@ -363,21 +363,21 @@ static const char *__doc_bbp_sonata_EdgePopulation_targetNodeIDs = R"doc(Return 
 
 static const char *__doc_bbp_sonata_EdgePopulation_writeIndices = R"doc(Write bidirectional node->edge indices to EdgePopulation HDF5.)doc";
 
-static const char *__doc_bbp_sonata_ElectrodeDataFrame =
+static const char *__doc_bbp_sonata_ElectrodeScalingFactors =
 R"doc(Container for electrode scaling factor data.
 
 Represents a 2D matrix of shape (n_compartments, n_electrodes) with
 row and column identity information.)doc";
 
-static const char *__doc_bbp_sonata_ElectrodeDataFrame_data =
+static const char *__doc_bbp_sonata_ElectrodeScalingFactors_data =
 R"doc(Flattened row-major data. data[row * n_cols + col] where n_cols =
 electrodes.size())doc";
 
-static const char *__doc_bbp_sonata_ElectrodeDataFrame_electrodes =
+static const char *__doc_bbp_sonata_ElectrodeScalingFactors_electrodes =
 R"doc(Per-column identity: electrode indices returned. Uses uint64_t for
 consistency with Selection::Value and other libsonata public APIs.)doc";
 
-static const char *__doc_bbp_sonata_ElectrodeDataFrame_ids = R"doc(Per-row identity: [node_id, local_compartment_index])doc";
+static const char *__doc_bbp_sonata_ElectrodeScalingFactors_ids = R"doc(Per-row identity: [node_id, local_compartment_index])doc";
 
 static const char *__doc_bbp_sonata_ElectrodeReader =
 R"doc(Reader for SONATA electrode weight files (HDF5).
@@ -411,7 +411,7 @@ Parameter ``electrode_ids``:
     all electrodes.
 
 Returns:
-    ElectrodeDataFrame with the submatrix of scaling factors.)doc";
+    ElectrodeScalingFactors with the submatrix of scaling factors.)doc";
 
 static const char *__doc_bbp_sonata_ElectrodeReader_Population_getElectrodeNames = R"doc(Return electrode names ordered by column index.)doc";
 

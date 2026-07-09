@@ -7,7 +7,7 @@ import numpy.testing as npt
 from libsonata import ElectrodeReader, Selection, SonataError
 
 PATH = Path(__file__).resolve().parent / '../../tests/data'
-ELECTRODE_FILE = str(PATH / 'electrodes/electrode_weights.h5')
+ELECTRODE_FILE = PATH / 'electrodes/electrode_weights.h5'
 
 
 class TestElectrodeReader(unittest.TestCase):
@@ -56,7 +56,7 @@ class TestElectrodePopulation(unittest.TestCase):
         self.assertEqual(self.pop_a.electrode_types, ['LineSource', 'PointSource'])
 
 
-class TestElectrodeDataFrame(unittest.TestCase):
+class TestElectrodeScalingFactors(unittest.TestCase):
     def setUp(self):
         self.reader = ElectrodeReader(ELECTRODE_FILE)
         self.pop_a = self.reader['NodeA']

@@ -1572,26 +1572,26 @@ PYBIND11_MODULE(_libsonata, m) {
     bindReportReader<ElementReportReader, CompartmentID>(m, "Element");
 
     // ElectrodeReader bindings
-    py::class_<ElectrodeDataFrame>(m,
-                                   "ElectrodeDataFrame",
-                                   "A container of electrode scaling factor data")
+    py::class_<ElectrodeScalingFactors>(m,
+                                        "ElectrodeScalingFactors",
+                                        "A container of electrode scaling factor data")
         .def_property_readonly(
             "ids",
-            [](const ElectrodeDataFrame& df) {
+            [](const ElectrodeScalingFactors& df) {
                 std::array<ssize_t, 1> dims{ssize_t(df.ids.size())};
                 return managedMemoryArray(df.ids.data(), dims, df);
             },
             "Row identifiers: (node_id, compartment_index) per row")
         .def_property_readonly(
             "electrodes",
-            [](const ElectrodeDataFrame& df) {
+            [](const ElectrodeScalingFactors& df) {
                 std::array<ssize_t, 1> dims{ssize_t(df.electrodes.size())};
                 return managedMemoryArray(df.electrodes.data(), dims, df);
             },
             "Column identifiers: electrode indices returned")
         .def_property_readonly(
             "data",
-            [](const ElectrodeDataFrame& df) {
+            [](const ElectrodeScalingFactors& df) {
                 std::array<ssize_t, 2> dims{0l, ssize_t(df.electrodes.size())};
                 if (dims[1] > 0) {
                     dims[0] = df.data.size() / dims[1];
@@ -1622,10 +1622,10 @@ PYBIND11_MODULE(_libsonata, m) {
             "electrode_positions",
             [](const ElectrodeReader::Population& pop) {
                 auto positions = pop.getElectrodePositions();
-                auto ptr = new std::vector<std::array<double, 3>>(std::move(positions));
+                auto ptr = new std::vector<std::array<float, 3>>(std::move(positions));
                 std::array<ssize_t, 2> dims{ssize_t(ptr->size()), 3l};
                 return py::array(dims,
-                                 reinterpret_cast<const double*>(ptr->data()),
+                                 reinterpret_cast<const float*>(ptr->data()),
                                  freeWhenDone(ptr));
             },
             "Electrode positions (n_electrodes, 3) in micrometers")

@@ -13,13 +13,6 @@ namespace sonata {
 
 namespace {
 
-struct ElectrodeInfo {
-    uint64_t column_index;
-    std::string name;
-    std::array<double, 3> position;
-    std::string type;
-};
-
 /// Resolved node selection: parallel vectors of node IDs and their row ranges.
 struct NodeLayout {
     std::vector<NodeID> node_ids;
@@ -65,53 +58,63 @@ std::vector<uint64_t> buildSortedIndex(const std::vector<NodeID>& node_ids) {
 }
 
 
-/// Scan /electrodes/{name}/ subgroups to collect per-electrode metadata for a population.
-std::vector<ElectrodeInfo> discoverElectrodeMetadata(const HighFive::Group& electrodes_group,
-                                                     const std::string& populationName) {
-    std::vector<ElectrodeInfo> infos;
+/// Scan /electrodes/{name}/ subgroups and populate metadata vectors for a population.
+/// Vectors are ordered by column index (HDF5 group iteration order is not guaranteed).
+void discoverElectrodeMetadata(const HighFive::Group& electrodes_group,
+                               const std::string& populationName,
+                               std::vector<std::string>& names,
+                               std::vector<std::array<float, 3>>& positions,
+                               std::vector<std::string>& types) {
+    struct Entry {
+        uint64_t column_index;
+        std::string name;
+        std::array<float, 3> position;
+        std::string type;
+    };
+    std::vector<Entry> entries;
 
     for (const auto& ename : electrodes_group.listObjectNames()) {
-        // Skip the population's scaling_factors group
         if (ename == populationName) {
             continue;
         }
 
         const auto egrp = electrodes_group.getGroup(ename);
 
-        // Check if this electrode belongs to our population
         if (!egrp.exist(populationName)) {
             continue;
         }
 
-        ElectrodeInfo info;
-        info.name = ename;
+        Entry entry;
+        entry.name = ename;
 
-        // Read column index
-        egrp.getDataSet(populationName).read(info.column_index);
+        egrp.getDataSet(populationName).read(entry.column_index);
 
-        // Read position (float32 in file, store as double)
         std::vector<float> pos_f32;
         egrp.getDataSet("position").read(pos_f32);
-        if (pos_f32.size() == 3) {
-            info.position = {static_cast<double>(pos_f32[0]),
-                             static_cast<double>(pos_f32[1]),
-                             static_cast<double>(pos_f32[2])};
-        } else {
-            info.position = {0.0, 0.0, 0.0};
+        if (pos_f32.size() != 3) {
+            throw SonataError(
+                fmt::format("Electrode '{}': position dataset must have exactly 3 elements",
+                            ename));
         }
+        entry.position = {pos_f32[0], pos_f32[1], pos_f32[2]};
 
-        // Read type
-        egrp.getDataSet("type").read(info.type);
+        egrp.getDataSet("type").read(entry.type);
 
-        infos.push_back(std::move(info));
+        entries.push_back(std::move(entry));
     }
 
-    // Sort by column index
-    std::sort(infos.begin(), infos.end(), [](const auto& a, const auto& b) {
+    std::sort(entries.begin(), entries.end(), [](const auto& a, const auto& b) {
         return a.column_index < b.column_index;
     });
 
-    return infos;
+    names.reserve(entries.size());
+    positions.reserve(entries.size());
+    types.reserve(entries.size());
+    for (auto& e : entries) {
+        names.push_back(std::move(e.name));
+        positions.push_back(e.position);
+        types.push_back(std::move(e.type));
+    }
 }
 
 
@@ -145,22 +148,35 @@ std::vector<size_t> buildIOOrder(const NodeLayout& slices) {
 }
 
 
+/// A coalesced I/O block. All ranges are half-open [start, end).
+/// io_begin/io_end index into io_order; file_row_start/file_row_end are HDF5 row offsets.
+struct IOBlock {
+    size_t io_begin;
+    size_t io_end;
+    size_t file_row_start;
+    size_t file_row_end;
+};
+
+
 /// Coalesce sorted I/O order into contiguous read blocks.
 /// Adjacent nodes with gap <= block_gap_limit are merged into a single read.
-Selection::Ranges coalesceIOBlocks(const NodeLayout& slices,
-                                   const std::vector<size_t>& io_order,
-                                   size_t block_gap_limit) {
-    Selection::Ranges blocks;
+std::vector<IOBlock> coalesceIOBlocks(const NodeLayout& slices,
+                                      const std::vector<size_t>& io_order,
+                                      size_t block_gap_limit) {
+    std::vector<IOBlock> blocks;
     size_t block_start = 0;
-    for (size_t i = 0; (i + 1) < io_order.size(); ++i) {
-        const auto cur_end = slices.ranges[io_order[i]][1];
-        const auto next_start = slices.ranges[io_order[i + 1]][0];
-        if (next_start - cur_end > block_gap_limit) {
-            blocks.push_back({block_start, i + 1});
-            block_start = i + 1;
+    for (size_t i = 1; i < io_order.size(); ++i) {
+        const auto prev_end = slices.ranges[io_order[i - 1]][1];
+        const auto cur_start = slices.ranges[io_order[i]][0];
+        if (cur_start - prev_end > block_gap_limit) {
+            blocks.push_back({block_start, i, slices.ranges[io_order[block_start]][0], prev_end});
+            block_start = i;
         }
     }
-    blocks.push_back({block_start, io_order.size()});
+    blocks.push_back({block_start,
+                      io_order.size(),
+                      slices.ranges[io_order[block_start]][0],
+                      slices.ranges[io_order.back()][1]});
     return blocks;
 }
 
@@ -176,33 +192,30 @@ std::vector<size_t> computeOutputOffsets(const NodeLayout& slices) {
 }
 
 
-/// Read scaling factors from HDF5 in coalesced blocks and scatter into output.
+/// Read scaling factors from HDF5 in coalesced blocks and scatter into result.
 void readAndScatter(const HighFive::DataSet& sf_dset,
                     const NodeLayout& slices,
                     const std::vector<size_t>& io_order,
-                    const Selection::Ranges& io_blocks,
+                    const std::vector<IOBlock>& io_blocks,
                     const std::vector<size_t>& output_offsets,
                     const std::vector<uint64_t>& selected_electrodes,
                     size_t n_electrodes,
-                    ElectrodeDataFrame& result) {
+                    ElectrodeScalingFactors& result) {
     const size_t n_cols = selected_electrodes.size();
+    std::vector<double> block_data;
 
     for (const auto& block : io_blocks) {
-        const size_t first_io = block[0];
-        const size_t last_io = block[1] - 1;
-        const size_t file_row_start = slices.ranges[io_order[first_io]][0];
-        const size_t file_row_end = slices.ranges[io_order[last_io]][1];
-        const size_t block_rows = file_row_end - file_row_start;
+        const size_t block_rows = block.file_row_end - block.file_row_start;
 
-        // Read into a flat contiguous buffer (avoids millions of per-row allocations)
-        std::vector<double> block_data(block_rows * n_electrodes);
-        sf_dset.select({file_row_start, 0}, {block_rows, n_electrodes}).read_raw(block_data.data());
+        block_data.resize(block_rows * n_electrodes);
+        sf_dset.select({block.file_row_start, 0}, {block_rows, n_electrodes})
+            .read_raw(block_data.data());
 
-        for (size_t i = first_io; i <= last_io; ++i) {
+        for (size_t i = block.io_begin; i < block.io_end; ++i) {
             const size_t n = io_order[i];
             const auto& range = slices.ranges[n];
             const size_t n_compartments = range[1] - range[0];
-            const size_t local_row_start = range[0] - file_row_start;
+            const size_t local_row_start = range[0] - block.file_row_start;
             const size_t out_start = output_offsets[n];
 
             for (size_t comp = 0; comp < n_compartments; ++comp) {
@@ -275,10 +288,8 @@ ElectrodeReader::Population::Population(const HighFive::File& file,
         node_ranges_.push_back({offsets_[i], offsets_[i + 1]});
     }
 
-    // Build sorted index for O(log n) lookup by node_id
     node_index_ = buildSortedIndex(node_ids_);
 
-    // Read scaling_factors shape to get n_electrodes
     const auto sf_path = std::string("electrodes/") + populationName + "/scaling_factors";
     const auto sf_dset = file.getDataSet(sf_path);
     const auto dims = sf_dset.getDimensions();
@@ -288,16 +299,11 @@ ElectrodeReader::Population::Population(const HighFive::File& file,
     }
     n_electrodes_ = dims[1];
 
-    // Discover electrode metadata
-    const auto electrode_infos = discoverElectrodeMetadata(electrodes_group_, populationName);
-    electrode_names_.reserve(electrode_infos.size());
-    electrode_positions_.reserve(electrode_infos.size());
-    electrode_types_.reserve(electrode_infos.size());
-    for (const auto& info : electrode_infos) {
-        electrode_names_.push_back(info.name);
-        electrode_positions_.push_back(info.position);
-        electrode_types_.push_back(info.type);
-    }
+    discoverElectrodeMetadata(electrodes_group_,
+                              populationName,
+                              electrode_names_,
+                              electrode_positions_,
+                              electrode_types_);
 }
 
 
@@ -316,7 +322,7 @@ std::vector<std::string> ElectrodeReader::Population::getElectrodeNames() const 
 }
 
 
-std::vector<std::array<double, 3>> ElectrodeReader::Population::getElectrodePositions() const {
+std::vector<std::array<float, 3>> ElectrodeReader::Population::getElectrodePositions() const {
     return electrode_positions_;
 }
 
@@ -326,10 +332,10 @@ std::vector<std::string> ElectrodeReader::Population::getElectrodeTypes() const 
 }
 
 
-ElectrodeDataFrame ElectrodeReader::Population::get(
+ElectrodeScalingFactors ElectrodeReader::Population::get(
     const nonstd::optional<Selection>& node_ids,
     const nonstd::optional<Selection>& electrode_ids) const {
-    ElectrodeDataFrame result;
+    ElectrodeScalingFactors result;
 
     const auto selected_electrodes = resolveElectrodeSelection(electrode_ids, n_electrodes_);
     if (selected_electrodes.empty()) {
