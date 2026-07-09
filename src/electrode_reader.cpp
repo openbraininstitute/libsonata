@@ -66,7 +66,7 @@ void discoverElectrodeMetadata(const HighFive::Group& electrodes_group,
                                std::vector<std::array<float, 3>>& positions,
                                std::vector<std::string>& types) {
     struct Entry {
-        uint64_t column_index;
+        uint64_t electrode_id;
         std::string name;
         std::array<float, 3> position;
         std::string type;
@@ -87,7 +87,7 @@ void discoverElectrodeMetadata(const HighFive::Group& electrodes_group,
         Entry entry;
         entry.name = ename;
 
-        egrp.getDataSet(populationName).read(entry.column_index);
+        egrp.getDataSet(populationName).read(entry.electrode_id);
 
         std::vector<float> pos_f32;
         egrp.getDataSet("position").read(pos_f32);
@@ -104,7 +104,7 @@ void discoverElectrodeMetadata(const HighFive::Group& electrodes_group,
     }
 
     std::sort(entries.begin(), entries.end(), [](const auto& a, const auto& b) {
-        return a.column_index < b.column_index;
+        return a.electrode_id < b.electrode_id;
     });
 
     names.reserve(entries.size());

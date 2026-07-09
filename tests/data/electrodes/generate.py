@@ -9,7 +9,7 @@ File layout follows the SONATA electrode file spec:
   /electrodes/{electrodename}/type         — utf8 scalar
   /electrodes/{electrodename}/layer        — utf8 scalar
   /electrodes/{electrodename}/region       — utf8 scalar
-  /electrodes/{electrodename}/{population} — uint, electrode column index
+  /electrodes/{electrodename}/{population} — uint, electrode_id (column index in scaling_factors)
 
 Creates two populations:
   - "NodeA": 3 nodes (unsorted: [5, 2, 8]), 2 electrodes, varying compartments
@@ -63,7 +63,7 @@ def _create_population_a(h5: h5py.File) -> None:
             "type": "LineSource",
             "layer": "L5",
             "region": "S1",
-            "column_index": 0,
+            "electrode_id": 0,
         },
         {
             "name": "electrode_A1",
@@ -71,7 +71,7 @@ def _create_population_a(h5: h5py.File) -> None:
             "type": "PointSource",
             "layer": "L3",
             "region": "S1",
-            "column_index": 1,
+            "electrode_id": 1,
         },
     ]
 
@@ -81,7 +81,7 @@ def _create_population_a(h5: h5py.File) -> None:
         h5.create_dataset(f"{prefix}/type", data=elec["type"])
         h5.create_dataset(f"{prefix}/layer", data=elec["layer"])
         h5.create_dataset(f"{prefix}/region", data=elec["region"])
-        h5.create_dataset(f"{prefix}/{pop_name}", data=np.uint64(elec["column_index"]))
+        h5.create_dataset(f"{prefix}/{pop_name}", data=np.uint64(elec["electrode_id"]))
 
 
 def _create_population_b(h5: h5py.File) -> None:
@@ -118,7 +118,7 @@ def _create_population_b(h5: h5py.File) -> None:
             "type": "Reciprocity",
             "layer": "L1",
             "region": "V1",
-            "column_index": 0,
+            "electrode_id": 0,
         },
         {
             "name": "electrode_B1",
@@ -126,7 +126,7 @@ def _create_population_b(h5: h5py.File) -> None:
             "type": "DipoleReciprocity",
             "layer": "L2",
             "region": "V1",
-            "column_index": 1,
+            "electrode_id": 1,
         },
         {
             "name": "electrode_B2",
@@ -134,7 +134,7 @@ def _create_population_b(h5: h5py.File) -> None:
             "type": "LineSource",
             "layer": "Outside",
             "region": "NA",
-            "column_index": 2,
+            "electrode_id": 2,
         },
     ]
 
@@ -144,7 +144,7 @@ def _create_population_b(h5: h5py.File) -> None:
         h5.create_dataset(f"{prefix}/type", data=elec["type"])
         h5.create_dataset(f"{prefix}/layer", data=elec["layer"])
         h5.create_dataset(f"{prefix}/region", data=elec["region"])
-        h5.create_dataset(f"{prefix}/{pop_name}", data=np.uint64(elec["column_index"]))
+        h5.create_dataset(f"{prefix}/{pop_name}", data=np.uint64(elec["electrode_id"]))
 
 
 if __name__ == "__main__":
