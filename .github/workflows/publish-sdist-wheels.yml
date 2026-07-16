@@ -1,12 +1,9 @@
+# NOTE: This workflow uses tag-push to trigger PyPI publishing, unlike the
+# cookiecutter-python-lib template which uses `release: published`.
+# This divergence is intentional per MikeG's decision:
+# https://github.com/openbraininstitute/libsonata/pull/52
 name: Publish sdist and wheels for macos, and manylinux, publish to pypi if a release
-on:
-  pull_request:
-  push:
-    branches:
-      - main
-  release:
-    types:
-      - published
+on: [pull_request, push]
 
 env:
   apt_options: -o Acquire::Retries=3
@@ -20,7 +17,7 @@ jobs:
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
 
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
 
     runs-on: ${{ matrix.os }}
     strategy:
@@ -100,7 +97,7 @@ jobs:
 
   build_sdist:
     name: Build sdist
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
 
     runs-on: ubuntu-latest
     steps:
@@ -131,7 +128,7 @@ jobs:
 
   upload_artifacts:
     name: Upload wheels to PyPI
-    if: github.event_name == 'release' && github.event.action == 'published'
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
     permissions:
       id-token: write
 
