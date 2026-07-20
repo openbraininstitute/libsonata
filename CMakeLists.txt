@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 cmake_policy(VERSION 3.16)
 
-if(NOT SONATA_VERSION)
+if(DEFINED SKBUILD_PROJECT_VERSION)
+    set(SONATA_VERSION "${SKBUILD_PROJECT_VERSION}")
+else()
     execute_process(COMMAND git describe --tags
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                     RESULT_VARIABLE GIT_VERSION_FAILED
@@ -15,12 +17,12 @@ if(NOT SONATA_VERSION)
           ${GIT_VERSION_ERROR})
     endif()
 
-# keep last line of command output
+    # keep last line of command output
     string(REPLACE "\n"
                    ";"
                    GIT_PKG_VERSION_FULL
                    "${GIT_PKG_VERSION_FULL}")
-   list(GET GIT_PKG_VERSION_FULL -1 SONATA_VERSION)
+    list(GET GIT_PKG_VERSION_FULL -1 SONATA_VERSION)
 endif()
 
 # keep MAJOR.MINOR.PATCH (PATCH being optional)
