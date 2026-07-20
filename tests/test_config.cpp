@@ -39,7 +39,9 @@ TEST_CASE("CircuitConfig") {
         CHECK_THROWS_AS(config.getNodePopulationProperties("DoesNotExist"), SonataError);
         CHECK_THROWS_AS(config.getEdgePopulationProperties("DoesNotExist"), SonataError);
 
-        CHECK(config.getNodePopulationProperties("nodes-A").type == "biophysical");
+        auto nodesA_properties = config.getNodePopulationProperties("nodes-A");
+        CHECK(nodesA_properties.type == "biophysical");
+        CHECK(endswith(nodesA_properties.mechanismsDir, "/mechanisms_dir"));
         CHECK(endswith(config.getNodePopulationProperties("nodes-A").typesPath, ""));
         CHECK(endswith(config.getNodePopulationProperties("nodes-A").elementsPath, "tests/data/nodes1.h5"));
 
@@ -321,12 +323,12 @@ TEST_CASE("SimulationConfig") {
             fs::path("./data/config/simulation_config.json").parent_path());
 
         const auto electrodesPath = fs::absolute(basePath / "electrodes/electrode_weights.h5");
-        CHECK(config.getRun().electrodesFile == (electrodesPath).lexically_normal());
+        CHECK(config.getReport("lfp").electrodesFile == electrodesPath.lexically_normal());
 
         CHECK_NOTHROW(config.getOutput());
-        const auto outputPath = fs::absolute(basePath / "some/path/output");
-        CHECK(config.getOutput().outputDir == (outputPath).lexically_normal());
-        CHECK(config.getOutput().spikesFile == "out.h5");
+        const auto outputPath = fs::absolute(basePath / "some/path/output").lexically_normal();
+        CHECK(config.getOutput().outputDir == outputPath);
+        CHECK(config.getOutput().spikesFile == (outputPath / "out.h5").lexically_normal());
         CHECK(config.getOutput().logFile.empty());
         CHECK(config.getOutput().sortOrder == SimulationConfig::Output::SpikesSortOrder::by_id);
 
@@ -750,7 +752,6 @@ TEST_CASE("SimulationConfig") {
         CHECK(config.getRun().ionchannelSeed == 0);
         CHECK(config.getRun().minisSeed == 0);
         CHECK(config.getRun().synapseSeed == 0);
-        CHECK(config.getRun().electrodesFile == "");
         CHECK(config.getRun().spikeThreshold == -30.0);
     }
 

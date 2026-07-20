@@ -8,6 +8,7 @@
   "components": {
     "morphologies_dir": "$COMPONENT_DIR/morphologies",
     "biophysical_neuron_models_dir": "$COMPONENT_DIR/biophysical_neuron_models",
+    "mechanisms_dir": "$COMPONENT_DIR/mechanisms_dir",
     "vasculature_file": "$COMPONENT_DIR/some_file",
     "vasculature_mesh": "$COMPONENT_DIR/some_file",
     "spine_morphologies_dir": "$COMPONENT_DIR/spine_morphologies_dir_component"

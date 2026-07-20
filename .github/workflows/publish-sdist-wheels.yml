@@ -1,3 +1,7 @@
+# NOTE: This workflow uses tag-push to trigger PyPI publishing, unlike the
+# cookiecutter-python-lib template which uses `release: published`.
+# This divergence is intentional per MikeG's decision:
+# https://github.com/openbraininstitute/libsonata/pull/52
 name: Publish sdist and wheels for macos, and manylinux, publish to pypi if a release
 on: [pull_request, push]
 

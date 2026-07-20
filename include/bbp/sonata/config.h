@@ -58,9 +58,14 @@ struct CommonPopulationProperties {
     std::string biophysicalNeuronModelsDir;
 
     /**
-     * Path to the template templates for point neurons
+     * Path to the templates for point neurons
      */
     std::string pointNeuronModelsDir;
+
+    /**
+     * Path to the mechanisms required for the circuit
+     */
+    std::string mechanismsDir;
 
     /**
      * Path to the directory containing the morphologies
@@ -244,6 +249,7 @@ class SONATA_API CircuitConfig
         std::unordered_map<std::string, std::string> alternateMorphologiesDir;
         std::string biophysicalNeuronModelsDir;
         std::string pointNeuronModelsDir;
+        std::string mechanismsDir;
 
         nonstd::optional<std::string> vasculatureFile{nonstd::nullopt};
         nonstd::optional<std::string> vasculatureMesh{nonstd::nullopt};
@@ -314,8 +320,6 @@ class SONATA_API SimulationConfig
         int minisSeed = DEFAULT_minisSeed;
         /// A non-negative integer used for seeding stochastic synapses, default is 0.
         int synapseSeed = DEFAULT_synapseSeed;
-        /// Filename that contains the weights for the LFP calculation.
-        std::string electrodesFile;
     };
     /**
      * Parameters to override simulator output for spike reports
@@ -491,6 +495,8 @@ class SONATA_API SimulationConfig
         std::string fileName;
         /// Allows for suppressing a report so that is not created. Default is true
         bool enabled = true;
+        /// Filename that contains the weights for the LFP calculation (LFP reports only).
+        std::string electrodesFile;
     };
 
     using ReportMap = std::unordered_map<std::string, Report>;

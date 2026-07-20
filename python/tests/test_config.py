@@ -69,6 +69,8 @@ class TestCircuitConfig(unittest.TestCase):
         self.assertTrue(node_prop.morphologies_dir.endswith('morphologies'))
         self.assertTrue(node_prop.biophysical_neuron_models_dir.endswith('biophysical_neuron_models'))
         self.assertEqual(node_prop.alternate_morphology_formats, {})
+        self.assertTrue(node_prop.mechanisms_dir.endswith('mechanisms_dir'))
+        self.assertTrue(node_prop.mechanisms_dir.startswith("/"))
 
         self.assertEqual(node_prop.types_path, '')
         self.assertTrue(node_prop.elements_path.endswith('tests/data/nodes1.h5'))
@@ -433,12 +435,13 @@ class TestSimulationConfig(unittest.TestCase):
         self.assertEqual(self.config.run.ionchannel_seed, 222)
         self.assertEqual(self.config.run.minis_seed, 333)
         self.assertEqual(self.config.run.synapse_seed, 444)
-        self.assertEqual(self.config.run.electrodes_file,
+        self.assertEqual(self.config.report('lfp').electrodes_file,
                          os.path.abspath(os.path.join(PATH, 'config/electrodes/electrode_weights.h5')))
 
         self.assertEqual(self.config.output.output_dir,
                          os.path.abspath(os.path.join(PATH, 'config/some/path/output')))
-        self.assertEqual(self.config.output.spikes_file, 'out.h5')
+        self.assertEqual(self.config.output.spikes_file,
+                         os.path.abspath(os.path.join(PATH, 'config/some/path/output/out.h5')))
         self.assertEqual(self.config.output.log_file, '')
         self.assertEqual(self.config.output.spikes_sort_order,
                          SimulationConfig.Output.SpikesSortOrder.by_id)
@@ -764,7 +767,6 @@ class TestSimulationConfig(unittest.TestCase):
         self.assertEqual(conf.run.ionchannel_seed, 0)
         self.assertEqual(conf.run.minis_seed, 0)
         self.assertEqual(conf.run.synapse_seed, 0)
-        self.assertEqual(conf.run.electrodes_file, "")
         self.assertEqual(conf.run.spike_threshold, -30.0)
 
     def test_seclamp_without_duration_levels(self):
@@ -1327,3 +1329,148 @@ class TestSimulationConfig(unittest.TestCase):
         with self.assertRaises(SonataError) as e:
             SimulationConfig(contents, "./")
         self.assertEqual(e.exception.args,("Duplicate name 'TTXdup' in 'modifications'",))
+
+    def test_lfp_report_without_variable_name(self):
+        """LFP report without variable_name should parse without error."""
+        contents = {
+            "run": {"tstop": 100, "dt": 0.025, "random_seed": 1},
+            "reports": {
+                "my_lfp": {
+                    "type": "lfp",
+                    "unit": "mV",
+                    "dt": 0.1,
+                    "start_time": 0,
+                    "end_time": 100,
+                    "electrodes_file": "electrodes/electrode_weights.h5"
+                }
+            }
+        }
+        config = SimulationConfig(json.dumps(contents), './')
+        self.assertEqual(config.report('my_lfp').type, SimulationConfig.Report.Type.lfp)
+        self.assertEqual(config.report('my_lfp').variable_name, '')
+
+    def test_lfp_report_rejects_variable_name(self):
+        """LFP report with variable_name should raise an error."""
+        contents = {
+            "run": {"tstop": 100, "dt": 0.025, "random_seed": 1},
+            "reports": {
+                "my_lfp": {
+                    "type": "lfp",
+                    "variable_name": "v",
+                    "unit": "mV",
+                    "dt": 0.1,
+                    "start_time": 0,
+                    "end_time": 100,
+                    "electrodes_file": "electrodes/electrode_weights.h5"
+                }
+            }
+        }
+        with self.assertRaises(SonataError) as e:
+            SimulationConfig(json.dumps(contents), './')
+        self.assertIn("variable_name", str(e.exception))
+
+    def test_lfp_report_requires_electrodes_file(self):
+        """LFP report without electrodes_file should raise an error."""
+        contents = {
+            "run": {"tstop": 100, "dt": 0.025, "random_seed": 1},
+            "reports": {
+                "my_lfp": {
+                    "type": "lfp",
+                    "unit": "mV",
+                    "dt": 0.1,
+                    "start_time": 0,
+                    "end_time": 100
+                }
+            }
+        }
+        with self.assertRaises(SonataError) as ctx:
+            SimulationConfig(json.dumps(contents), './')
+        self.assertIn("electrodes_file", str(ctx.exception))
+
+    def test_lfp_report_rejects_empty_electrodes_file(self):
+        """LFP report with empty electrodes_file should raise an error."""
+        contents = {
+            "run": {"tstop": 100, "dt": 0.025, "random_seed": 1},
+            "reports": {
+                "my_lfp": {
+                    "type": "lfp",
+                    "unit": "mV",
+                    "dt": 0.1,
+                    "start_time": 0,
+                    "end_time": 100,
+                    "electrodes_file": ""
+                }
+            }
+        }
+        self.assertRaises(SonataError, SimulationConfig, json.dumps(contents), './')
+
+    def test_run_rejects_electrodes_file(self):
+        """electrodes_file in run section should raise an error."""
+        contents = {
+            "run": {"tstop": 100, "dt": 0.025, "random_seed": 1,
+                    "electrodes_file": "some_file.h5"},
+            "reports": {}
+        }
+        self.assertRaises(SonataError, SimulationConfig, json.dumps(contents), './')
+
+    def test_non_lfp_report_rejects_electrodes_file(self):
+        """electrodes_file on non-LFP report should raise an error."""
+        contents = {
+            "run": {"tstop": 100, "dt": 0.025, "random_seed": 1},
+            "reports": {
+                "my_report": {
+                    "type": "compartment",
+                    "variable_name": "v",
+                    "unit": "mV",
+                    "dt": 0.1,
+                    "start_time": 0,
+                    "end_time": 100,
+                    "electrodes_file": "some_file.h5"
+                }
+            }
+        }
+        self.assertRaises(SonataError, SimulationConfig, json.dumps(contents), './')
+
+    def test_report_rejects_empty_variable_name(self):
+        """Non-LFP report with empty variable_name should raise an error."""
+        contents = {
+            "run": {"tstop": 100, "dt": 0.025, "random_seed": 1},
+            "reports": {
+                "my_report": {
+                    "type": "compartment",
+                    "variable_name": "",
+                    "unit": "mV",
+                    "dt": 0.1,
+                    "start_time": 0,
+                    "end_time": 100
+                }
+            }
+        }
+        self.assertRaises(SonataError, SimulationConfig, json.dumps(contents), './')
+
+    def test_output_absolute_paths(self):
+        contents = {
+            "run": {"tstop": 100, "dt": 0.025, "random_seed": 1},
+        }
+        sc = SimulationConfig(json.dumps(contents), '/some/path/')
+        self.assertEqual(sc.output.output_dir, "/some/path/output")
+        self.assertEqual(sc.output.log_file, "")
+        self.assertEqual(sc.output.spikes_file, "/some/path/output/out.h5")
+
+        contents = {
+            "run": {"tstop": 100, "dt": 0.025, "random_seed": 1},
+            "output": {}
+        }
+        sc = SimulationConfig(json.dumps(contents), '/some/path/')
+        self.assertEqual(sc.output.output_dir, "/some/path/output")
+        self.assertEqual(sc.output.log_file, "")
+        self.assertEqual(sc.output.spikes_file, "/some/path/output/out.h5")
+
+        contents = {
+            "run": {"tstop": 100, "dt": 0.025, "random_seed": 1},
+            "output": {"log_file": "log_file"}
+        }
+        sc = SimulationConfig(json.dumps(contents), '/some/path/')
+        self.assertEqual(sc.output.output_dir, "/some/path/output")
+        self.assertEqual(sc.output.log_file, "/some/path/output/log_file")
+        self.assertEqual(sc.output.spikes_file, "/some/path/output/out.h5")
