@@ -472,7 +472,6 @@ class NodeSetCompoundRule: public NodeSetRule
         for (const auto& target : targets_) {
             const auto s = ns.referencedPopulations(target);
             ret.insert(s.begin(), s.end());
-
         }
         return ret;
     }

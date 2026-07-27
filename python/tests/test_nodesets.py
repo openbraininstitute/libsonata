@@ -135,6 +135,9 @@ class TestNodePopulationNodeSet(unittest.TestCase):
 
     def test_NodeSet_toJSON(self):
         j = json.dumps({
+            "virtual": {
+                "population": "virtual"
+            },
             "bio_layer45": {
                 "model_type": "biophysical",
                 "location": ["layer4", "layer5"]
@@ -153,7 +156,8 @@ class TestNodePopulationNodeSet(unittest.TestCase):
             "power_regex_test": {
                 "string_attr": { "$regex": "^[s][o]me value$" }
                 },
-            "combined": ["bio_layer45", "V1_point_prime"]
+            "combined": ["bio_layer45", "V1_point_prime"],
+            "combined_virtual": ["bio_layer45", "V1_point_prime", "virtual"]
         })
         new = NodeSets(j).toJSON()
         ns1 = NodeSets(new)
@@ -207,3 +211,4 @@ class TestNodePopulationNodeSet(unittest.TestCase):
         self.assertEqual(ns.referenced_populations("bio_layer45"), set())
         self.assertEqual(ns.referenced_populations("V1_point_prime"), {"biophysical"})
         self.assertEqual(ns.referenced_populations("combined"), {"biophysical"})
+        self.assertEqual(ns.referenced_populations("combined_virtual"), {"biophysical", "virtual"})
