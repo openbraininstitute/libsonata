@@ -3,7 +3,8 @@
 #include "common.h"
 
 #include <cstdint>
-#include <utility>  // std::move
+#include <iterator>  // std::forward_iterator_tag
+#include <utility>   // std::move
 #include <vector>
 
 namespace bbp {
@@ -50,6 +51,84 @@ class SONATA_API Selection
      * @return true if Selection contains the node id, false otherwise
      */
     bool contains(Value node_id) const;
+
+    /**
+     * Forward iterator over individual element values in range-order.
+     * Yields the same sequence as flatten() without allocating a vector.
+     */
+    class const_iterator
+    {
+      public:
+        using iterator_category = std::forward_iterator_tag;
+        using value_type = Value;
+        using difference_type = std::ptrdiff_t;
+        using pointer = const Value*;
+        using reference = Value;
+
+        const_iterator() = default;
+
+        Value operator*() const {
+            return current_;
+        }
+
+        const_iterator& operator++() {
+            ++current_;
+            if (current_ >= std::get<1>(*range_it_)) {
+                ++range_it_;
+                if (range_it_ != range_end_) {
+                    current_ = std::get<0>(*range_it_);
+                }
+            }
+            return *this;
+        }
+
+        const_iterator operator++(int) {
+            auto tmp = *this;
+            ++(*this);
+            return tmp;
+        }
+
+        bool operator==(const const_iterator& other) const {
+            if (range_it_ != other.range_it_) {
+                return false;
+            }
+            // Both at end — current_ is irrelevant
+            if (range_it_ == range_end_) {
+                return true;
+            }
+            return current_ == other.current_;
+        }
+
+        bool operator!=(const const_iterator& other) const {
+            return !(*this == other);
+        }
+
+      private:
+        friend class Selection;
+
+        const_iterator(Ranges::const_iterator range_it, Ranges::const_iterator range_end)
+            : range_it_(range_it)
+            , range_end_(range_end)
+            , current_(range_it != range_end ? std::get<0>(*range_it) : 0) { }
+
+        Ranges::const_iterator range_it_{};
+        Ranges::const_iterator range_end_{};
+        Value current_ = 0;
+    };
+
+    /**
+     * Iterator to the first element of the selection
+     */
+    const_iterator begin() const {
+        return const_iterator(ranges_.cbegin(), ranges_.cend());
+    }
+
+    /**
+     * Past-the-end iterator
+     */
+    const_iterator end() const {
+        return const_iterator(ranges_.cend(), ranges_.cend());
+    }
 
   private:
     Ranges ranges_;

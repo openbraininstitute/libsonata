@@ -1,11 +1,10 @@
 #pragma once
 
-#include "population.hpp"
-#include "read_bulk.hpp"
 #include "read_canonical_selection.hpp"
 
 namespace bbp {
 namespace sonata {
+HighFive::File openHDF5withoutLock(const std::string& path);
 
 namespace detail {
 template <class Range>
@@ -20,7 +19,6 @@ HighFive::HyperSlab _makeHyperslab(const std::vector<Range>& ranges) {
     return slab;
 }
 }  // namespace detail
-
 
 template <class T>
 class Hdf5PluginRead1DDefault: virtual public Hdf5PluginRead1DInterface<T>
@@ -42,7 +40,6 @@ class Hdf5PluginRead2DDefault: virtual public Hdf5PluginRead2DInterface<T>
         return detail::readCanonicalSelection<T>(dset, xsel, ysel);
     }
 };
-
 template <class T, class U>
 class Hdf5PluginDefault;
 
@@ -54,7 +51,7 @@ class Hdf5PluginDefault<std::tuple<Ts...>, std::tuple<Us...>>
 {
   public:
     HighFive::File openFile(const std::string& path) const override {
-        return HighFive::File(path);
+        return openHDF5withoutLock(path);
     }
 };
 

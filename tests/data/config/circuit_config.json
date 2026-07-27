@@ -1,5 +1,5 @@
 {
-  "target_simulator": "NEURON",
+  "target_simulator": "CORENEURON",
   "manifest": {
     "$BASE_DIR": "./",
     "$COMPONENT_DIR": "$BASE_DIR",
@@ -8,6 +8,7 @@
   "components": {
     "morphologies_dir": "$COMPONENT_DIR/morphologies",
     "biophysical_neuron_models_dir": "$COMPONENT_DIR/biophysical_neuron_models",
+    "mechanisms_dir": "$COMPONENT_DIR/mechanisms_dir",
     "vasculature_file": "$COMPONENT_DIR/some_file",
     "vasculature_mesh": "$COMPONENT_DIR/some_file",
     "spine_morphologies_dir": "$COMPONENT_DIR/spine_morphologies_dir_component"
@@ -20,6 +21,7 @@
         "node_types_file": null,
         "populations": {
             "nodes-A": {
+                "alternate_morphologies": {}
             },
             "nodes-B": {
                 "spatial_segment_index_dir": "$COMPONENT_DIR/spatial_segment_index_dir"

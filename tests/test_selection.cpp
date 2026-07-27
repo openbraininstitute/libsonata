@@ -31,6 +31,70 @@ TEST_CASE("Selection", "[base]") {
         CHECK(selection.flatSize() == 5);
         CHECK(!selection.empty());
     }
+    SECTION("iterator") {
+        // Empty selection
+        {
+            const auto sel = Selection({});
+            CHECK(sel.begin() == sel.end());
+            std::vector<uint64_t> collected(sel.begin(), sel.end());
+            CHECK(collected.empty());
+        }
+        // Single range
+        {
+            const auto sel = Selection({{3, 7}});
+            std::vector<uint64_t> collected(sel.begin(), sel.end());
+            CHECK(collected == std::vector<uint64_t>{3, 4, 5, 6});
+        }
+        // Multiple ranges — order preserved (not sorted)
+        {
+            const auto sel = Selection({{3, 5}, {0, 3}});
+            std::vector<uint64_t> collected(sel.begin(), sel.end());
+            CHECK(collected == std::vector<uint64_t>{3, 4, 0, 1, 2});
+        }
+        // Matches flatten() output
+        {
+            const auto sel = Selection({{10, 12}, {5, 8}, {0, 2}});
+            std::vector<uint64_t> collected(sel.begin(), sel.end());
+            CHECK(collected == sel.flatten());
+        }
+
+        // Post-increment returns previous value
+        {
+            const auto sel = Selection({{5, 8}});
+            auto it = sel.begin();
+            CHECK(*it++ == 5);
+            CHECK(*it == 6);
+        }
+        // Iterators at different positions within the same range are not equal
+        {
+            const auto sel = Selection({{0, 10}});
+            auto a = sel.begin();
+            auto b = sel.begin();
+            ++a;
+            CHECK(*a == 1);
+            CHECK(*b == 0);
+            CHECK(a != b);
+        }
+        // Iterators in different ranges but same current value are not equal
+        {
+            const auto sel = Selection({{0, 5}, {3, 8}});
+            auto a = sel.begin();  // range 0, current = 0
+            auto b = sel.begin();
+            // Advance b into second range, to current = 3
+            // b: 0,1,2,3,4 (range 0) -> 3 (range 1)
+            for (int i = 0; i < 5; ++i) {
+                ++b;
+            }
+            // Advance a to current = 3 within first range
+            for (int i = 0; i < 3; ++i) {
+                ++a;
+            }
+            CHECK(*a == 3);
+            CHECK(*b == 3);
+            CHECK(a != b);
+        }
+
+    }
     SECTION("comparison") {
         const auto empty = Selection({});
         const auto range_selection = Selection({{0, 2}, {3, 4}});

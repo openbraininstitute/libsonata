@@ -113,7 +113,8 @@ NLOHMANN_JSON_SERIALIZE_ENUM(
      {SimulationConfig::InputBase::Module::ornstein_uhlenbeck, "ornstein_uhlenbeck"},
      {SimulationConfig::InputBase::Module::relative_ornstein_uhlenbeck,
       "relative_ornstein_uhlenbeck"},
-     {SimulationConfig::InputBase::Module::spatially_uniform_e_field, "spatially_uniform_e_field"}})
+     {SimulationConfig::InputBase::Module::spatially_uniform_e_field, "spatially_uniform_e_field"},
+     {SimulationConfig::InputBase::Module::poisson, "poisson"}})
 
 NLOHMANN_JSON_SERIALIZE_ENUM(
     SimulationConfig::InputBase::InputType,
@@ -125,11 +126,15 @@ NLOHMANN_JSON_SERIALIZE_ENUM(
      {SimulationConfig::InputBase::InputType::voltage_clamp, "voltage_clamp"},
      {SimulationConfig::InputBase::InputType::conductance, "conductance"}})
 
-NLOHMANN_JSON_SERIALIZE_ENUM(SimulationConfig::SimulatorType,
-                             {{SimulationConfig::SimulatorType::invalid, nullptr},
-                              {SimulationConfig::SimulatorType::NEURON, "NEURON"},
-                              {SimulationConfig::SimulatorType::CORENEURON, "CORENEURON"},
-                              {SimulationConfig::SimulatorType::LEARNINGENGINE, "LearningEngine"}})
+NLOHMANN_JSON_SERIALIZE_ENUM(SimulatorType,
+                             {
+                                 {SimulatorType::invalid, nullptr},
+                                 {SimulatorType::NEURON, "NEURON"},
+                                 {SimulatorType::CORENEURON, "CORENEURON"},
+                                 {SimulatorType::LEARNINGENGINE, "LearningEngine"},
+                                 {SimulatorType::BRIAN2, "Brian2"},
+                                 {SimulatorType::UNSPECIFIED, "unspecified"},
+                             })
 
 NLOHMANN_JSON_SERIALIZE_ENUM(
     SimulationConfig::ModificationBase::ModificationType,
@@ -275,32 +280,31 @@ std::map<std::string, std::string> replaceVariables(std::map<std::string, std::s
     return variables;
 }
 
-nlohmann::json expandVariables(const nlohmann::json& json,
-                               const std::map<std::string, std::string>& vars) {
-    auto jsonFlat = json.flatten();
-
-    // Expand variables in whole json
-    for (auto it = jsonFlat.begin(); it != jsonFlat.end(); ++it) {
-        auto& value = it.value();
-        if (!value.is_string()) {
-            continue;
-        }
-
-        auto valueStr = value.get<std::string>();
-
-        for (const auto& var : vars) {
-            const auto& varName = var.first;
-            const auto& varValue = var.second;
-            const auto startPos = valueStr.find(varName);
-
-            if (startPos != std::string::npos) {
-                valueStr.replace(startPos, varName.length(), varValue);
-                value = fs::path(valueStr).lexically_normal();
+nlohmann::json inplaceExpandVariables(nlohmann::json& json,
+                                      const std::map<std::string, std::string>& vars) {
+    std::function<void(nlohmann::json&)> expand = [&](nlohmann::json& j) {
+        if (j.is_string()) {
+            auto valueStr = j.get<std::string>();
+            for (const auto& var : vars) {
+                auto pos = valueStr.find(var.first);
+                if (pos != std::string::npos) {
+                    valueStr.replace(pos, var.first.length(), var.second);
+                    j = fs::path(valueStr).lexically_normal().string();
+                }
+            }
+        } else if (j.is_object()) {
+            for (auto& item : j.items()) {
+                expand(item.value());
+            }
+        } else if (j.is_array()) {
+            for (auto& val : j) {
+                expand(val);
             }
         }
-    }
+    };
 
-    return jsonFlat.unflatten();
+    expand(json);
+    return json;
 }
 
 using Variables = std::map<std::string, std::string>;
@@ -463,6 +467,9 @@ SimulationConfig::Input parseInputModule(const nlohmann::json& valueIt,
         } else if (!input.nodeSet.has_value() && !input.compartmentSet.has_value()) {
             throw SonataError("One of `node_set` or `compartment_set` need to have a value in " +
                               debugStr);
+        }
+        if (input.duration < 0) {
+            throw SonataError("`duration` must be non-negative in " + debugStr);
         }
     };
 
@@ -636,6 +643,13 @@ SimulationConfig::Input parseInputModule(const nlohmann::json& valueIt,
             throw SonataError("`duration_levels` must contain only non-negative values in " +
                               debugStr);
         }
+        double sum = std::accumulate(ret.durationLevels.begin(), ret.durationLevels.end(), 0.0);
+        double tol = std::numeric_limits<double>::epsilon() * std::max(sum, ret.duration);
+        if (sum > ret.duration + tol) {
+            throw SonataError("Sum of `duration_levels` must not exceed the total `duration` in " +
+                              debugStr);
+        }
+
         return ret;
     }
     case Module::ornstein_uhlenbeck: {
@@ -676,6 +690,13 @@ SimulationConfig::Input parseInputModule(const nlohmann::json& valueIt,
         parseOptional(valueIt, "ramp_up_time", ret.rampUpTime, {0.0});
         parseOptional(valueIt, "ramp_down_time", ret.rampDownTime, {0.0});
         parseInputsEFields(valueIt, debugStr, ret.fields, simDt);
+        return ret;
+    }
+    case Module::poisson: {
+        SimulationConfig::InputPoissonSpike ret;
+        parseCommon(ret);
+        parseMandatory(valueIt, "rate", debugStr, ret.rate);
+        parseMandatory(valueIt, "weight", debugStr, ret.weight);
         return ret;
     }
     default:
@@ -795,10 +816,9 @@ class CircuitConfig::Parser
   public:
     Parser(const std::string& contents, const std::string& basePath)
         : _basePath(fs::absolute(fs::path(basePath))) {
-        // Parse and expand JSON string
-        const auto rawJson = nlohmann::json::parse(contents);
-        const auto vars = replaceVariables(readVariables(rawJson));
-        _json = expandVariables(rawJson, vars);
+        _json = nlohmann::json::parse(contents);
+        const auto vars = replaceVariables(readVariables(_json));
+        inplaceExpandVariables(_json, vars);
     }
 
     template <typename T>
@@ -904,6 +924,10 @@ class CircuitConfig::Parser
         result.biophysicalNeuronModelsDir = getJSONPath(components,
                                                         "biophysical_neuron_models_dir");
 
+        result.pointNeuronModelsDir = getJSONPath(components, "point_neuron_models_dir");
+
+        result.mechanismsDir = getJSONPath(components, "mechanisms_dir");
+
         result.vasculatureFile = getOptionalJSONPath(components, "vasculature_file");
         result.vasculatureMesh = getOptionalJSONPath(components, "vasculature_mesh");
         result.endfeetMeshesFile = getOptionalJSONPath(components, "endfeet_meshes_file");
@@ -927,6 +951,14 @@ class CircuitConfig::Parser
 
         if (component.biophysicalNeuronModelsDir.empty()) {
             component.biophysicalNeuronModelsDir = defaultComponents.biophysicalNeuronModelsDir;
+        }
+
+        if (component.pointNeuronModelsDir.empty()) {
+            component.pointNeuronModelsDir = defaultComponents.pointNeuronModelsDir;
+        }
+
+        if (component.mechanismsDir.empty()) {
+            component.mechanismsDir = defaultComponents.mechanismsDir;
         }
 
         if (component.morphologiesDir.empty()) {
@@ -969,6 +1001,12 @@ class CircuitConfig::Parser
                 component.spineMorphologiesDir = defaultComponents.spineMorphologiesDir;
             }
         }
+    }
+
+    SimulatorType parseTargetSimulator() const {
+        SimulatorType val = SimulatorType::NEURON;
+        parseOptional(_json, "target_simulator", val, {SimulatorType::NEURON});
+        return val;
     }
 
     template <typename JSON>
@@ -1021,6 +1059,9 @@ class CircuitConfig::Parser
                 popProperties.morphologiesDir = getJSONPath(popData, "morphologies_dir");
                 popProperties.biophysicalNeuronModelsDir =
                     getJSONPath(popData, "biophysical_neuron_models_dir");
+                popProperties.pointNeuronModelsDir = getJSONPath(popData,
+                                                                 "point_neuron_models_dir");
+                popProperties.mechanismsDir = getJSONPath(popData, "mechanisms_dir");
 
                 // Overwrite those specified, if any
                 const auto altMorphoDir = popData.find("alternate_morphologies");
@@ -1086,6 +1127,7 @@ CircuitConfig::CircuitConfig(const std::string& contents, const std::string& bas
 
     _nodePopulationProperties = parser.parseNodePopulations(_status);
     _edgePopulationProperties = parser.parseEdgePopulations(_status);
+    _targetSimulator = parser.parseTargetSimulator();
 
     Components defaultComponents = parser.parseDefaultComponents();
 
@@ -1165,15 +1207,20 @@ const std::string& CircuitConfig::getExpandedJSON() const {
     return _expandedJSON;
 }
 
+const SimulatorType& CircuitConfig::getTargetSimulator() const {
+    return _targetSimulator;
+}
+
 class SimulationConfig::Parser
 {
   public:
     Parser(const std::string& content, const std::string& basePath)
-        : _basePath(fs::absolute(fs::path(basePath)).lexically_normal()) {
+        : _basePath(fs::absolute(fs::path(basePath)).lexically_normal())
+        , _orderedJson(nlohmann::ordered_json::parse(content)) {
         // Parse manifest section and expand JSON string
-        const auto rawJson = parseJSONRejectDuplicateKeys(content);
-        const auto vars = replaceVariables(readVariables(rawJson));
-        _json = expandVariables(rawJson, vars);
+        _json = parseJSONRejectDuplicateKeys(content);
+        const auto vars = replaceVariables(readVariables(_json));
+        inplaceExpandVariables(_json, vars);
     }
 
     SimulationConfig::Run parseRun() const {
@@ -1201,10 +1248,11 @@ class SimulationConfig::Parser
                       {Run::DEFAULT_ionchannelSeed});
         parseOptional(*runIt, "minis_seed", result.minisSeed, {Run::DEFAULT_minisSeed});
         parseOptional(*runIt, "synapse_seed", result.synapseSeed, {Run::DEFAULT_synapseSeed});
-        parseOptional(*runIt, "electrodes_file", result.electrodesFile, {""});
 
-        if (!result.electrodesFile.empty()) {
-            result.electrodesFile = toAbsolute(_basePath, result.electrodesFile);
+        if (runIt->find("electrodes_file") != runIt->end()) {
+            throw SonataError(
+                "Field 'electrodes_file' is no longer valid in the 'run' section. "
+                "Please specify 'electrodes_file' in each LFP report block instead.");
         }
 
         return result;
@@ -1215,6 +1263,8 @@ class SimulationConfig::Parser
 
         const auto outputIt = _json.find("output");
         if (outputIt == _json.end()) {
+            result.outputDir = toAbsolute(_basePath, result.outputDir);
+            result.spikesFile = toAbsolute(result.outputDir, result.spikesFile);
             return result;
         }
         parseOptional(*outputIt, "output_dir", result.outputDir, {Output::DEFAULT_outputDir});
@@ -1226,6 +1276,10 @@ class SimulationConfig::Parser
                       {Output::DEFAULT_sortOrder});
 
         result.outputDir = toAbsolute(_basePath, result.outputDir);
+        result.spikesFile = toAbsolute(result.outputDir, result.spikesFile);
+        if (!result.logFile.empty()) {
+            result.logFile = toAbsolute(result.outputDir, result.logFile);
+        }
 
         return result;
     }
@@ -1301,7 +1355,7 @@ class SimulationConfig::Parser
                                       ? Report::Compartments::center
                                       : Report::Compartments::all)});
             parseOptional(valueIt, "scaling", report.scaling, {Report::Scaling::area});
-            parseMandatory(valueIt, "variable_name", debugStr, report.variableName);
+
             parseOptional(valueIt, "unit", report.unit, {"mV"});
             parseMandatory(valueIt, "dt", debugStr, report.dt);
             parseMandatory(valueIt, "start_time", debugStr, report.startTime);
@@ -1309,14 +1363,46 @@ class SimulationConfig::Parser
             parseOptional(valueIt, "file_name", report.fileName, {it.key() + ".h5"});
             parseOptional(valueIt, "enabled", report.enabled, {true});
 
-            // variable names can look like:
-            // `v`, or `i_clamp`, or `Foo.bar` but not `..asdf`, or `asdf..` or `asdf.asdf.asdf`
-            const char* const varName = R"(\w+(?:\.?\w+)?)";
-            // variable names are separated by `,` with any amount of whitespace separating them
-            const std::regex expr(fmt::format(R"({}(?:\s*,\s*{})*)", varName, varName));
-            if (!std::regex_match(report.variableName, expr)) {
-                throw SonataError(fmt::format("Invalid comma separated variable names '{}'",
-                                              report.variableName));
+            if (report.type == Report::Type::lfp) {
+                if (valueIt.find("variable_name") != valueIt.end()) {
+                    throw SonataError(
+                        fmt::format("Field 'variable_name' is not allowed in {} (type 'lfp'). "
+                                    "LFP reports always use the membrane current "
+                                    "(i_membrane). Please remove 'variable_name' from the "
+                                    "report configuration.",
+                                    debugStr));
+                }
+
+                parseMandatory(valueIt, "electrodes_file", debugStr, report.electrodesFile);
+                if (report.electrodesFile.empty()) {
+                    throw SonataError(
+                        fmt::format("'electrodes_file' must not be empty in {}", debugStr));
+                }
+                report.electrodesFile = toAbsolute(_basePath, report.electrodesFile);
+            } else {
+                parseMandatory(valueIt, "variable_name", debugStr, report.variableName);
+                if (report.variableName.empty()) {
+                    throw SonataError(
+                        fmt::format("'variable_name' must not be empty in {}", debugStr));
+                }
+                // variable names can look like:
+                // `v`, or `i_clamp`, or `Foo.bar` but not `..asdf`, or `asdf..`
+                // or `asdf.asdf.asdf`
+                const char* const varName = R"(\w+(?:\.?\w+)?)";
+                // variable names are separated by `,` with any amount of whitespace separating
+                // them
+                const std::regex expr(fmt::format(R"({}(?:\s*,\s*{})*)", varName, varName));
+                if (!std::regex_match(report.variableName, expr)) {
+                    throw SonataError(fmt::format("Invalid comma separated variable names '{}'",
+                                                  report.variableName));
+                }
+
+                if (valueIt.find("electrodes_file") != valueIt.end()) {
+                    throw SonataError(
+                        fmt::format("Field 'electrodes_file' is not allowed in {}. "
+                                    "It is only valid for LFP reports.",
+                                    debugStr));
+                }
             }
 
             const auto extension = fs::path(report.fileName).extension().string();
@@ -1334,9 +1420,20 @@ class SimulationConfig::Parser
         return toAbsolute(_basePath, val);
     }
 
-    SimulationConfig::SimulatorType parseTargetSimulator() const {
-        SimulationConfig::SimulatorType val = SimulationConfig::SimulatorType::NEURON;
-        parseOptional(_json, "target_simulator", val, {SimulationConfig::SimulatorType::NEURON});
+    SimulatorType parseTargetSimulator() const {
+        SimulatorType val = SimulatorType::NEURON;
+        if (_json.contains("target_simulator")) {
+            parseOptional(_json, "target_simulator", val, {SimulatorType::NEURON});
+            return val;
+        } else {
+            try {
+                const auto circuitFile = parseNetwork();
+                const auto conf = CircuitConfig::fromFile(circuitFile);
+                return conf.getTargetSimulator();
+            } catch (...) {
+                return SimulatorType::UNSPECIFIED;
+            }
+        }
         return val;
     }
 
@@ -1421,7 +1518,8 @@ class SimulationConfig::Parser
                 }
             } break;
             case InputBase::InputType::spikes:
-                if (!nonstd::holds_alternative<SimulationConfig::InputSynapseReplay>(input)) {
+                if (!(nonstd::holds_alternative<SimulationConfig::InputSynapseReplay>(input) ||
+                      nonstd::holds_alternative<SimulationConfig::InputPoissonSpike>(input))) {
                     mismatchingModuleInputType();
                 }
                 break;
@@ -1458,12 +1556,7 @@ class SimulationConfig::Parser
         std::unordered_set<std::string> uniqueNames;
 
         const auto connIt = _json.find("connection_overrides");
-        // nlohmann::json::flatten().unflatten() converts empty containers to `null`:
-        // https://json.nlohmann.me/api/basic_json/unflatten/#notes
-        // so we can't tell the difference between {} and []; however, since these are
-        // empty, we will assume the intent was to have no connection_overrides and forgo
-        // better error reporting
-        if (connIt == _json.end() || connIt->is_null()) {
+        if (connIt == _json.end()) {
             return result;
         }
 
@@ -1530,8 +1623,24 @@ class SimulationConfig::Parser
         return _json.dump();
     }
 
+    std::vector<std::string> parseInputNames() const {
+        const auto it = _orderedJson.find("inputs");
+        if (it == _orderedJson.end()) {
+            return {};
+        }
+        // No need to check for duplicate keys here: parseJSONRejectDuplicateKeys()
+        // already throws on duplicates during construction, before this is called.
+        std::vector<std::string> result;
+        result.reserve(it->size());
+        for (const auto& kv : it->items()) {
+            result.push_back(kv.key());
+        }
+        return result;
+    }
+
   private:
     const fs::path _basePath;
+    const nlohmann::ordered_json _orderedJson;
     nlohmann::json _json;
 };
 
@@ -1545,6 +1654,7 @@ SimulationConfig::SimulationConfig(const std::string& content, const std::string
     _reports = parser.parseReports(_output);
     _network = parser.parseNetwork();
     _inputs = parser.parseInputs(_run.dt);
+    _inputNames = parser.parseInputNames();
     _connection_overrides = parser.parseConnectionOverrides();
     _targetSimulator = parser.parseTargetSimulator();
     _nodeSetsFile = parser.parseNodeSetsFile();
@@ -1597,8 +1707,8 @@ const SimulationConfig::Report& SimulationConfig::getReport(const std::string& n
     return it->second;
 }
 
-std::set<std::string> SimulationConfig::listInputNames() const {
-    return getMapKeys(_inputs);
+const std::vector<std::string>& SimulationConfig::listInputNames() const noexcept {
+    return _inputNames;
 }
 
 const SimulationConfig::Input& SimulationConfig::getInput(const std::string& name) const {
@@ -1615,7 +1725,7 @@ const std::vector<SimulationConfig::ConnectionOverride>& SimulationConfig::getCo
     return _connection_overrides;
 }
 
-const SimulationConfig::SimulatorType& SimulationConfig::getTargetSimulator() const {
+const SimulatorType& SimulationConfig::getTargetSimulator() const {
     return _targetSimulator;
 }
 

@@ -29,7 +29,6 @@
          "synapse_seed": 444,
          "integration_method" : "crank_nicolson_ion",
          "forward_skip": 500,
-         "electrodes_file": "$ELECTRODES_DIR/electrode_weights.h5",
          "spike_threshold": -35.5
     },
     "output": {
@@ -299,6 +298,15 @@
                     "Ez": 0.3
                 }
             ]
+        },
+        "ex_poisson": {
+            "input_type": "spikes",
+            "module": "poisson",
+            "delay": 1,
+            "duration": 555,
+            "node_set": "All",
+            "weight": 3.5,
+            "rate": 4.9
         }
     },
     "connection_overrides": [
@@ -347,11 +355,11 @@
          "lfp": {
             "cells": "All",
             "type": "lfp",
-            "variable_name": "v",
             "unit": "mV",
             "dt": 0.1,
             "start_time": 0.0,
-            "end_time": 110000.0
+            "end_time": 110000.0,
+            "electrodes_file": "$ELECTRODES_DIR/electrode_weights.h5"
         },
          "axonal_comp_centers": {
               "cells": "Mosaic",
