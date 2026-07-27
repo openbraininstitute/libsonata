@@ -280,32 +280,31 @@ std::map<std::string, std::string> replaceVariables(std::map<std::string, std::s
     return variables;
 }
 
-nlohmann::json expandVariables(const nlohmann::json& json,
-                               const std::map<std::string, std::string>& vars) {
-    auto jsonFlat = json.flatten();
-
-    // Expand variables in whole json
-    for (auto it = jsonFlat.begin(); it != jsonFlat.end(); ++it) {
-        auto& value = it.value();
-        if (!value.is_string()) {
-            continue;
-        }
-
-        auto valueStr = value.get<std::string>();
-
-        for (const auto& var : vars) {
-            const auto& varName = var.first;
-            const auto& varValue = var.second;
-            const auto startPos = valueStr.find(varName);
-
-            if (startPos != std::string::npos) {
-                valueStr.replace(startPos, varName.length(), varValue);
-                value = fs::path(valueStr).lexically_normal().string();
+nlohmann::json inplaceExpandVariables(nlohmann::json& json,
+                                      const std::map<std::string, std::string>& vars) {
+    std::function<void(nlohmann::json&)> expand = [&](nlohmann::json& j) {
+        if (j.is_string()) {
+            auto valueStr = j.get<std::string>();
+            for (const auto& var : vars) {
+                auto pos = valueStr.find(var.first);
+                if (pos != std::string::npos) {
+                    valueStr.replace(pos, var.first.length(), var.second);
+                    j = fs::path(valueStr).lexically_normal().string();
+                }
+            }
+        } else if (j.is_object()) {
+            for (auto& item : j.items()) {
+                expand(item.value());
+            }
+        } else if (j.is_array()) {
+            for (auto& val : j) {
+                expand(val);
             }
         }
-    }
+    };
 
-    return jsonFlat.unflatten();
+    expand(json);
+    return json;
 }
 
 using Variables = std::map<std::string, std::string>;
@@ -817,10 +816,9 @@ class CircuitConfig::Parser
   public:
     Parser(const std::string& contents, const std::string& basePath)
         : _basePath(fs::absolute(fs::path(basePath))) {
-        // Parse and expand JSON string
-        const auto rawJson = nlohmann::json::parse(contents);
-        const auto vars = replaceVariables(readVariables(rawJson));
-        _json = expandVariables(rawJson, vars);
+        _json = nlohmann::json::parse(contents);
+        const auto vars = replaceVariables(readVariables(_json));
+        inplaceExpandVariables(_json, vars);
     }
 
     template <typename T>
@@ -1220,9 +1218,9 @@ class SimulationConfig::Parser
         : _basePath(fs::absolute(fs::path(basePath)).lexically_normal())
         , _orderedJson(nlohmann::ordered_json::parse(content)) {
         // Parse manifest section and expand JSON string
-        const auto rawJson = parseJSONRejectDuplicateKeys(content);
-        const auto vars = replaceVariables(readVariables(rawJson));
-        _json = expandVariables(rawJson, vars);
+        _json = parseJSONRejectDuplicateKeys(content);
+        const auto vars = replaceVariables(readVariables(_json));
+        inplaceExpandVariables(_json, vars);
     }
 
     SimulationConfig::Run parseRun() const {
@@ -1558,12 +1556,7 @@ class SimulationConfig::Parser
         std::unordered_set<std::string> uniqueNames;
 
         const auto connIt = _json.find("connection_overrides");
-        // nlohmann::json::flatten().unflatten() converts empty containers to `null`:
-        // https://json.nlohmann.me/api/basic_json/unflatten/#notes
-        // so we can't tell the difference between {} and []; however, since these are
-        // empty, we will assume the intent was to have no connection_overrides and forgo
-        // better error reporting
-        if (connIt == _json.end() || connIt->is_null()) {
+        if (connIt == _json.end()) {
             return result;
         }
 

@@ -21,6 +21,7 @@
         "node_types_file": null,
         "populations": {
             "nodes-A": {
+                "alternate_morphologies": {}
             },
             "nodes-B": {
                 "spatial_segment_index_dir": "$COMPONENT_DIR/spatial_segment_index_dir"
