@@ -39,7 +39,9 @@ TEST_CASE("CircuitConfig") {
         CHECK_THROWS_AS(config.getNodePopulationProperties("DoesNotExist"), SonataError);
         CHECK_THROWS_AS(config.getEdgePopulationProperties("DoesNotExist"), SonataError);
 
-        CHECK(config.getNodePopulationProperties("nodes-A").type == "biophysical");
+        auto nodesA_properties = config.getNodePopulationProperties("nodes-A");
+        CHECK(nodesA_properties.type == "biophysical");
+        CHECK(endswith(nodesA_properties.mechanismsDir, "/mechanisms_dir"));
         CHECK(endswith(config.getNodePopulationProperties("nodes-A").typesPath, ""));
         CHECK(endswith(config.getNodePopulationProperties("nodes-A").elementsPath, "tests/data/nodes1.h5"));
 
@@ -321,12 +323,12 @@ TEST_CASE("SimulationConfig") {
             fs::path("./data/config/simulation_config.json").parent_path());
 
         const auto electrodesPath = fs::absolute(basePath / "electrodes/electrode_weights.h5");
-        CHECK(config.getRun().electrodesFile == (electrodesPath).lexically_normal());
+        CHECK(config.getReport("lfp").electrodesFile == electrodesPath.lexically_normal());
 
         CHECK_NOTHROW(config.getOutput());
-        const auto outputPath = fs::absolute(basePath / "some/path/output");
-        CHECK(config.getOutput().outputDir == (outputPath).lexically_normal());
-        CHECK(config.getOutput().spikesFile == "out.h5");
+        const auto outputPath = fs::absolute(basePath / "some/path/output").lexically_normal();
+        CHECK(config.getOutput().outputDir == outputPath);
+        CHECK(config.getOutput().spikesFile == (outputPath / "out.h5").lexically_normal());
         CHECK(config.getOutput().logFile.empty());
         CHECK(config.getOutput().sortOrder == SimulationConfig::Output::SpikesSortOrder::by_id);
 
@@ -415,7 +417,7 @@ TEST_CASE("SimulationConfig") {
 
         const auto network = fs::absolute(basePath / fs::path("circuit_config.json"));
         CHECK(config.getNetwork() == network.lexically_normal());
-        CHECK(config.getTargetSimulator() == SimulationConfig::SimulatorType::CORENEURON);
+        CHECK(config.getTargetSimulator() == SimulatorType::CORENEURON);
         const auto circuit_conf = CircuitConfig::fromFile(config.getNetwork());
         CHECK(config.getNodeSetsFile() == circuit_conf.getNodeSetsPath());
         CHECK(config.getNodeSet() == "Column");
@@ -649,25 +651,38 @@ TEST_CASE("SimulationConfig") {
             CHECK(fields[0].frequency == 0.);
             CHECK(fields[0].phase == 0.);
         }
-        CHECK(config.listInputNames() == std::set<std::string>{"ex_abs_shotnoise",
-                                                               "ex_hyperpolarizing",
-                                                               "ex_linear",
-                                                               "ex_linear_compartment_set",
-                                                               "ex_noise_mean",
-                                                               "ex_noise_meanpercent",
-                                                               "ex_OU",
-                                                               "ex_pulse",
-                                                               "ex_rel_linear",
-                                                               "ex_rel_OU",
-                                                               "ex_rel_shotnoise",
-                                                               "ex_replay",
-                                                               "ex_seclamp",
-                                                               "ex_shotnoise",
-                                                               "ex_sinusoidal",
-                                                               "ex_sinusoidal_default_dt",
-                                                               "ex_subthreshold",
-                                                               "ex_efields",
-                                                               "ex_efields_noramp"});
+        {
+            const auto input = nonstd::get<SimulationConfig::InputPoissonSpike>(
+                config.getInput("ex_poisson"));
+            CHECK(input.inputType == InputType::spikes);
+            CHECK(input.module == Module::poisson);
+            CHECK(input.delay == 1);
+            CHECK(input.duration == 555);
+            CHECK(input.nodeSet == "All");
+            CHECK(input.rate == 4.9);
+            CHECK(input.weight == 3.5);
+        }
+        CHECK(config.listInputNames() == std::vector<std::string>{"ex_linear",
+                                                                  "ex_linear_compartment_set",
+                                                                  "ex_rel_linear",
+                                                                  "ex_pulse",
+                                                                  "ex_sinusoidal",
+                                                                  "ex_sinusoidal_default_dt",
+                                                                  "ex_subthreshold",
+                                                                  "ex_shotnoise",
+                                                                  "ex_hyperpolarizing",
+                                                                  "ex_seclamp",
+                                                                  "ex_noise_meanpercent",
+                                                                  "ex_noise_mean",
+                                                                  "ex_rel_shotnoise",
+                                                                  "ex_abs_shotnoise",
+                                                                  "ex_replay",
+                                                                  "ex_OU",
+                                                                  "ex_rel_OU",
+                                                                  "ex_efields",
+                                                                  "ex_efields_noramp",
+                                                                  "ex_poisson",
+                                                                  });
 
         auto overrides = config.getConnectionOverrides();
         CHECK(overrides[0].name == "ConL3Exc-Uni");
@@ -730,14 +745,13 @@ TEST_CASE("SimulationConfig") {
         const auto config = SimulationConfig(contents, basePath);
         const auto network = fs::absolute(basePath / "circuit" / fs::path("circuit_config.json"));
         CHECK(config.getNetwork() == network.lexically_normal());
-        CHECK(config.getTargetSimulator() == SimulationConfig::SimulatorType::NEURON);  // default
+        CHECK(config.getTargetSimulator() == SimulatorType::UNSPECIFIED);
         CHECK(config.getNodeSetsFile() == "");  // network file is not readable so default empty
         CHECK(config.getNodeSet() == nonstd::nullopt);  // default
         CHECK(config.getRun().stimulusSeed == 0);
         CHECK(config.getRun().ionchannelSeed == 0);
         CHECK(config.getRun().minisSeed == 0);
         CHECK(config.getRun().synapseSeed == 0);
-        CHECK(config.getRun().electrodesFile == "");
         CHECK(config.getRun().spikeThreshold == -30.0);
     }
 
@@ -1960,7 +1974,7 @@ TEST_CASE("SimulationConfig") {
               "ABC": 1,
                "mechanisms": {
                   "ABC": {"A":1},
-                  "ABC": {"A":1},
+                  "ABC": {"A":1}
                 }
               }
           })";

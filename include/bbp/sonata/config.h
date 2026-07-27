@@ -30,6 +30,8 @@ namespace sonata {
 
 using variantValueType = nonstd::variant<bool, std::string, int, double>;
 
+enum class SimulatorType { invalid = -1, NEURON, CORENEURON, LEARNINGENGINE, BRIAN2, UNSPECIFIED };
+
 struct CommonPopulationProperties {
     /**
      * Population type
@@ -54,6 +56,16 @@ struct CommonPopulationProperties {
      * Path to the template HOC files defining the E-Mode
      */
     std::string biophysicalNeuronModelsDir;
+
+    /**
+     * Path to the templates for point neurons
+     */
+    std::string pointNeuronModelsDir;
+
+    /**
+     * Path to the mechanisms required for the circuit
+     */
+    std::string mechanismsDir;
 
     /**
      * Path to the directory containing the morphologies
@@ -176,6 +188,11 @@ class SONATA_API CircuitConfig
     const std::string& getCompartmentSetsPath() const;
 
     /**
+     * Returns target simulator
+     */
+    const SimulatorType& getTargetSimulator() const;
+
+    /**
      *  Returns a set with all available population names across all the node networks.
      */
     std::set<std::string> listNodePopulations() const;
@@ -231,6 +248,8 @@ class SONATA_API CircuitConfig
         std::string morphologiesDir;
         std::unordered_map<std::string, std::string> alternateMorphologiesDir;
         std::string biophysicalNeuronModelsDir;
+        std::string pointNeuronModelsDir;
+        std::string mechanismsDir;
 
         nonstd::optional<std::string> vasculatureFile{nonstd::nullopt};
         nonstd::optional<std::string> vasculatureMesh{nonstd::nullopt};
@@ -256,6 +275,9 @@ class SONATA_API CircuitConfig
 
     // Edge populations that override default components variables
     std::unordered_map<std::string, EdgePopulationProperties> _edgePopulationProperties;
+
+    // Name of simulator
+    SimulatorType _targetSimulator;
 };
 
 /**
@@ -298,8 +320,6 @@ class SONATA_API SimulationConfig
         int minisSeed = DEFAULT_minisSeed;
         /// A non-negative integer used for seeding stochastic synapses, default is 0.
         int synapseSeed = DEFAULT_synapseSeed;
-        /// Filename that contains the weights for the LFP calculation.
-        std::string electrodesFile;
     };
     /**
      * Parameters to override simulator output for spike reports
@@ -475,6 +495,8 @@ class SONATA_API SimulationConfig
         std::string fileName;
         /// Allows for suppressing a report so that is not created. Default is true
         bool enabled = true;
+        /// Filename that contains the weights for the LFP calculation (LFP reports only).
+        std::string electrodesFile;
     };
 
     using ReportMap = std::unordered_map<std::string, Report>;
@@ -496,7 +518,9 @@ class SONATA_API SimulationConfig
             absolute_shot_noise,
             ornstein_uhlenbeck,
             relative_ornstein_uhlenbeck,
-            spatially_uniform_e_field
+            spatially_uniform_e_field,
+            poisson
+
         };
 
         enum class InputType {
@@ -730,7 +754,6 @@ class SONATA_API SimulationConfig
     /// the sum of an arbitrary number of potential fields which vary cosinusoidally in time, and
     /// whose gradient (i.e., E field) is constant.
     struct InputSpatiallyUniformEField: public InputBase {
-      public:
         /// A list of EFields which are summed to produce the total stimulus.
         std::vector<EField> fields;
         /// Duration during which the signal amplitude ramps up linearly from 0, in ms. Default is 0
@@ -739,6 +762,15 @@ class SONATA_API SimulationConfig
         /// Duration during which the signal amplitude ramps down linearly to 0, in ms. Default is 0
         /// ms.
         double rampDownTime;
+    };
+
+    /// Poisson Spike input; modelled after Brian2::PoissonInput
+    struct InputPoissonSpike: public InputBase {
+        /// Rate of the inputs
+        double rate{};
+
+        /// Weight per synapse
+        double weight{};
     };
 
     using Input = nonstd::variant<InputLinear,
@@ -755,7 +787,8 @@ class SONATA_API SimulationConfig
                                   InputAbsoluteShotNoise,
                                   InputOrnsteinUhlenbeck,
                                   InputRelativeOrnsteinUhlenbeck,
-                                  InputSpatiallyUniformEField>;
+                                  InputSpatiallyUniformEField,
+                                  InputPoissonSpike>;
 
     using InputMap = std::unordered_map<std::string, Input>;
 
@@ -793,8 +826,6 @@ class SONATA_API SimulationConfig
         /// for the neuromodulatory projection. Given in muM.
         nonstd::optional<double> neuromodulationStrength{nonstd::nullopt};
     };
-
-    enum class SimulatorType { invalid = -1, NEURON, CORENEURON, LEARNINGENGINE };
 
     /**
      * Parses a SONATA JSON simulation configuration file.
@@ -860,9 +891,9 @@ class SONATA_API SimulationConfig
     const Report& getReport(const std::string& name) const;
 
     /**
-     * Returns the names of the inputs
+     * Returns the names of the inputs in the order they appear in the config
      */
-    std::set<std::string> listInputNames() const;
+    const std::vector<std::string>& listInputNames() const noexcept;
 
     /**
      * Returns the given input parameters.
@@ -881,7 +912,7 @@ class SONATA_API SimulationConfig
      * Returns the name of simulator, default = NEURON
      * \throws SonataError if the given value is neither NEURON nor CORENEURON
      */
-    const SimulationConfig::SimulatorType& getTargetSimulator() const;
+    const SimulatorType& getTargetSimulator() const;
 
     /**
      * Returns the path of node sets file overriding node_sets_file provided in _network,
@@ -939,6 +970,8 @@ class SONATA_API SimulationConfig
     std::string _network;
     // List of inputs
     InputMap _inputs;
+    // Input names in config-file order
+    std::vector<std::string> _inputNames;
     // List of connections
     std::vector<ConnectionOverride> _connection_overrides;
     // Name of simulator

@@ -12,6 +12,7 @@ set(TESTS_SRC
   test_compartment_sets.cpp
   test_config.cpp
   test_edges.cpp
+  test_electrode_reader.cpp
   test_node_sets.cpp
   test_nodes.cpp
   test_report_reader.cpp

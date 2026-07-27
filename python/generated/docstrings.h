@@ -42,9 +42,13 @@ static const char *__doc_bbp_sonata_CircuitConfig_Components_biophysicalNeuronMo
 
 static const char *__doc_bbp_sonata_CircuitConfig_Components_endfeetMeshesFile = R"doc()doc";
 
+static const char *__doc_bbp_sonata_CircuitConfig_Components_mechanismsDir = R"doc()doc";
+
 static const char *__doc_bbp_sonata_CircuitConfig_Components_microdomainsFile = R"doc()doc";
 
 static const char *__doc_bbp_sonata_CircuitConfig_Components_morphologiesDir = R"doc()doc";
+
+static const char *__doc_bbp_sonata_CircuitConfig_Components_pointNeuronModelsDir = R"doc()doc";
 
 static const char *__doc_bbp_sonata_CircuitConfig_Components_spineMorphologiesDir = R"doc()doc";
 
@@ -133,6 +137,8 @@ Throws:
 
 static const char *__doc_bbp_sonata_CircuitConfig_getNodeSetsPath = R"doc(Returns the path to the node sets file.)doc";
 
+static const char *__doc_bbp_sonata_CircuitConfig_getTargetSimulator = R"doc(Returns target simulator)doc";
+
 static const char *__doc_bbp_sonata_CircuitConfig_listEdgePopulations =
 R"doc(Returns a set with all available population names across all the edge
 networks.)doc";
@@ -147,6 +153,8 @@ static const char *__doc_bbp_sonata_CircuitConfig_nodeSetsFile = R"doc()doc";
 
 static const char *__doc_bbp_sonata_CircuitConfig_status = R"doc()doc";
 
+static const char *__doc_bbp_sonata_CircuitConfig_targetSimulator = R"doc()doc";
+
 static const char *__doc_bbp_sonata_CommonPopulationProperties = R"doc()doc";
 
 static const char *__doc_bbp_sonata_CommonPopulationProperties_alternateMorphologyFormats = R"doc(Dictionary for alternate directory paths.)doc";
@@ -158,7 +166,11 @@ R"doc(Path to underlying elements H5 file. It is discouraged to directly
 access the contents of the file. Instead use 'libsonata' to read this
 file.)doc";
 
+static const char *__doc_bbp_sonata_CommonPopulationProperties_mechanismsDir = R"doc(Path to the mechanisms required for the circuit)doc";
+
 static const char *__doc_bbp_sonata_CommonPopulationProperties_morphologiesDir = R"doc(Path to the directory containing the morphologies)doc";
+
+static const char *__doc_bbp_sonata_CommonPopulationProperties_pointNeuronModelsDir = R"doc(Path to the templates for point neurons)doc";
 
 static const char *__doc_bbp_sonata_CommonPopulationProperties_type = R"doc(Population type)doc";
 
@@ -350,6 +362,94 @@ static const char *__doc_bbp_sonata_EdgePopulation_target = R"doc(Name of target
 static const char *__doc_bbp_sonata_EdgePopulation_targetNodeIDs = R"doc(Return target node IDs for a given edge selection)doc";
 
 static const char *__doc_bbp_sonata_EdgePopulation_writeIndices = R"doc(Write bidirectional node->edge indices to EdgePopulation HDF5.)doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader =
+R"doc(Reader for SONATA electrode weight files (HDF5).
+
+Provides access to electrode scaling factors used for LFP computation.
+Follows the ReportReader/SpikeReader pattern with lazy-loaded
+populations.)doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_ElectrodeReader = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_Population = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_electrode_names = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_electrode_positions = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_electrode_types = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_electrodes_group = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_get =
+R"doc(Return scaling factors for the given node and electrode selections.
+
+Parameter ``node_ids``:
+    selection of node IDs to include. nullopt means all nodes.
+
+Parameter ``electrode_ids``:
+    selection of electrode column indices to include. nullopt means
+    all electrodes.
+
+Returns:
+    ElectrodeScalingFactors with the submatrix of scaling factors.)doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_getElectrodeNames = R"doc(Return electrode names ordered by column index.)doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_getElectrodePositions =
+R"doc(Return electrode positions ordered by column index. Each entry is [x,
+y, z] in micrometers.)doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_getElectrodeTypes = R"doc(Return electrode types ordered by column index.)doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_getNodeIds = R"doc(Return all node IDs present in this population.)doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_getNumberOfElectrodes = R"doc(Return the number of electrodes in this population.)doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_n_electrodes = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_node_ids = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_node_index = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_node_ranges = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_offsets = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_Population_population_name = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_file = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_getPopulationNames = R"doc(Return a list of all population names found in the file.)doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_openPopulation =
+R"doc(Open (or return cached) population by name.
+
+Throws:
+    SonataError if no such population exists.)doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_population_names = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeReader_populations = R"doc()doc";
+
+static const char *__doc_bbp_sonata_ElectrodeScalingFactors =
+R"doc(Container for electrode scaling factor data.
+
+Represents a 2D matrix of shape (n_compartments, n_electrodes) with
+row and column identity information.)doc";
+
+static const char *__doc_bbp_sonata_ElectrodeScalingFactors_data =
+R"doc(Flattened row-major data. data[row * n_cols + col] where n_cols =
+electrodes.size())doc";
+
+static const char *__doc_bbp_sonata_ElectrodeScalingFactors_electrodes =
+R"doc(Per-column identity: electrode indices returned. Uses uint64_t for
+consistency with Selection::Value and other libsonata public APIs.)doc";
+
+static const char *__doc_bbp_sonata_ElectrodeScalingFactors_ids = R"doc(Per-row identity: [node_id, local_compartment_index])doc";
 
 static const char *__doc_bbp_sonata_Hdf5PluginInterface = R"doc()doc";
 
@@ -832,6 +932,32 @@ R"doc(Create Selection from a list of ranges
 Parameter ``ranges``:
     is a list of ranges constituting Selection)doc";
 
+static const char *__doc_bbp_sonata_Selection_begin = R"doc(Iterator to the first element of the selection)doc";
+
+static const char *__doc_bbp_sonata_Selection_const_iterator =
+R"doc(Forward iterator over individual element values in range-order. Yields
+the same sequence as flatten() without allocating a vector.)doc";
+
+static const char *__doc_bbp_sonata_Selection_const_iterator_const_iterator = R"doc()doc";
+
+static const char *__doc_bbp_sonata_Selection_const_iterator_const_iterator_2 = R"doc()doc";
+
+static const char *__doc_bbp_sonata_Selection_const_iterator_current = R"doc()doc";
+
+static const char *__doc_bbp_sonata_Selection_const_iterator_operator_eq = R"doc()doc";
+
+static const char *__doc_bbp_sonata_Selection_const_iterator_operator_inc = R"doc()doc";
+
+static const char *__doc_bbp_sonata_Selection_const_iterator_operator_inc_2 = R"doc()doc";
+
+static const char *__doc_bbp_sonata_Selection_const_iterator_operator_mul = R"doc()doc";
+
+static const char *__doc_bbp_sonata_Selection_const_iterator_operator_ne = R"doc()doc";
+
+static const char *__doc_bbp_sonata_Selection_const_iterator_range_end = R"doc()doc";
+
+static const char *__doc_bbp_sonata_Selection_const_iterator_range_it = R"doc()doc";
+
 static const char *__doc_bbp_sonata_Selection_contains =
 R"doc(Check if Selection contains a given node id
 
@@ -842,6 +968,8 @@ Returns:
     true if Selection contains the node id, false otherwise)doc";
 
 static const char *__doc_bbp_sonata_Selection_empty = R"doc()doc";
+
+static const char *__doc_bbp_sonata_Selection_end = R"doc(Past-the-end iterator)doc";
 
 static const char *__doc_bbp_sonata_Selection_flatSize = R"doc(Total number of elements constituting Selection)doc";
 
@@ -1008,6 +1136,8 @@ static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_noise = R"
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_ornstein_uhlenbeck = R"doc()doc";
 
+static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_poisson = R"doc()doc";
+
 static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_pulse = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_relative_linear = R"doc()doc";
@@ -1087,6 +1217,12 @@ static const char *__doc_bbp_sonata_SimulationConfig_InputOrnsteinUhlenbeck_reve
 static const char *__doc_bbp_sonata_SimulationConfig_InputOrnsteinUhlenbeck_sigma = R"doc(Signal std dev in nA (current_clamp) or uS (conductance))doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputOrnsteinUhlenbeck_tau = R"doc(Relaxation time constant in ms)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_InputPoissonSpike = R"doc(Poisson Spike input; modelled after Brian2::PoissonInput)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_InputPoissonSpike_rate = R"doc(Rate of the inputs)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_InputPoissonSpike_weight = R"doc(Weight per synapse)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputPulse = R"doc()doc";
 
@@ -1377,6 +1513,10 @@ R"doc(For compartment type, select compartments to report. Default value:
 
 static const char *__doc_bbp_sonata_SimulationConfig_Report_dt = R"doc(Interval between reporting steps in milliseconds)doc";
 
+static const char *__doc_bbp_sonata_SimulationConfig_Report_electrodesFile =
+R"doc(Filename that contains the weights for the LFP calculation (LFP
+reports only).)doc";
+
 static const char *__doc_bbp_sonata_SimulationConfig_Report_enabled =
 R"doc(Allows for suppressing a report so that is not created. Default is
 true)doc";
@@ -1416,8 +1556,6 @@ static const char *__doc_bbp_sonata_SimulationConfig_Run_IntegrationMethod_inval
 
 static const char *__doc_bbp_sonata_SimulationConfig_Run_dt = R"doc(Integration step duration in milliseconds)doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_Run_electrodesFile = R"doc(Filename that contains the weights for the LFP calculation.)doc";
-
 static const char *__doc_bbp_sonata_SimulationConfig_Run_integrationMethod =
 R"doc(Selects the NEURON/CoreNEURON integration method. This parameter sets
 the NEURON global variable h.secondorder, default is "euler".)doc";
@@ -1450,16 +1588,6 @@ R"doc(Parses a SONATA JSON simulation configuration file.
 Throws:
     SonataError on: - Ill-formed JSON - Missing mandatory entries (in
     any depth))doc";
-
-static const char *__doc_bbp_sonata_SimulationConfig_SimulatorType = R"doc()doc";
-
-static const char *__doc_bbp_sonata_SimulationConfig_SimulatorType_CORENEURON = R"doc()doc";
-
-static const char *__doc_bbp_sonata_SimulationConfig_SimulatorType_LEARNINGENGINE = R"doc()doc";
-
-static const char *__doc_bbp_sonata_SimulationConfig_SimulatorType_NEURON = R"doc()doc";
-
-static const char *__doc_bbp_sonata_SimulationConfig_SimulatorType_invalid = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_basePath = R"doc()doc";
 
@@ -1537,9 +1665,11 @@ R"doc(Returns the name of simulator, default = NEURON
 Throws:
     SonataError if the given value is neither NEURON nor CORENEURON)doc";
 
+static const char *__doc_bbp_sonata_SimulationConfig_inputNames = R"doc()doc";
+
 static const char *__doc_bbp_sonata_SimulationConfig_inputs = R"doc()doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_listInputNames = R"doc(Returns the names of the inputs)doc";
+static const char *__doc_bbp_sonata_SimulationConfig_listInputNames = R"doc(Returns the names of the inputs in the order they appear in the config)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_listReportNames = R"doc(Returns the names of the reports)doc";
 
@@ -1558,6 +1688,20 @@ static const char *__doc_bbp_sonata_SimulationConfig_reports = R"doc()doc";
 static const char *__doc_bbp_sonata_SimulationConfig_run = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_targetSimulator = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulatorType = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulatorType_BRIAN2 = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulatorType_CORENEURON = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulatorType_LEARNINGENGINE = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulatorType_NEURON = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulatorType_UNSPECIFIED = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulatorType_invalid = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SonataError = R"doc()doc";
 

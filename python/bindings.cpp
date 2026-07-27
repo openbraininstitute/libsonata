@@ -3,10 +3,11 @@
 #include <pybind11/stl.h>
 
 #include <bbp/sonata/common.h>
+#include <bbp/sonata/compartment_sets.h>
 #include <bbp/sonata/config.h>
 #include <bbp/sonata/edges.h>
+#include <bbp/sonata/electrode_reader.h>
 #include <bbp/sonata/node_sets.h>
-#include <bbp/sonata/compartment_sets.h>
 #include <bbp/sonata/nodes.h>
 #include <bbp/sonata/optional.hpp>  //nonstd::optional
 #include <bbp/sonata/report_reader.h>
@@ -492,18 +493,23 @@ PYBIND11_MODULE(_libsonata, m) {
         .def("__ne__", &bbp::sonata::operator!=, "Compare selection contents are not equal")
         .def("__or__", &bbp::sonata::operator|, "Union of selections")
         .def("__and__", &bbp::sonata::operator&, "Intersection of selections")
-        .def("__repr__", [](Selection& obj) {
-            const auto& ranges = obj.ranges();
-            const size_t max_count = 10;
+        .def("__repr__",
+             [](Selection& obj) {
+                 const auto& ranges = obj.ranges();
+                 const size_t max_count = 10;
 
-            if (ranges.size() < max_count) {
-                return fmt::format("Selection([{}])", fmt::join(ranges, ", "));
-            }
+                 if (ranges.size() < max_count) {
+                     return fmt::format("Selection([{}])", fmt::join(ranges, ", "));
+                 }
 
-            return fmt::format("Selection([{}, ..., {}])",
-                               fmt::join(ranges.begin(), ranges.begin() + 3, ", "),
-                               fmt::join(ranges.end() - 3, ranges.end(), ", "));
-        });
+                 return fmt::format("Selection([{}, ..., {}])",
+                                    fmt::join(ranges.begin(), ranges.begin() + 3, ", "),
+                                    fmt::join(ranges.end() - 3, ranges.end(), ", "));
+             })
+        .def(
+            "__iter__",
+            [](const Selection& obj) { return py::make_iterator(obj.begin(), obj.end()); },
+            py::keep_alive<0, 1>());
     py::implicitly_convertible<py::list, Selection>();
     py::implicitly_convertible<py::tuple, Selection>();
 
@@ -689,6 +695,12 @@ PYBIND11_MODULE(_libsonata, m) {
         .def_readonly("biophysical_neuron_models_dir",
                       &CommonPopulationProperties::biophysicalNeuronModelsDir,
                       DOC_COMMON_POPULATION_PROPERTIES(biophysicalNeuronModelsDir))
+        .def_readonly("point_neuron_models_dir",
+                      &CommonPopulationProperties::pointNeuronModelsDir,
+                      DOC_COMMON_POPULATION_PROPERTIES(pointNeuronModelsDir))
+        .def_readonly("mechanisms_dir",
+                      &CommonPopulationProperties::mechanismsDir,
+                      DOC_COMMON_POPULATION_PROPERTIES(mechanismsDir))
         .def_readonly("morphologies_dir",
                       &CommonPopulationProperties::morphologiesDir,
                       DOC_COMMON_POPULATION_PROPERTIES(morphologiesDir))
@@ -729,6 +741,13 @@ PYBIND11_MODULE(_libsonata, m) {
                       &EdgePopulationProperties::spineMorphologiesDir,
                       DOC_EDGE_POPULATION_PROPERTIES(spineMorphologiesDir));
 
+    py::enum_<SimulatorType>(m, "SimulatorType", "SimulatorType Enum", py::module_local())
+        .value("NEURON", SimulatorType::NEURON)
+        .value("CORENEURON", SimulatorType::CORENEURON)
+        .value("LearningEngine", SimulatorType::LEARNINGENGINE)
+        .value("Brian2", SimulatorType::BRIAN2)
+        .value("UNSPECIFIED", SimulatorType::UNSPECIFIED);
+
     py::enum_<CircuitConfig::ConfigStatus>(m, "CircuitConfigStatus")
         .value("invalid", CircuitConfig::ConfigStatus::invalid)
         .value("complete", CircuitConfig::ConfigStatus::complete)
@@ -743,6 +762,8 @@ PYBIND11_MODULE(_libsonata, m) {
         .def_property_readonly("config_status", &CircuitConfig::getCircuitConfigStatus, "ibid")
         .def_property_readonly("node_sets_path", &CircuitConfig::getNodeSetsPath)
         .def_property_readonly("node_populations", &CircuitConfig::listNodePopulations)
+        .def_property_readonly("target_simulator", &CircuitConfig::getTargetSimulator)
+
         .def("node_population",
              [](const CircuitConfig& config, const std::string& name) {
                  return config.getNodePopulation(name);
@@ -786,10 +807,7 @@ PYBIND11_MODULE(_libsonata, m) {
                       DOC_SIMULATIONCONFIG(Run, minisSeed))
         .def_readonly("synapse_seed",
                       &SimulationConfig::Run::synapseSeed,
-                      DOC_SIMULATIONCONFIG(Run, synapseSeed))
-        .def_readonly("electrodes_file",
-                      &SimulationConfig::Run::electrodesFile,
-                      DOC_SIMULATIONCONFIG(Run, electrodesFile));
+                      DOC_SIMULATIONCONFIG(Run, synapseSeed));
 
     py::enum_<SimulationConfig::Run::IntegrationMethod>(run, "IntegrationMethod")
         .value("euler", SimulationConfig::Run::IntegrationMethod::euler)
@@ -953,7 +971,10 @@ PYBIND11_MODULE(_libsonata, m) {
                       DOC_SIMULATIONCONFIG(Report, fileName))
         .def_readonly("enabled",
                       &SimulationConfig::Report::enabled,
-                      DOC_SIMULATIONCONFIG(Report, enabled));
+                      DOC_SIMULATIONCONFIG(Report, enabled))
+        .def_readonly("electrodes_file",
+                      &SimulationConfig::Report::electrodesFile,
+                      DOC_SIMULATIONCONFIG(Report, electrodesFile));
 
     py::enum_<SimulationConfig::Report::Sections>(report, "Sections")
         .value("invalid", SimulationConfig::Report::Sections::invalid)
@@ -1273,6 +1294,14 @@ PYBIND11_MODULE(_libsonata, m) {
                       &SimulationConfig::EField::phase,
                       DOC_SIMULATIONCONFIG(EField, phase));
 
+    py::class_<SimulationConfig::InputPoissonSpike, SimulationConfig::InputBase>(simConf, "Poisson")
+        .def_readonly("rate",
+                      &SimulationConfig::InputPoissonSpike::rate,
+                      DOC_SIMULATIONCONFIG(InputPoissonSpike, rate))
+        .def_readonly("weight",
+                      &SimulationConfig::InputPoissonSpike::weight,
+                      DOC_SIMULATIONCONFIG(InputPoissonSpike, weight));
+
     py::enum_<SimulationConfig::InputBase::Module>(inputBase, "Module")
         .value("linear", SimulationConfig::InputBase::Module::linear)
         .value("relative_linear", SimulationConfig::InputBase::Module::relative_linear)
@@ -1290,7 +1319,8 @@ PYBIND11_MODULE(_libsonata, m) {
         .value("relative_ornstein_uhlenbeck",
                SimulationConfig::InputBase::Module::relative_ornstein_uhlenbeck)
         .value("spatially_uniform_e_field",
-               SimulationConfig::InputBase::Module::spatially_uniform_e_field);
+               SimulationConfig::InputBase::Module::spatially_uniform_e_field)
+        .value("poisson", SimulationConfig::InputBase::Module::poisson);
 
     py::enum_<SimulationConfig::InputBase::InputType>(inputBase, "InputType")
         .value("spikes", SimulationConfig::InputBase::InputType::spikes)
@@ -1390,11 +1420,6 @@ PYBIND11_MODULE(_libsonata, m) {
         .def_property_readonly("beta_features",
                                &SimulationConfig::getBetaFeatures,
                                DOC_SIMULATIONCONFIG(getBetaFeatures));
-
-    py::enum_<SimulationConfig::SimulatorType>(simConf, "SimulatorType", "SimulatorType Enum")
-        .value("NEURON", SimulationConfig::SimulatorType::NEURON)
-        .value("CORENEURON", SimulationConfig::SimulatorType::CORENEURON)
-        .value("LearningEngine", SimulationConfig::SimulatorType::LEARNINGENGINE);
 
     bindPopulationClass<EdgePopulation>(
         m, "EdgePopulation", "Collection of edges with attributes and connectivity index")
@@ -1545,6 +1570,83 @@ PYBIND11_MODULE(_libsonata, m) {
 
     bindReportReader<SomaReportReader, NodeID>(m, "Soma");
     bindReportReader<ElementReportReader, CompartmentID>(m, "Element");
+
+    // ElectrodeReader bindings
+    py::class_<ElectrodeScalingFactors>(m,
+                                        "ElectrodeScalingFactors",
+                                        "A container of electrode scaling factor data")
+        .def_property_readonly(
+            "ids",
+            [](const ElectrodeScalingFactors& df) {
+                std::array<ssize_t, 1> dims{ssize_t(df.ids.size())};
+                return managedMemoryArray(df.ids.data(), dims, df);
+            },
+            "Row identifiers: (node_id, compartment_index) per row")
+        .def_property_readonly(
+            "electrodes",
+            [](const ElectrodeScalingFactors& df) {
+                std::array<ssize_t, 1> dims{ssize_t(df.electrodes.size())};
+                return managedMemoryArray(df.electrodes.data(), dims, df);
+            },
+            "Column identifiers: electrode indices returned")
+        .def_property_readonly(
+            "data",
+            [](const ElectrodeScalingFactors& df) {
+                std::array<ssize_t, 2> dims{0l, ssize_t(df.electrodes.size())};
+                if (dims[1] > 0) {
+                    dims[0] = df.data.size() / dims[1];
+                }
+                return managedMemoryArray(df.data.data(), dims, df);
+            },
+            "Scaling factor matrix (n_compartments, n_electrodes)");
+
+    py::class_<ElectrodeReader::Population>(m,
+                                            "ElectrodePopulation",
+                                            "A population inside an ElectrodeReader")
+        .def("get",
+             &ElectrodeReader::Population::get,
+             "Return scaling factors for selected nodes and electrodes",
+             "node_ids"_a = nonstd::nullopt,
+             "electrode_ids"_a = nonstd::nullopt)
+        .def_property_readonly(
+            "node_ids",
+            [](const ElectrodeReader::Population& pop) { return asArray(pop.getNodeIds()); },
+            "All node IDs in this population")
+        .def_property_readonly("number_of_electrodes",
+                               &ElectrodeReader::Population::getNumberOfElectrodes,
+                               "Number of electrodes in this population")
+        .def_property_readonly("electrode_names",
+                               &ElectrodeReader::Population::getElectrodeNames,
+                               "Electrode names ordered by column index")
+        .def_property_readonly(
+            "electrode_positions",
+            [](const ElectrodeReader::Population& pop) {
+                auto positions = pop.getElectrodePositions();
+                auto ptr = new std::vector<std::array<float, 3>>(std::move(positions));
+                std::array<ssize_t, 2> dims{ssize_t(ptr->size()), 3l};
+                return py::array(dims,
+                                 reinterpret_cast<const float*>(ptr->data()),
+                                 freeWhenDone(ptr));
+            },
+            "Electrode positions (n_electrodes, 3) in micrometers")
+        .def_property_readonly("electrode_types",
+                               &ElectrodeReader::Population::getElectrodeTypes,
+                               "Electrode types ordered by column index");
+
+    py::class_<ElectrodeReader>(m, "ElectrodeReader", "Reader for SONATA electrode weight files")
+        .def(py::init([](py::object h5_filepath) { return ElectrodeReader(py::str(h5_filepath)); }),
+             "h5_filepath"_a)
+        .def_property_readonly("population_names",
+                               &ElectrodeReader::getPopulationNames,
+                               "List of population names in the file")
+        .def("open_population",
+             &ElectrodeReader::openPopulation,
+             "name"_a,
+             py::return_value_policy::reference_internal,
+             "Open a population by name")
+        .def("__getitem__",
+             &ElectrodeReader::openPopulation,
+             py::return_value_policy::reference_internal);
 
     py::register_exception<SonataError>(m, "SonataError");
 }
