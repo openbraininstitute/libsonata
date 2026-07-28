@@ -627,6 +627,12 @@ static const char *__doc_bbp_sonata_NodeSets_names = R"doc(Names of the node set
 
 static const char *__doc_bbp_sonata_NodeSets_operator_assign = R"doc()doc";
 
+static const char *__doc_bbp_sonata_NodeSets_referencedPopulations =
+R"doc(Return all the populations that are referenced by `name`
+
+Parameter ``name``:
+    is the name of the node_set to check)doc";
+
 static const char *__doc_bbp_sonata_NodeSets_toJSON = R"doc(Return the nodesets as a JSON string.)doc";
 
 static const char *__doc_bbp_sonata_NodeSets_update =
