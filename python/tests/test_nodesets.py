@@ -51,6 +51,10 @@ class TestNodePopulationNodeSet(unittest.TestCase):
     def setUp(self):
         self.population = NodeStorage(os.path.join(PATH, 'nodes1.h5')).open_population('nodes-A')
 
+    def test_population_name(self):
+        sel = NodeSets('{}').materialize("nodes-A", self.population)
+        self.assertEqual(sel, Selection(((0, 6),)))
+
     def test_BasicScalarInt(self):
         sel = NodeSets('{ "NodeSet0": { "attr-Y": 21 } }').materialize("NodeSet0", self.population)
         self.assertEqual(sel, Selection(((0, 1),)))
@@ -135,6 +139,9 @@ class TestNodePopulationNodeSet(unittest.TestCase):
 
     def test_NodeSet_toJSON(self):
         j = json.dumps({
+            "virtual": {
+                "population": "virtual"
+            },
             "bio_layer45": {
                 "model_type": "biophysical",
                 "location": ["layer4", "layer5"]
@@ -153,7 +160,8 @@ class TestNodePopulationNodeSet(unittest.TestCase):
             "power_regex_test": {
                 "string_attr": { "$regex": "^[s][o]me value$" }
                 },
-            "combined": ["bio_layer45", "V1_point_prime"]
+            "combined": ["bio_layer45", "V1_point_prime"],
+            "combined_virtual": ["bio_layer45", "V1_point_prime", "virtual"]
         })
         new = NodeSets(j).toJSON()
         ns1 = NodeSets(new)
@@ -199,3 +207,12 @@ class TestNodePopulationNodeSet(unittest.TestCase):
         ns.update(NodeSets(json.dumps({"NodeSet0": {"attr-Y": [22]}})))
         sel = ns.materialize("NodeSet0", self.population)
         self.assertEqual(sel, Selection(((1, 2), )))
+
+    def test_referenced_populations(self):
+        ns = NodeSets.from_file(os.path.join(PATH, 'node_sets.json'))
+        self.assertEqual(ns.referenced_populations("DOES_NOT_EXIST"), set())
+
+        self.assertEqual(ns.referenced_populations("bio_layer45"), set())
+        self.assertEqual(ns.referenced_populations("V1_point_prime"), {"biophysical"})
+        self.assertEqual(ns.referenced_populations("combined"), {"biophysical"})
+        self.assertEqual(ns.referenced_populations("combined_virtual"), {"biophysical", "virtual"})

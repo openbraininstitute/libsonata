@@ -58,6 +58,13 @@ class SONATA_API NodeSets
     std::set<std::string> update(const NodeSets& other) const;
 
     /**
+     * Return all the populations that are referenced by `name`
+     *
+     * \param name is the name of the node_set to check
+     */
+    std::set<std::string> referencedPopulations(const std::string& name) const;
+
+    /**
      * Return the nodesets as a JSON string.
      */
     std::string toJSON() const;

@@ -271,6 +271,9 @@ TEST_CASE("NodeSetCompound") {
 TEST_CASE("NodeSet") {
     auto node_sets = R"(
     {
+        "virtual": {
+            "population": "virtual"
+        },
         "bio_layer45": {
             "model_type": "biophysical",
             "location": ["layer4", "layer5"]
@@ -289,7 +292,8 @@ TEST_CASE("NodeSet") {
         "power_regex_test": {
             "string_attr": { "$regex": "^[s][o]me value$" }
         },
-        "combined": ["bio_layer45", "V1_point_prime"]
+        "combined": ["bio_layer45", "V1_point_prime"],
+        "combined_virtual": ["bio_layer45", "V1_point_prime", "virtual"]
     })";
 
     SECTION("toJSON") {
@@ -319,7 +323,7 @@ TEST_CASE("NodeSet") {
 
     SECTION("names") {
         NodeSets ns(node_sets);
-        std::set<std::string> expected = {"bio_layer45", "V1_point_prime", "combined", "power_number_test", "power_regex_test"};
+        std::set<std::string> expected = {"virtual", "bio_layer45", "V1_point_prime", "combined", "power_number_test", "power_regex_test", "combined_virtual"};
         CHECK(ns.names() == expected);
     }
 }
