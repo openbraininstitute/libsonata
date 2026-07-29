@@ -16,11 +16,21 @@ rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 pushd "$BUILD_DIR"
 
+if command -v sccache; then
+    CMAKE_ARGS+=(
+        -DCMAKE_C_COMPILER_LAUNCHER=sccache
+        -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
+    )
+fi
+
 cmake                                       \
     -DCMAKE_BUILD_TYPE=Debug                \
     -DEXTLIB_FROM_SUBMODULES=ON             \
     -G "${CMAKE_GENERATOR:-Unix Makefiles}" \
+    "${CMAKE_ARGS[@]}"                      \
     ${EXTRA_OPTIONS}                        \
     ../..
 
 cmake --build . -j --target coverage
+
+echo "Read the coverage at: file://$PWD/build/build-coverage/coverage/index.html"

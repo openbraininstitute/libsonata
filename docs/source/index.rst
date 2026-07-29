@@ -7,5 +7,6 @@
    Home <self>
    api
    cpp
+   developer
 
 .. |banner| image:: /_images/libSonataLogo.jpg

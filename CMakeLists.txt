@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 cmake_policy(VERSION 3.16)
 
+if(DEFINED SKBUILD_PROJECT_VERSION)
+    set(SONATA_VERSION "${SKBUILD_PROJECT_VERSION}")
+endif()
+
 if(NOT SONATA_VERSION)
     execute_process(COMMAND git describe --tags
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -15,12 +19,12 @@ if(NOT SONATA_VERSION)
           ${GIT_VERSION_ERROR})
     endif()
 
-# keep last line of command output
+    # keep last line of command output
     string(REPLACE "\n"
                    ";"
                    GIT_PKG_VERSION_FULL
                    "${GIT_PKG_VERSION_FULL}")
-   list(GET GIT_PKG_VERSION_FULL -1 SONATA_VERSION)
+    list(GET GIT_PKG_VERSION_FULL -1 SONATA_VERSION)
 endif()
 
 # keep MAJOR.MINOR.PATCH (PATCH being optional)
@@ -36,6 +40,7 @@ set(SONATA_VERSION_ABI ${CMAKE_MATCH_1})
 
 project(sonata VERSION ${SONATA_VERSION})
 
+option(BUILD_SHARED_LIBS "Build shared library" ON)
 option(EXTLIB_FROM_SUBMODULES "Use Git submodules for header-only dependencies" OFF)
 option(SONATA_PYTHON "Build Python extensions" OFF)
 option(SONATA_TESTS "Build tests" ON)
@@ -54,13 +59,7 @@ option(SONATA_CXX_WARNINGS "Compile C++ with warnings as errors, for glibcxx tur
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake)
 
-set(SONATA_CXX_MINIMUM_STANDARD 14)
-if(NOT "${CMAKE_CXX_STANDARD}")
-  set(CMAKE_CXX_STANDARD ${SONATA_CXX_MINIMUM_STANDARD})
-elseif("${CMAKE_CXX_STANDARD}" LESS SONATA_CXX_MINIMUM_STANDARD)
-  message(FATAL_ERROR
-    "SONATA requires at 'CMAKE_CXX_STANDARD=${SONATA_CXX_MINIMUM_STANDARD}' or newer.")
-endif()
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(SONATA_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
@@ -109,66 +108,53 @@ configure_file (
   ${CMAKE_CURRENT_BINARY_DIR}/src/version.cpp
   )
 
-add_library(sonata_shared SHARED ${SONATA_SRC})
-add_library(sonata_static STATIC ${SONATA_SRC})
+add_library(sonata ${SONATA_SRC})
+set_target_properties(sonata PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+    CXX_VISIBILITY_PRESET hidden
+)
+target_include_directories(sonata
+    PUBLIC $<BUILD_INTERFACE:${SONATA_INCLUDE_DIR}>
+    $<INSTALL_INTERFACE:include>
+)
+target_compile_options(sonata PRIVATE ${SONATA_COMPILE_OPTIONS})
 
-foreach(TARGET sonata_shared sonata_static)
-    set_target_properties(${TARGET}
+if(BUILD_SHARED_LIBS)
+    set_target_properties(sonata
         PROPERTIES
-            POSITION_INDEPENDENT_CODE ON
-            CXX_VISIBILITY_PRESET hidden
-            OUTPUT_NAME "sonata"
-    )
-    target_include_directories(${TARGET}
-        PUBLIC
-            $<BUILD_INTERFACE:${SONATA_INCLUDE_DIR}>
-            $<INSTALL_INTERFACE:include>
-    )
-    target_compile_options(${TARGET}
-        PRIVATE ${SONATA_COMPILE_OPTIONS}
-    )
-
-    if (ENABLE_COVERAGE)
-        target_compile_options(${TARGET}
-            PRIVATE -g -O0 --coverage -fprofile-arcs -ftest-coverage
+            VERSION ${SONATA_VERSION}
+            SOVERSION ${SONATA_VERSION_ABI}
         )
-        target_link_libraries(${TARGET}
-            PRIVATE gcov
+    target_compile_definitions(sonata 
+        PUBLIC SONATA_DLL 
+        PRIVATE SONATA_DLL_EXPORTS)
+    target_link_libraries(sonata 
+        PRIVATE 
+            HighFive 
+            fmt::fmt-header-only 
+            nlohmann_json::nlohmann_json
         )
-    endif()
+else()
+    target_compile_definitions(sonata PRIVATE FMT_HEADER_ONLY=1)
+    target_include_directories(sonata PRIVATE
+        $<TARGET_PROPERTY:fmt::fmt-header-only,INTERFACE_INCLUDE_DIRECTORIES>
+        $<TARGET_PROPERTY:HighFive,INTERFACE_INCLUDE_DIRECTORIES>
+        $<TARGET_PROPERTY:nlohmann_json::nlohmann_json,INTERFACE_INCLUDE_DIRECTORIES>
+    )
+endif()
 
-    add_library(sonata::${TARGET} ALIAS ${TARGET})
-endforeach(TARGET)
+if(ENABLE_COVERAGE)
+    target_compile_options(sonata PRIVATE -g -O0 --coverage -fprofile-arcs -ftest-coverage)
+    target_link_libraries(sonata PRIVATE gcov)
+endif()
 
-set_target_properties(sonata_shared
-    PROPERTIES
-        VERSION ${SONATA_VERSION}
-        SOVERSION ${SONATA_VERSION_ABI}
-)
-target_compile_definitions(sonata_shared
-    PUBLIC SONATA_DLL
-    PRIVATE SONATA_DLL_EXPORTS
-)
-target_link_libraries(sonata_shared
-    PRIVATE HighFive
-    PRIVATE fmt::fmt-header-only
-    PRIVATE nlohmann_json::nlohmann_json
-)
-
-target_compile_definitions(sonata_static
-    PRIVATE FMT_HEADER_ONLY=1
-)
-target_include_directories(sonata_static
-    PRIVATE $<TARGET_PROPERTY:fmt::fmt-header-only,INTERFACE_INCLUDE_DIRECTORIES>
-    PRIVATE $<TARGET_PROPERTY:HighFive,INTERFACE_INCLUDE_DIRECTORIES>
-    PRIVATE $<TARGET_PROPERTY:nlohmann_json::nlohmann_json,INTERFACE_INCLUDE_DIRECTORIES>
-)
+add_library(sonata::sonata ALIAS sonata)
 
 # =============================================================================
 # Install
 # =============================================================================
 
-install(TARGETS sonata_shared sonata_static
+install(TARGETS sonata
     EXPORT sonata-targets
     LIBRARY
         DESTINATION lib

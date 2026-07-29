@@ -22,7 +22,7 @@ set(TESTS_SRC
 add_executable(unittests ${TESTS_SRC})
 target_link_libraries(unittests
     PRIVATE
-    sonata_shared
+    sonata
     HighFive
     Catch2::Catch2WithMain
     nlohmann_json::nlohmann_json
