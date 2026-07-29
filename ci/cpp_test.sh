@@ -13,6 +13,8 @@ if ! git describe --tags > /dev/null 2>&1; then
     echo "Likely shallow git clone, faking SONATA_VERSION -> $SONATA_VERSION"
 fi
 
+CMAKE_ARGS=
+
 if command -v sccache; then
     CMAKE_ARGS+=(
         -DCMAKE_C_COMPILER_LAUNCHER=sccache
