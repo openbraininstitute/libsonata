@@ -26,7 +26,7 @@ import subprocess
 from jinja2 import Template
 
 project = "libsonata"
-author = "Blue Brain Project, EPFL"
+author = "Open Brain Institute"
 version = pkg_resources.get_distribution("libsonata").version
 release = version
 
@@ -51,19 +51,19 @@ master_doc = "index"
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = "sphinx-bluebrain-theme"
+html_theme = "obi_sphinx_theme"
 html_title = "libsonata"
 html_show_sourcelink = False
 html_extra_path = ["doxygen"]
-html_theme_options = {
-    "repo_url": "https://github.com/openbraininstitute/libsonata/",
-    "repo_name": "openbraininstitute/libsonata",
-}
 
 autodoc_default_options = {"members": True, "imported-members": True}
+
+html_theme_options = {
+    "navbar_start": ["navbar-logo"],
+    "navbar_end": ["theme-switcher", "navbar-icon-links"],
+    "navbar_persistent": ["navbar-version", "search-button-field"],
+}
 autodoc_docstring_signature = True
-# work around changes to `sphinx` 9 that are incompatible with `sphinx-bluebrain-theme`
-autodoc_use_legacy_class_based = True
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

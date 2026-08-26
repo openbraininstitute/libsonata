@@ -9,11 +9,11 @@ description = "SONATA files reader"
 readme = "README.rst"
 license = "LGPL-3.0-or-later"
 requires-python = ">=3.9"
-authors = [{name = "Blue Brain Project, EPFL"}]
+authors = [{name = "Open Brain Institute"}]
 dependencies = ["numpy>=1.17.3"]
 
 [project.optional-dependencies]
-docs = ["sphinx-bluebrain-theme"]
+docs = ["sphinx>=8.2,<10", "obi-sphinx-theme>=2.0.0"]
 
 [project.urls]
 Homepage = "https://github.com/openbraininstitute/libsonata"
