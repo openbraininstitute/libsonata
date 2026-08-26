@@ -17,8 +17,8 @@
 
 # -- Project information -----------------------------------------------------
 
+from importlib.metadata import version as package_version
 from pathlib import Path
-import pkg_resources
 import re
 import shutil
 import subprocess
@@ -27,7 +27,7 @@ from jinja2 import Template
 
 project = "libsonata"
 author = "Open Brain Institute"
-version = pkg_resources.get_distribution("libsonata").version
+version = package_version("libsonata")
 release = version
 
 # -- General configuration ---------------------------------------------------
