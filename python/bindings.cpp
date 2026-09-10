@@ -1289,6 +1289,9 @@ PYBIND11_MODULE(_libsonata, m) {
                       &SimulationConfig::InputPoissonSpike::weight,
                       DOC_SIMULATIONCONFIG(InputPoissonSpike, weight));
 
+    py::class_<SimulationConfig::InputReplay, SimulationConfig::InputBase>(simConf, "Replay")
+        .def_readonly("path", &SimulationConfig::InputReplay::path, "Path to the input file to replay.");
+
     py::enum_<SimulationConfig::InputBase::Module>(inputBase, "Module")
         .value("linear", SimulationConfig::InputBase::Module::linear)
         .value("relative_linear", SimulationConfig::InputBase::Module::relative_linear)
@@ -1307,7 +1310,8 @@ PYBIND11_MODULE(_libsonata, m) {
                SimulationConfig::InputBase::Module::relative_ornstein_uhlenbeck)
         .value("spatially_uniform_e_field",
                SimulationConfig::InputBase::Module::spatially_uniform_e_field)
-        .value("poisson", SimulationConfig::InputBase::Module::poisson);
+        .value("poisson", SimulationConfig::InputBase::Module::poisson)
+        .value("replay", SimulationConfig::InputBase::Module::replay);
 
     py::enum_<SimulationConfig::InputBase::InputType>(inputBase, "InputType")
         .value("spikes", SimulationConfig::InputBase::InputType::spikes)
