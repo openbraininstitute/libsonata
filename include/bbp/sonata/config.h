@@ -773,7 +773,8 @@ class SONATA_API SimulationConfig
         double weight{};
     };
 
-    using Input = std::variant<InputLinear,
+    using Input = std::variant<std::monostate,
+                               InputLinear,
                                InputRelativeLinear,
                                InputPulse,
                                InputSinusoidal,
