@@ -228,6 +228,14 @@
             "spike_file": "replay.h5",
             "node_set": "Column"
         },
+        "ex_input_replay": {
+            "input_type": "current_clamp",
+            "module": "replay",
+            "delay": 5.0,
+            "duration": 250.0,
+            "path": "current_replay.h5",
+            "node_set": "Column"
+        },
         "ex_OU": {
             "input_type": "conductance",
             "module": "ornstein_uhlenbeck",

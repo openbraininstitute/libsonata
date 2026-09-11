@@ -557,6 +557,16 @@ TEST_CASE("SimulationConfig") {
             CHECK(endswith(input.spikeFile, "replay.h5"));
         }
         {
+            const auto input = std::get<SimulationConfig::InputReplay>(
+                config.getInput("ex_input_replay"));
+            CHECK(input.inputType == InputType::current_clamp);
+            CHECK(input.module == Module::replay);
+            CHECK(input.delay == 5);
+            CHECK(input.duration == 250);
+            CHECK(input.nodeSet == "Column");
+            CHECK(endswith(input.path, "current_replay.h5"));
+        }
+        {
             const auto input = std::get<SimulationConfig::InputSeclamp>(config.getInput("ex_seclamp"));
             CHECK(input.inputType == InputType::voltage_clamp);
             CHECK(input.module == Module::seclamp);
@@ -677,6 +687,7 @@ TEST_CASE("SimulationConfig") {
                                                                   "ex_rel_shotnoise",
                                                                   "ex_abs_shotnoise",
                                                                   "ex_replay",
+                                                                  "ex_input_replay",
                                                                   "ex_OU",
                                                                   "ex_rel_OU",
                                                                   "ex_efields",
@@ -1437,6 +1448,30 @@ TEST_CASE("SimulationConfig") {
                                  Catch::Matchers::Message(
                                      "An `input` has module `synapse_replay` and input_type "
                                      "`extracellular_stimulation` which mismatch"));
+        }
+        {  // wrong input_type for replay input
+            const auto* contents = R"({
+              "run": {
+                "random_seed": 12345,
+                "dt": 0.05,
+                "tstop": 1000
+              },
+              "inputs": {
+                "ex_input_replay": {
+                  "input_type": "conductance",
+                  "module": "replay",
+                  "delay": 5.0,
+                  "duration": 250.0,
+                  "path": "current_replay.h5",
+                  "node_set": "Column"
+                }
+              }
+            })";
+            CHECK_THROWS_MATCHES(SimulationConfig(contents, "./"),
+                                 SonataError,
+                                 Catch::Matchers::Message(
+                                     "An `input` has module `replay` and input_type "
+                                     "`conductance` which mismatch"));
         }
         {  // missing fields in spatially_uniform_e_field
             const auto* contents = R"({
