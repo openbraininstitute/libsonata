@@ -11,7 +11,7 @@
 
 #include <bbp/sonata/config.h>
 
-#include <bbp/sonata/optional.hpp>
+#include <optional>
 #include <regex>
 #include <set>
 #include <string>
@@ -20,25 +20,25 @@
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 
-#include "../extlib/filesystem.hpp"
 #include "utils.h"
+#include <filesystem>
 
 // Add a specialization of adl_serializer to the nlohmann namespace for conversion from/to
-// nonstd::optional
+// std::optional
 namespace nlohmann {
 template <typename T>
-struct adl_serializer<nonstd::optional<T>> {
-    static void to_json(json& j, const nonstd::optional<T>& opt) {
-        if (opt == nonstd::nullopt) {
+struct adl_serializer<std::optional<T>> {
+    static void to_json(json& j, const std::optional<T>& opt) {
+        if (opt == std::nullopt) {
             j = nullptr;
         } else {
             j = *opt;
         }
     }
 
-    static void from_json(const json& j, nonstd::optional<T>& opt) {
+    static void from_json(const json& j, std::optional<T>& opt) {
         if (j.is_null()) {
-            opt = nonstd::nullopt;
+            opt = std::nullopt;
         } else {
             opt = j.get<T>();
         }
@@ -114,7 +114,8 @@ NLOHMANN_JSON_SERIALIZE_ENUM(
      {SimulationConfig::InputBase::Module::relative_ornstein_uhlenbeck,
       "relative_ornstein_uhlenbeck"},
      {SimulationConfig::InputBase::Module::spatially_uniform_e_field, "spatially_uniform_e_field"},
-     {SimulationConfig::InputBase::Module::poisson, "poisson"}})
+     {SimulationConfig::InputBase::Module::poisson, "poisson"},
+     {SimulationConfig::InputBase::Module::replay, "replay"}})
 
 NLOHMANN_JSON_SERIALIZE_ENUM(
     SimulationConfig::InputBase::InputType,
@@ -166,8 +167,7 @@ D(Run::DEFAULT_spikeThreshold)
 // }
 
 namespace {
-// to be replaced by std::filesystem once C++17 is used
-namespace fs = ghc::filesystem;
+namespace fs = std::filesystem;
 
 void raiseOnBiophysicalPopulationErrors(const std::string& population,
                                         const bbp::sonata::NodePopulationProperties& properties) {
@@ -372,12 +372,12 @@ template <typename Type>
 void parseOptional(const nlohmann::json& it,
                    const char* name,
                    Type& buf,
-                   nonstd::optional<Type> default_value = nonstd::nullopt) {
+                   std::optional<Type> default_value = std::nullopt) {
     const auto element = it.find(name);
     if (element != it.end()) {
         buf = element->get<Type>();
         raiseIfInvalidEnum(name, buf, element->dump(), std::is_enum<Type>());
-    } else if (default_value != nonstd::nullopt) {
+    } else if (default_value != std::nullopt) {
         buf = default_value.value();
     }
 }
@@ -699,6 +699,13 @@ SimulationConfig::Input parseInputModule(const nlohmann::json& valueIt,
         parseMandatory(valueIt, "weight", debugStr, ret.weight);
         return ret;
     }
+    case Module::replay: {
+        SimulationConfig::InputReplay ret;
+        parseCommon(ret);
+        parseMandatory(valueIt, "path", debugStr, ret.path);
+        ret.path = toAbsolute(basePath, ret.path);
+        return ret;
+    }
     default:
         throw SonataError("Unknown module for the input_type in " + debugStr);
     }
@@ -833,14 +840,14 @@ class CircuitConfig::Parser
         return defaultValue;
     }
 
-    nonstd::optional<std::string> getOptionalJSONPath(const nlohmann::json& json,
-                                                      const std::string& key) const {
+    std::optional<std::string> getOptionalJSONPath(const nlohmann::json& json,
+                                                   const std::string& key) const {
         auto value = getJSONValue<std::string>(json, key);
         if (!value.empty()) {
             return toAbsolute(_basePath, value);
         }
 
-        return nonstd::nullopt;
+        return std::nullopt;
     }
 
     std::string getJSONPath(const nlohmann::json& json,
@@ -1463,11 +1470,11 @@ class SimulationConfig::Parser
         return val;
     }
 
-    nonstd::optional<std::string> parseNodeSet() const {
+    std::optional<std::string> parseNodeSet() const {
         if (_json.contains("node_set")) {
             return {_json["node_set"]};
         } else {
-            return nonstd::nullopt;
+            return std::nullopt;
         }
     }
 
@@ -1487,7 +1494,7 @@ class SimulationConfig::Parser
             parseMandatory(valueIt, "module", debugStr, module);
 
             const auto input = parseInputModule(valueIt, module, _basePath, debugStr, simDt);
-            result[it.key()] = input;
+            result.insert_or_assign(it.key(), input);
 
             auto mismatchingModuleInputType = [&it]() {
                 const auto module_name = it->find("module")->get<std::string>();
@@ -1498,48 +1505,58 @@ class SimulationConfig::Parser
                                 input_type));
             };
 
-            auto inputType = nonstd::visit([](const auto& v) { return v.inputType; }, input);
+            auto inputType = std::visit(
+                [](const auto& v) -> InputBase::InputType {
+                    using T = std::decay_t<decltype(v)>;
+                    if constexpr (std::is_same_v<T, std::monostate>) {
+                        return InputBase::InputType::invalid;
+                    } else {
+                        return v.inputType;
+                    }
+                },
+                input);
+
             switch (inputType) {
             case InputBase::InputType::current_clamp: {
-                if (!(nonstd::holds_alternative<SimulationConfig::InputLinear>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputRelativeLinear>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputPulse>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputSinusoidal>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputSubthreshold>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputNoise>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputShotNoise>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputRelativeShotNoise>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputAbsoluteShotNoise>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputHyperpolarizing>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputOrnsteinUhlenbeck>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputRelativeOrnsteinUhlenbeck>(
-                          input))) {
+                if (!(std::holds_alternative<SimulationConfig::InputLinear>(input) ||
+                      std::holds_alternative<SimulationConfig::InputRelativeLinear>(input) ||
+                      std::holds_alternative<SimulationConfig::InputPulse>(input) ||
+                      std::holds_alternative<SimulationConfig::InputSinusoidal>(input) ||
+                      std::holds_alternative<SimulationConfig::InputSubthreshold>(input) ||
+                      std::holds_alternative<SimulationConfig::InputNoise>(input) ||
+                      std::holds_alternative<SimulationConfig::InputShotNoise>(input) ||
+                      std::holds_alternative<SimulationConfig::InputRelativeShotNoise>(input) ||
+                      std::holds_alternative<SimulationConfig::InputAbsoluteShotNoise>(input) ||
+                      std::holds_alternative<SimulationConfig::InputHyperpolarizing>(input) ||
+                      std::holds_alternative<SimulationConfig::InputOrnsteinUhlenbeck>(input) ||
+                      std::holds_alternative<SimulationConfig::InputRelativeOrnsteinUhlenbeck>(
+                          input) ||
+                      std::holds_alternative<SimulationConfig::InputReplay>(input))) {
                     mismatchingModuleInputType();
                 }
             } break;
             case InputBase::InputType::spikes:
-                if (!(nonstd::holds_alternative<SimulationConfig::InputSynapseReplay>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputPoissonSpike>(input))) {
+                if (!(std::holds_alternative<SimulationConfig::InputSynapseReplay>(input) ||
+                      std::holds_alternative<SimulationConfig::InputPoissonSpike>(input))) {
                     mismatchingModuleInputType();
                 }
                 break;
             case InputBase::InputType::voltage_clamp:
-                if (!nonstd::holds_alternative<SimulationConfig::InputSeclamp>(input)) {
+                if (!std::holds_alternative<SimulationConfig::InputSeclamp>(input)) {
                     mismatchingModuleInputType();
                 }
                 break;
             case InputBase::InputType::extracellular_stimulation:
-                if (!nonstd::holds_alternative<SimulationConfig::InputSpatiallyUniformEField>(
-                        input)) {
+                if (!std::holds_alternative<SimulationConfig::InputSpatiallyUniformEField>(input)) {
                     mismatchingModuleInputType();
                 }
                 break;
             case InputBase::InputType::conductance:
-                if (!(nonstd::holds_alternative<SimulationConfig::InputShotNoise>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputRelativeShotNoise>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputAbsoluteShotNoise>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputOrnsteinUhlenbeck>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputRelativeOrnsteinUhlenbeck>(
+                if (!(std::holds_alternative<SimulationConfig::InputShotNoise>(input) ||
+                      std::holds_alternative<SimulationConfig::InputRelativeShotNoise>(input) ||
+                      std::holds_alternative<SimulationConfig::InputAbsoluteShotNoise>(input) ||
+                      std::holds_alternative<SimulationConfig::InputOrnsteinUhlenbeck>(input) ||
+                      std::holds_alternative<SimulationConfig::InputRelativeOrnsteinUhlenbeck>(
                           input))) {
                     mismatchingModuleInputType();
                 }
@@ -1737,7 +1754,7 @@ const std::string& SimulationConfig::getCompartmentSetsFile() const noexcept {
     return _compartmentSetsFile;
 }
 
-const nonstd::optional<std::string>& SimulationConfig::getNodeSet() const noexcept {
+const std::optional<std::string>& SimulationConfig::getNodeSet() const noexcept {
     return _nodeSet;
 }
 

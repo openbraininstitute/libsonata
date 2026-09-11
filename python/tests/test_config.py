@@ -526,6 +526,7 @@ class TestSimulationConfig(unittest.TestCase):
                           "ex_rel_shotnoise",
                           "ex_abs_shotnoise",
                           "ex_replay",
+                          "ex_input_replay",
                           "ex_OU",
                           "ex_rel_OU",
                           "ex_efields",
@@ -621,6 +622,14 @@ class TestSimulationConfig(unittest.TestCase):
         self.assertEqual(self.config.input('ex_replay').node_set, "Column")
         self.assertEqual(self.config.input('ex_replay').spike_file,
                          os.path.abspath(os.path.join(PATH, 'config/replay.h5')))
+
+        self.assertEqual(self.config.input('ex_input_replay').input_type.name, 'current_clamp')
+        self.assertEqual(self.config.input('ex_input_replay').module.name, 'replay')
+        self.assertEqual(self.config.input('ex_input_replay').delay, 5)
+        self.assertEqual(self.config.input('ex_input_replay').duration, 250)
+        self.assertEqual(self.config.input('ex_input_replay').node_set, "Column")
+        self.assertEqual(self.config.input('ex_input_replay').path,
+                         os.path.abspath(os.path.join(PATH, 'config/current_replay.h5')))
 
         self.assertEqual(self.config.input('ex_abs_shotnoise').input_type.name, "conductance")
         self.assertEqual(self.config.input('ex_abs_shotnoise').mean, 50)
@@ -897,6 +906,28 @@ class TestSimulationConfig(unittest.TestCase):
         with self.assertRaises(SonataError) as e:
             SimulationConfig(json.dumps(contents), "./")
         self.assertEqual(e.exception.args, ("An `input` has module `synapse_replay` and input_type `extracellular_stimulation` which mismatch", ))
+
+        # wrong input_type for replay input
+        contents = {
+          "run": {
+            "random_seed": 12345,
+            "dt": 0.05,
+            "tstop": 1000
+          },
+          "inputs": {
+            "ex_input_replay": {
+              "input_type": "conductance",
+              "module": "replay",
+              "delay": 5.0,
+              "duration": 250.0,
+              "path": "current_replay.h5",
+              "node_set": "Column"
+            }
+          }
+        }
+        with self.assertRaises(SonataError) as e:
+            SimulationConfig(json.dumps(contents), "./")
+        self.assertEqual(e.exception.args, ("An `input` has module `replay` and input_type `conductance` which mismatch", ))
 
         # missing fields in spatially_uniform_e_field
         contents = {

@@ -844,16 +844,16 @@ R"doc(Parameter ``node_ids``:
     limit the report to the given selection.
 
 Parameter ``tstart``:
-    return voltages occurring on or after tstart.
-    tstart=nonstd::nullopt indicates no limit.
+    return voltages occurring on or after tstart. tstart=std::nullopt
+    indicates no limit.
 
 Parameter ``tstop``:
-    return voltages occurring on or before tstop.
-    tstop=nonstd::nullopt indicates no limit.
+    return voltages occurring on or before tstop. tstop=std::nullopt
+    indicates no limit.
 
 Parameter ``tstride``:
     indicates every how many timesteps we read data.
-    tstride=nonstd::nullopt indicates that all timesteps are read.
+    tstride=std::nullopt indicates that all timesteps are read.
 
 Parameter ``block_gap_limit``:
     gap limit between each IO block while fetching data from storage.)doc";
@@ -1152,6 +1152,8 @@ static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_relative_o
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_relative_shot_noise = R"doc()doc";
 
+static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_replay = R"doc()doc";
+
 static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_seclamp = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputBase_Module_shot_noise = R"doc()doc";
@@ -1298,6 +1300,10 @@ static const char *__doc_bbp_sonata_SimulationConfig_InputRelativeShotNoise_rise
 static const char *__doc_bbp_sonata_SimulationConfig_InputRelativeShotNoise_sdPercent =
 R"doc(signal std dev as percentage of a cell’s threshold current
 (current_clamp) or inverse input resistance (conductance).)doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_InputReplay = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_InputReplay_path = R"doc(Path to the input file to replay.)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputSeclamp = R"doc()doc";
 
