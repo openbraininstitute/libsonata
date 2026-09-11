@@ -1497,7 +1497,17 @@ class SimulationConfig::Parser
                                 input_type));
             };
 
-            auto inputType = std::visit([](const auto& v) { return v.inputType; }, input);
+            auto inputType = std::visit(
+                [](const auto& v) -> InputBase::InputType {
+                    using T = std::decay_t<decltype(v)>;
+                    if constexpr (std::is_same_v<T, std::monostate>) {
+                        return InputBase::InputType::invalid;
+                    } else {
+                        return v.inputType;
+                    }
+                },
+                input);
+
             switch (inputType) {
             case InputBase::InputType::current_clamp: {
                 if (!(std::holds_alternative<SimulationConfig::InputLinear>(input) ||
