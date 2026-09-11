@@ -130,9 +130,9 @@ Spikes SpikeReader::Population::createSpikes() const {
     return spikes;
 }
 
-Spikes SpikeReader::Population::get(const nonstd::optional<Selection>& node_ids,
-                                    const nonstd::optional<double>& tstart,
-                                    const nonstd::optional<double>& tstop) const {
+Spikes SpikeReader::Population::get(const std::optional<Selection>& node_ids,
+                                    const std::optional<double>& tstart,
+                                    const std::optional<double>& tstop) const {
     const double start = tstart.value_or(tstart_);
     const double stop = tstop.value_or(tstop_);
 
@@ -162,9 +162,9 @@ const SpikeTimes& SpikeReader::Population::getRawArrays() const {
     return spike_times_;
 }
 
-SpikeTimes SpikeReader::Population::getArrays(const nonstd::optional<Selection>& node_ids,
-                                              const nonstd::optional<double>& tstart,
-                                              const nonstd::optional<double>& tstop) const {
+SpikeTimes SpikeReader::Population::getArrays(const std::optional<Selection>& node_ids,
+                                              const std::optional<double>& tstart,
+                                              const std::optional<double>& tstop) const {
     SpikeTimes filtered_spikes;
     const auto& node_ids_selection = node_ids ? node_ids.value().flatten() : std::vector<NodeID>{};
     // Create arrays directly for required data based on conditions
@@ -352,8 +352,7 @@ std::vector<NodeID> ReportReader<T>::Population::getNodeIds() const {
 template <typename T>
 typename ReportReader<T>::Population::NodeIdElementLayout
 ReportReader<T>::Population::getNodeIdElementLayout(
-    const nonstd::optional<Selection>& node_ids,
-    const nonstd::optional<size_t>& _block_gap_limit) const {
+    const std::optional<Selection>& node_ids, const std::optional<size_t>& _block_gap_limit) const {
     NodeIdElementLayout result;
     std::vector<NodeID> concrete_node_ids;
     size_t element_ids_count = 0;
@@ -466,7 +465,7 @@ ReportReader<T>::Population::getNodeIdElementLayout(
 
 template <typename T>
 std::pair<size_t, size_t> ReportReader<T>::Population::getIndex(
-    const nonstd::optional<double>& tstart, const nonstd::optional<double>& tstop) const {
+    const std::optional<double>& tstart, const std::optional<double>& tstop) const {
     std::pair<size_t, size_t> indexes;
 
     const double start = tstart.value_or(tstart_);
@@ -501,18 +500,16 @@ std::pair<size_t, size_t> ReportReader<T>::Population::getIndex(
 
 template <typename T>
 typename DataFrame<T>::DataType ReportReader<T>::Population::getNodeIdElementIdMapping(
-    const nonstd::optional<Selection>& node_ids,
-    const nonstd::optional<size_t>& block_gap_limit) const {
+    const std::optional<Selection>& node_ids, const std::optional<size_t>& block_gap_limit) const {
     return getNodeIdElementLayout(node_ids, block_gap_limit).ids;
 }
 
 template <typename T>
-DataFrame<T> ReportReader<T>::Population::get(
-    const nonstd::optional<Selection>& node_ids,
-    const nonstd::optional<double>& tstart,
-    const nonstd::optional<double>& tstop,
-    const nonstd::optional<size_t>& tstride,
-    const nonstd::optional<size_t>& block_gap_limit) const {
+DataFrame<T> ReportReader<T>::Population::get(const std::optional<Selection>& node_ids,
+                                              const std::optional<double>& tstart,
+                                              const std::optional<double>& tstop,
+                                              const std::optional<size_t>& tstride,
+                                              const std::optional<size_t>& block_gap_limit) const {
     size_t index_start = 0;
     size_t index_stop = 0;
     std::tie(index_start, index_stop) = getIndex(tstart, tstop);

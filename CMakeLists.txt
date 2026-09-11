@@ -59,7 +59,7 @@ option(SONATA_CXX_WARNINGS "Compile C++ with warnings as errors, for glibcxx tur
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(SONATA_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)

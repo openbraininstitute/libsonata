@@ -44,6 +44,7 @@ $VENV/bin/python -m pybind11_mkdoc \
   ./include/bbp/sonata/*.h \
   -Wno-pragma-once-outside-header \
   -ferror-limit=100000 \
+  -std=c++17 \
   -I/usr/include/hdf5/serial \
   -I./extlib/HighFive/include \
   -I./extlib/nlohmann/ \

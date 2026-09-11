@@ -18,17 +18,17 @@
 
 #include <bbp/sonata/edges.h>
 #include <bbp/sonata/nodes.h>
-#include <bbp/sonata/optional.hpp>
+#include <optional>
 
 #include "common.h"
-#include "optional.hpp"
-#include "variant.hpp"
+
+#include <variant>
 
 
 namespace bbp {
 namespace sonata {
 
-using variantValueType = nonstd::variant<bool, std::string, int, double>;
+using variantValueType = std::variant<bool, std::string, int, double>;
 
 enum class SimulatorType { invalid = -1, NEURON, CORENEURON, LEARNINGENGINE, BRIAN2, UNSPECIFIED };
 
@@ -91,19 +91,19 @@ struct SONATA_API NodePopulationProperties: public CommonPopulationProperties {
      * Path to the .h5 file containing the vasculature morphology. Only for vasculature node
      * populations where it is mandatory.
      */
-    nonstd::optional<std::string> vasculatureFile{nonstd::nullopt};
+    std::optional<std::string> vasculatureFile{std::nullopt};
 
     /**
      *Path to the .obj file containing the mesh of a vasculature morphology. Only for vasculature
      *node populations where it is mandatory.
      */
-    nonstd::optional<std::string> vasculatureMesh{nonstd::nullopt};
+    std::optional<std::string> vasculatureMesh{std::nullopt};
 
     /**
      * Path to the .h5 storing microdomain data. Only for astrocyte node populations where it is
      * mandatory.
      */
-    nonstd::optional<std::string> microdomainsFile{nonstd::nullopt};
+    std::optional<std::string> microdomainsFile{std::nullopt};
 };
 
 /**
@@ -118,12 +118,12 @@ struct SONATA_API EdgePopulationProperties: public CommonPopulationProperties {
     /**
      * Path to spatial_segment_index
      */
-    nonstd::optional<std::string> endfeetMeshesFile{nonstd::nullopt};
+    std::optional<std::string> endfeetMeshesFile{std::nullopt};
 
     /**
      * Path to the directory containing the dendritic spine morphologies.
      */
-    nonstd::optional<std::string> spineMorphologiesDir{nonstd::nullopt};
+    std::optional<std::string> spineMorphologiesDir{std::nullopt};
 };
 
 /**
@@ -251,11 +251,11 @@ class SONATA_API CircuitConfig
         std::string pointNeuronModelsDir;
         std::string mechanismsDir;
 
-        nonstd::optional<std::string> vasculatureFile{nonstd::nullopt};
-        nonstd::optional<std::string> vasculatureMesh{nonstd::nullopt};
-        nonstd::optional<std::string> endfeetMeshesFile{nonstd::nullopt};
-        nonstd::optional<std::string> microdomainsFile{nonstd::nullopt};
-        nonstd::optional<std::string> spineMorphologiesDir{nonstd::nullopt};
+        std::optional<std::string> vasculatureFile{std::nullopt};
+        std::optional<std::string> vasculatureMesh{std::nullopt};
+        std::optional<std::string> endfeetMeshesFile{std::nullopt};
+        std::optional<std::string> microdomainsFile{std::nullopt};
+        std::optional<std::string> spineMorphologiesDir{std::nullopt};
     };
 
     class Parser;
@@ -417,11 +417,11 @@ class SONATA_API SimulationConfig
         std::string sectionConfigure;
     };
 
-    using Modification = nonstd::variant<ModificationTTX,
-                                         ModificationConfigureAllSections,
-                                         ModificationSectionList,
-                                         ModificationSection,
-                                         ModificationCompartmentSet>;
+    using Modification = std::variant<ModificationTTX,
+                                      ModificationConfigureAllSections,
+                                      ModificationSectionList,
+                                      ModificationSection,
+                                      ModificationCompartmentSet>;
 
     /**
      * Parameters defining global experimental conditions.
@@ -441,7 +441,7 @@ class SONATA_API SimulationConfig
         SpikeLocation spikeLocation = DEFAULT_spikeLocation;
         /// Extracellular calcium concentration, being applied to the synapse uHill parameter in
         /// order to scale the U parameter of synapses. Default is None.
-        nonstd::optional<double> extracellularCalcium{nonstd::nullopt};
+        std::optional<double> extracellularCalcium{std::nullopt};
         /// Enable legacy behavior to randomize the GABA_A rise time in the helper functions.
         /// Default is false
         bool randomizeGabaRiseTime = DEFAULT_randomizeGabaRiseTime;
@@ -533,17 +533,17 @@ class SONATA_API SimulationConfig
         };
 
         /// Type of stimulus
-        Module module;
+        Module module{Module::invalid};
         /// Type of input
-        InputType inputType;
+        InputType inputType{InputType::invalid};
         /// Time when input is activated (ms)
         double delay{};
         /// Time duration for how long input is activated (ms)
         double duration{};
         /// Node set which is affected by input. Not allowed in case of CompartmentSet
-        nonstd::optional<std::string> nodeSet{nonstd::nullopt};
+        std::optional<std::string> nodeSet{std::nullopt};
         /// CompartmentSet which is affected by the input. It has priority over nodeSet
-        nonstd::optional<std::string> compartmentSet{nonstd::nullopt};
+        std::optional<std::string> compartmentSet{std::nullopt};
     };
 
     struct InputLinear: public InputBase {
@@ -617,9 +617,9 @@ class SONATA_API SimulationConfig
 
     struct InputNoise: public InputBase {
         /// The mean value of current to inject (nA), default = None
-        nonstd::optional<double> mean{nonstd::nullopt};
+        std::optional<double> mean{std::nullopt};
         /// The mean value of current to inject as a percentage of threshold current, default = None
-        nonstd::optional<double> meanPercent{nonstd::nullopt};
+        std::optional<double> meanPercent{std::nullopt};
         /// State var to track whether the value of injected noise current is mean or
         /// mean_percent
         double variance{};
@@ -633,7 +633,7 @@ class SONATA_API SimulationConfig
         /// The decay time of the bi-exponential shots (ms)
         double decayTime{};
         /// Override the random seed to introduce correlations between cells, default = None
-        nonstd::optional<int> randomSeed{nonstd::nullopt};
+        std::optional<int> randomSeed{std::nullopt};
         /// Reversal potential for conductance injection in mV. Default is 0
         double reversal{};
         /// Timestep of generated signal in ms. Default is 0.25 ms
@@ -655,7 +655,7 @@ class SONATA_API SimulationConfig
         /// The decay time of the bi-exponential shots (ms)
         double decayTime{};
         /// Override the random seed to introduce correlations between cells, default = None
-        nonstd::optional<int> randomSeed{nonstd::nullopt};
+        std::optional<int> randomSeed{std::nullopt};
         /// Reversal potential for conductance injection in mV. Default is 0
         double reversal{};
         /// Timestep of generated signal in ms. Default is 0.25 ms
@@ -680,7 +680,7 @@ class SONATA_API SimulationConfig
         /// The decay time of the bi-exponential shots (ms)
         double decayTime{};
         /// Override the random seed to introduce correlations between cells, default = None
-        nonstd::optional<int> randomSeed{nonstd::nullopt};
+        std::optional<int> randomSeed{std::nullopt};
         /// Reversal potential for conductance injection in mV. Default is 0
         double reversal{};
         /// Timestep of generated signal in ms. Default is 0.25 ms
@@ -705,7 +705,7 @@ class SONATA_API SimulationConfig
         /// Timestep of generated signal in ms. Default is 0.25 ms
         double dt{};
         /// Override the random seed to introduce correlations between cells, default = None
-        nonstd::optional<int> randomSeed{nonstd::nullopt};
+        std::optional<int> randomSeed{std::nullopt};
         /// Signal mean in nA (current_clamp) or uS (conductance)
         double mean{};
         /// Signal std dev in nA (current_clamp) or uS (conductance)
@@ -722,7 +722,7 @@ class SONATA_API SimulationConfig
         /// Timestep of generated signal in ms. Default is 0.25 ms
         double dt{};
         /// Override the random seed to introduce correlations between cells, default = None
-        nonstd::optional<int> randomSeed{nonstd::nullopt};
+        std::optional<int> randomSeed{std::nullopt};
         /// Signal mean as percentage of a cell’s threshold current (current_clamp) or inverse input
         /// resistance (conductance)
         double meanPercent{};
@@ -773,22 +773,23 @@ class SONATA_API SimulationConfig
         double weight{};
     };
 
-    using Input = nonstd::variant<InputLinear,
-                                  InputRelativeLinear,
-                                  InputPulse,
-                                  InputSinusoidal,
-                                  InputSubthreshold,
-                                  InputHyperpolarizing,
-                                  InputSynapseReplay,
-                                  InputSeclamp,
-                                  InputNoise,
-                                  InputShotNoise,
-                                  InputRelativeShotNoise,
-                                  InputAbsoluteShotNoise,
-                                  InputOrnsteinUhlenbeck,
-                                  InputRelativeOrnsteinUhlenbeck,
-                                  InputSpatiallyUniformEField,
-                                  InputPoissonSpike>;
+    using Input = std::variant<std::monostate,
+                               InputLinear,
+                               InputRelativeLinear,
+                               InputPulse,
+                               InputSinusoidal,
+                               InputSubthreshold,
+                               InputHyperpolarizing,
+                               InputSynapseReplay,
+                               InputSeclamp,
+                               InputNoise,
+                               InputShotNoise,
+                               InputRelativeShotNoise,
+                               InputAbsoluteShotNoise,
+                               InputOrnsteinUhlenbeck,
+                               InputRelativeOrnsteinUhlenbeck,
+                               InputSpatiallyUniformEField,
+                               InputPoissonSpike>;
 
     using InputMap = std::unordered_map<std::string, Input>;
 
@@ -806,25 +807,25 @@ class SONATA_API SimulationConfig
         /// Scalar to adjust synaptic strength, default = 1.
         double weight{1.};
         /// Rate to spontaneously trigger the synapses in this connection_override, default = None
-        nonstd::optional<double> spontMinis{nonstd::nullopt};
+        std::optional<double> spontMinis{std::nullopt};
         /// Snippet of hoc code to be executed on the synapses in this connection_override, default
         /// = None
-        nonstd::optional<std::string> synapseConfigure{nonstd::nullopt};
+        std::optional<std::string> synapseConfigure{std::nullopt};
         /// Synapse helper files to instantiate the synapses in this connection_override, default =
         /// None
-        nonstd::optional<std::string> modoverride{nonstd::nullopt};
+        std::optional<std::string> modoverride{std::nullopt};
         /// Value to override the synaptic delay time originally set in the edge file (ms),
         /// default = None.
-        nonstd::optional<double> synapseDelayOverride{nonstd::nullopt};
+        std::optional<double> synapseDelayOverride{std::nullopt};
         /// Adjustments from weight of this connection_override are applied after the specified
         /// delay has elapsed in ms, default = 0.
         double delay{0.};
         /// To override the neuromod_dtc values between the selected source and target neurons for
         /// the neuromodulatory projection. Given in ms.
-        nonstd::optional<double> neuromodulationDtc{nonstd::nullopt};
+        std::optional<double> neuromodulationDtc{std::nullopt};
         /// To override the neuromod_strength values between the selected source and target neurons
         /// for the neuromodulatory projection. Given in muM.
-        nonstd::optional<double> neuromodulationStrength{nonstd::nullopt};
+        std::optional<double> neuromodulationStrength{std::nullopt};
     };
 
     /**
@@ -928,12 +929,12 @@ class SONATA_API SimulationConfig
     /**
      * Returns the name of the node set to be instantiated for the simulation, default = None
      */
-    const nonstd::optional<std::string>& getNodeSet() const noexcept;
+    const std::optional<std::string>& getNodeSet() const noexcept;
 
     /**
      * Returns the name of the compartment set to be instantiated for the simulation, default = None
      */
-    const nonstd::optional<std::string>& getCompartmentSet() const noexcept;
+    const std::optional<std::string>& getCompartmentSet() const noexcept;
 
     /**
      * Returns the metadata section
@@ -981,7 +982,7 @@ class SONATA_API SimulationConfig
     // Path of compartment sets file
     std::string _compartmentSetsFile;
     // Name of node set
-    nonstd::optional<std::string> _nodeSet{nonstd::nullopt};
+    std::optional<std::string> _nodeSet{std::nullopt};
     // Remarks on the simulation
     std::unordered_map<std::string, variantValueType> _metaData;
     // Variables for a new feature in development, to be moved to other sections once in production
