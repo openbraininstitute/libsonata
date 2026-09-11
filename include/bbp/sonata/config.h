@@ -533,9 +533,9 @@ class SONATA_API SimulationConfig
         };
 
         /// Type of stimulus
-        Module module;
+        Module module{Module::invalid};
         /// Type of input
-        InputType inputType;
+        InputType inputType{InputType::invalid};
         /// Time when input is activated (ms)
         double delay{};
         /// Time duration for how long input is activated (ms)
