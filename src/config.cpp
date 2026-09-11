@@ -1486,7 +1486,7 @@ class SimulationConfig::Parser
             parseMandatory(valueIt, "module", debugStr, module);
 
             const auto input = parseInputModule(valueIt, module, _basePath, debugStr, simDt);
-            result[it.key()] = input;
+            result.insert_or_assign(it.key(), input);
 
             auto mismatchingModuleInputType = [&it]() {
                 const auto module_name = it->find("module")->get<std::string>();
