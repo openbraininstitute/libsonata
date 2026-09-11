@@ -1498,48 +1498,48 @@ class SimulationConfig::Parser
                                 input_type));
             };
 
-            auto inputType = nonstd::visit([](const auto& v) { return v.inputType; }, input);
+            auto inputType = std::visit([](const auto& v) { return v.inputType; }, input);
             switch (inputType) {
             case InputBase::InputType::current_clamp: {
-                if (!(nonstd::holds_alternative<SimulationConfig::InputLinear>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputRelativeLinear>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputPulse>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputSinusoidal>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputSubthreshold>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputNoise>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputShotNoise>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputRelativeShotNoise>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputAbsoluteShotNoise>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputHyperpolarizing>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputOrnsteinUhlenbeck>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputRelativeOrnsteinUhlenbeck>(
+                if (!(std::holds_alternative<SimulationConfig::InputLinear>(input) ||
+                      std::holds_alternative<SimulationConfig::InputRelativeLinear>(input) ||
+                      std::holds_alternative<SimulationConfig::InputPulse>(input) ||
+                      std::holds_alternative<SimulationConfig::InputSinusoidal>(input) ||
+                      std::holds_alternative<SimulationConfig::InputSubthreshold>(input) ||
+                      std::holds_alternative<SimulationConfig::InputNoise>(input) ||
+                      std::holds_alternative<SimulationConfig::InputShotNoise>(input) ||
+                      std::holds_alternative<SimulationConfig::InputRelativeShotNoise>(input) ||
+                      std::holds_alternative<SimulationConfig::InputAbsoluteShotNoise>(input) ||
+                      std::holds_alternative<SimulationConfig::InputHyperpolarizing>(input) ||
+                      std::holds_alternative<SimulationConfig::InputOrnsteinUhlenbeck>(input) ||
+                      std::holds_alternative<SimulationConfig::InputRelativeOrnsteinUhlenbeck>(
                           input))) {
                     mismatchingModuleInputType();
                 }
             } break;
             case InputBase::InputType::spikes:
-                if (!(nonstd::holds_alternative<SimulationConfig::InputSynapseReplay>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputPoissonSpike>(input))) {
+                if (!(std::holds_alternative<SimulationConfig::InputSynapseReplay>(input) ||
+                      std::holds_alternative<SimulationConfig::InputPoissonSpike>(input))) {
                     mismatchingModuleInputType();
                 }
                 break;
             case InputBase::InputType::voltage_clamp:
-                if (!nonstd::holds_alternative<SimulationConfig::InputSeclamp>(input)) {
+                if (!std::holds_alternative<SimulationConfig::InputSeclamp>(input)) {
                     mismatchingModuleInputType();
                 }
                 break;
             case InputBase::InputType::extracellular_stimulation:
-                if (!nonstd::holds_alternative<SimulationConfig::InputSpatiallyUniformEField>(
+                if (!std::holds_alternative<SimulationConfig::InputSpatiallyUniformEField>(
                         input)) {
                     mismatchingModuleInputType();
                 }
                 break;
             case InputBase::InputType::conductance:
-                if (!(nonstd::holds_alternative<SimulationConfig::InputShotNoise>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputRelativeShotNoise>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputAbsoluteShotNoise>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputOrnsteinUhlenbeck>(input) ||
-                      nonstd::holds_alternative<SimulationConfig::InputRelativeOrnsteinUhlenbeck>(
+                if (!(std::holds_alternative<SimulationConfig::InputShotNoise>(input) ||
+                      std::holds_alternative<SimulationConfig::InputRelativeShotNoise>(input) ||
+                      std::holds_alternative<SimulationConfig::InputAbsoluteShotNoise>(input) ||
+                      std::holds_alternative<SimulationConfig::InputOrnsteinUhlenbeck>(input) ||
+                      std::holds_alternative<SimulationConfig::InputRelativeOrnsteinUhlenbeck>(
                           input))) {
                     mismatchingModuleInputType();
                 }

@@ -22,13 +22,13 @@
 
 #include "common.h"
 #include "optional.hpp"
-#include "variant.hpp"
+#include <variant>
 
 
 namespace bbp {
 namespace sonata {
 
-using variantValueType = nonstd::variant<bool, std::string, int, double>;
+using variantValueType = std::variant<bool, std::string, int, double>;
 
 enum class SimulatorType { invalid = -1, NEURON, CORENEURON, LEARNINGENGINE, BRIAN2, UNSPECIFIED };
 
@@ -417,7 +417,7 @@ class SONATA_API SimulationConfig
         std::string sectionConfigure;
     };
 
-    using Modification = nonstd::variant<ModificationTTX,
+    using Modification = std::variant<ModificationTTX,
                                          ModificationConfigureAllSections,
                                          ModificationSectionList,
                                          ModificationSection,
@@ -773,7 +773,7 @@ class SONATA_API SimulationConfig
         double weight{};
     };
 
-    using Input = nonstd::variant<InputLinear,
+    using Input = std::variant<InputLinear,
                                   InputRelativeLinear,
                                   InputPulse,
                                   InputSinusoidal,

@@ -342,36 +342,36 @@ TEST_CASE("SimulationConfig") {
         CHECK(config.getConditions().mechanisms.size() == 2);
         auto itr = config.getConditions().mechanisms.find("ProbAMPANMDA_EMS");
         CHECK(itr != config.getConditions().mechanisms.end());
-        CHECK(nonstd::get<bool>(itr->second.find("property1")->second) == false);
-        CHECK(nonstd::get<int>(itr->second.find("property2")->second) == -1);
+        CHECK(std::get<bool>(itr->second.find("property1")->second) == false);
+        CHECK(std::get<int>(itr->second.find("property2")->second) == -1);
         itr = config.getConditions().mechanisms.find("GluSynapse");
-        CHECK(nonstd::get<double>(itr->second.find("property3")->second) == 0.025);
-        CHECK(nonstd::get<std::string>(itr->second.find("property4")->second) == "test");
+        CHECK(std::get<double>(itr->second.find("property3")->second) == 0.025);
+        CHECK(std::get<std::string>(itr->second.find("property4")->second) == "test");
         const auto modifications = config.getConditions().getModifications();
         CHECK(modifications.size() == 5);
-        const auto TTX = nonstd::get<SimulationConfig::ModificationTTX>(modifications[0]);
+        const auto TTX = std::get<SimulationConfig::ModificationTTX>(modifications[0]);
         CHECK(TTX.name == "applyTTX");
         CHECK(TTX.type == SimulationConfig::ModificationBase::ModificationType::TTX);
         CHECK(TTX.nodeSet == "single");
-        const auto configAllSects = nonstd::get<SimulationConfig::ModificationConfigureAllSections>(modifications[1]);
+        const auto configAllSects = std::get<SimulationConfig::ModificationConfigureAllSections>(modifications[1]);
         CHECK(configAllSects.name == "no_SK_E2");
         CHECK(configAllSects.type ==
               SimulationConfig::ModificationBase::ModificationType::ConfigureAllSections);
         CHECK(configAllSects.nodeSet == "single");
         CHECK(configAllSects.sectionConfigure == "%s.gSK_E2bar_SK_E2 = 0");
-        const auto configSectList = nonstd::get<SimulationConfig::ModificationSectionList>(modifications[2]);
+        const auto configSectList = std::get<SimulationConfig::ModificationSectionList>(modifications[2]);
         CHECK(configSectList.name == "apical_block_NaTg");
         CHECK(configSectList.type ==
               SimulationConfig::ModificationBase::ModificationType::SectionList);
         CHECK(configSectList.nodeSet == "single");
         CHECK(configSectList.sectionConfigure == "apical.gbar_NaTg = 0");
-        const auto configSection = nonstd::get<SimulationConfig::ModificationSection>(modifications[3]);
+        const auto configSection = std::get<SimulationConfig::ModificationSection>(modifications[3]);
         CHECK(configSection.name == "apical[10]_KTst_NaTg_block");
         CHECK(configSection.type ==
               SimulationConfig::ModificationBase::ModificationType::Section);
         CHECK(configSection.nodeSet == "single");
         CHECK(configSection.sectionConfigure == "apic[10].gbar_KTst = 0; apic[10].gbar_NaTg = 0");
-        const auto configCompSet = nonstd::get<SimulationConfig::ModificationCompartmentSet>(modifications[4]);
+        const auto configCompSet = std::get<SimulationConfig::ModificationCompartmentSet>(modifications[4]);
         CHECK(configCompSet.name == "Ca_hotspot_dend[10]_manipulation");
         CHECK(configCompSet.type ==
               SimulationConfig::ModificationBase::ModificationType::CompartmentSet);
@@ -425,7 +425,7 @@ TEST_CASE("SimulationConfig") {
         using InputType = SimulationConfig::InputBase::InputType;
         using Module = SimulationConfig::InputBase::Module;
         {
-            const auto input = nonstd::get<SimulationConfig::InputLinear>(config.getInput("ex_linear"));
+            const auto input = std::get<SimulationConfig::InputLinear>(config.getInput("ex_linear"));
             CHECK(input.inputType == InputType::current_clamp);
             CHECK(input.module == Module::linear);
             CHECK(input.delay == 0);
@@ -435,7 +435,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.ampEnd == 0.15);
         }
         {
-            const auto input = nonstd::get<SimulationConfig::InputRelativeLinear>(config.getInput("ex_rel_linear"));
+            const auto input = std::get<SimulationConfig::InputRelativeLinear>(config.getInput("ex_rel_linear"));
             CHECK(input.inputType == InputType::current_clamp);
             CHECK(input.module == Module::relative_linear);
             CHECK(input.delay == 0);
@@ -445,7 +445,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.percentEnd == 20);
         }
         {
-            const auto input = nonstd::get<SimulationConfig::InputPulse>(config.getInput("ex_pulse"));
+            const auto input = std::get<SimulationConfig::InputPulse>(config.getInput("ex_pulse"));
             CHECK(input.inputType == InputType::current_clamp);
             CHECK(input.module == Module::pulse);
             CHECK(input.delay == 10);
@@ -457,7 +457,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.width == 1);
         }
         {
-            const auto input = nonstd::get<SimulationConfig::InputSinusoidal>(config.getInput("ex_sinusoidal"));
+            const auto input = std::get<SimulationConfig::InputSinusoidal>(config.getInput("ex_sinusoidal"));
             CHECK(input.inputType == InputType::current_clamp);
             CHECK(input.module == Module::sinusoidal);
             CHECK(input.delay == 10);
@@ -469,7 +469,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.dt == 0.5);
         }
         {
-            const auto input = nonstd::get<SimulationConfig::InputSinusoidal>(config.getInput("ex_sinusoidal_default_dt"));
+            const auto input = std::get<SimulationConfig::InputSinusoidal>(config.getInput("ex_sinusoidal_default_dt"));
             CHECK(input.inputType == InputType::current_clamp);
             CHECK(input.module == Module::sinusoidal);
             CHECK(input.delay == 10);
@@ -481,7 +481,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.dt == 0.025);
         }
         {
-            const auto input = nonstd::get<SimulationConfig::InputSubthreshold>(config.getInput("ex_subthreshold"));
+            const auto input = std::get<SimulationConfig::InputSubthreshold>(config.getInput("ex_subthreshold"));
             CHECK(input.inputType == InputType::current_clamp);
             CHECK(input.module == Module::subthreshold);
             CHECK(input.delay == 10);
@@ -490,7 +490,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.percentLess == 80);
         }
         {
-            const auto input = nonstd::get<SimulationConfig::InputNoise>(config.getInput("ex_noise_meanpercent"));
+            const auto input = std::get<SimulationConfig::InputNoise>(config.getInput("ex_noise_meanpercent"));
             CHECK(input.inputType == InputType::current_clamp);
             CHECK(input.module == Module::noise);
             CHECK(input.delay == 0);
@@ -500,7 +500,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.variance == 0.001);
         }
         {
-            const auto input = nonstd::get<SimulationConfig::InputNoise>(config.getInput("ex_noise_mean"));
+            const auto input = std::get<SimulationConfig::InputNoise>(config.getInput("ex_noise_mean"));
             CHECK(input.inputType == InputType::current_clamp);
             CHECK(input.module == Module::noise);
             CHECK(input.delay == 0);
@@ -510,7 +510,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.variance == 0.001);
         }
         {
-            const auto input = nonstd::get<SimulationConfig::InputShotNoise>(config.getInput("ex_shotnoise"));
+            const auto input = std::get<SimulationConfig::InputShotNoise>(config.getInput("ex_shotnoise"));
             CHECK(input.inputType == InputType::current_clamp);
             CHECK(input.module == Module::shot_noise);
             CHECK(input.delay == 0);
@@ -525,7 +525,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.reversal == 10);
         }
         {
-            const auto input = nonstd::get<SimulationConfig::InputRelativeShotNoise>(config.getInput("ex_rel_shotnoise"));
+            const auto input = std::get<SimulationConfig::InputRelativeShotNoise>(config.getInput("ex_rel_shotnoise"));
             CHECK(input.inputType == InputType::current_clamp);
             CHECK(input.module == Module::relative_shot_noise);
             CHECK(input.delay == 0);
@@ -540,7 +540,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.relativeSkew == 0.5);
         }
         {
-            const auto input = nonstd::get<SimulationConfig::InputHyperpolarizing>(config.getInput("ex_hyperpolarizing"));
+            const auto input = std::get<SimulationConfig::InputHyperpolarizing>(config.getInput("ex_hyperpolarizing"));
             CHECK(input.inputType == InputType::current_clamp);
             CHECK(input.module == Module::hyperpolarizing);
             CHECK(input.delay == 0);
@@ -548,7 +548,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.nodeSet == "L5E");
         }
         {
-            const auto input = nonstd::get<SimulationConfig::InputSynapseReplay>(config.getInput("ex_replay"));
+            const auto input = std::get<SimulationConfig::InputSynapseReplay>(config.getInput("ex_replay"));
             CHECK(input.inputType == InputType::spikes);
             CHECK(input.module == Module::synapse_replay);
             CHECK(input.delay == 0);
@@ -557,7 +557,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(endswith(input.spikeFile, "replay.h5"));
         }
         {
-            const auto input = nonstd::get<SimulationConfig::InputSeclamp>(config.getInput("ex_seclamp"));
+            const auto input = std::get<SimulationConfig::InputSeclamp>(config.getInput("ex_seclamp"));
             CHECK(input.inputType == InputType::voltage_clamp);
             CHECK(input.module == Module::seclamp);
             CHECK(input.delay == 0);
@@ -569,7 +569,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.voltageLevels == std::vector<double>{1.5, 2, 3, 4});
         }
         {
-            const auto input = nonstd::get<SimulationConfig::InputAbsoluteShotNoise>(
+            const auto input = std::get<SimulationConfig::InputAbsoluteShotNoise>(
                 config.getInput("ex_abs_shotnoise"));
             CHECK(input.inputType == InputType::conductance);
             CHECK(input.module == Module::absolute_shot_noise);
@@ -581,7 +581,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.relativeSkew == 0.1);
         }
         {
-            const auto input = nonstd::get<SimulationConfig::InputOrnsteinUhlenbeck>(
+            const auto input = std::get<SimulationConfig::InputOrnsteinUhlenbeck>(
                 config.getInput("ex_OU"));
             CHECK(input.inputType == InputType::conductance);
             CHECK(input.module == Module::ornstein_uhlenbeck);
@@ -593,7 +593,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.representsPhysicalElectrode == false);
         }
         {
-            const auto input = nonstd::get<SimulationConfig::InputRelativeOrnsteinUhlenbeck>(
+            const auto input = std::get<SimulationConfig::InputRelativeOrnsteinUhlenbeck>(
                 config.getInput("ex_rel_OU"));
             CHECK(input.inputType == InputType::current_clamp);
             CHECK(input.module == Module::relative_ornstein_uhlenbeck);
@@ -604,7 +604,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.randomSeed == 230522);
         }
         {
-            const auto input = nonstd::get<SimulationConfig::InputSpatiallyUniformEField>(
+            const auto input = std::get<SimulationConfig::InputSpatiallyUniformEField>(
                 config.getInput("ex_efields"));
             CHECK(input.inputType == InputType::extracellular_stimulation);
             CHECK(input.module == Module::spatially_uniform_e_field);
@@ -634,7 +634,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(fields[3].phase == -0.1);
         }
         {
-            const auto input = nonstd::get<SimulationConfig::InputSpatiallyUniformEField>(
+            const auto input = std::get<SimulationConfig::InputSpatiallyUniformEField>(
                 config.getInput("ex_efields_noramp"));
             CHECK(input.inputType == InputType::extracellular_stimulation);
             CHECK(input.module == Module::spatially_uniform_e_field);
@@ -652,7 +652,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(fields[0].phase == 0.);
         }
         {
-            const auto input = nonstd::get<SimulationConfig::InputPoissonSpike>(
+            const auto input = std::get<SimulationConfig::InputPoissonSpike>(
                 config.getInput("ex_poisson"));
             CHECK(input.inputType == InputType::spikes);
             CHECK(input.module == Module::poisson);
@@ -709,21 +709,21 @@ TEST_CASE("SimulationConfig") {
                      Catch::Matchers::Predicate<decltype(config.getMetaData())>(
                          [](const auto& metadata) -> bool {
                              return metadata.size() == 4 &&
-                                    nonstd::get<std::string>(metadata.at("note")) ==
+                                    std::get<std::string>(metadata.at("note")) ==
                                         "first attempt of simulation" &&
-                                    nonstd::get<int>(metadata.at("sim_version")) == 1 &&
-                                    nonstd::get<double>(metadata.at("v_float")) == 0.5 &&
-                                    nonstd::get<bool>(metadata.at("v_bool")) == false;
+                                    std::get<int>(metadata.at("sim_version")) == 1 &&
+                                    std::get<double>(metadata.at("v_float")) == 0.5 &&
+                                    std::get<bool>(metadata.at("v_bool")) == false;
                          },
                          "metadata matches"));
         REQUIRE_THAT(config.getBetaFeatures(),
                      Catch::Matchers::Predicate<decltype(config.getBetaFeatures())>(
                          [](const auto& features) -> bool {
                              return features.size() == 4 &&
-                                    nonstd::get<std::string>(features.at("v_str")) == "abcd" &&
-                                    nonstd::get<int>(features.at("v_int")) == 10 &&
-                                    nonstd::get<double>(features.at("v_float")) == 0.5 &&
-                                    nonstd::get<bool>(features.at("v_bool")) == false;
+                                    std::get<std::string>(features.at("v_str")) == "abcd" &&
+                                    std::get<int>(features.at("v_int")) == 10 &&
+                                    std::get<double>(features.at("v_float")) == 0.5 &&
+                                    std::get<bool>(features.at("v_bool")) == false;
                          },
                          "beta features match"));
     }

@@ -11,7 +11,7 @@
 #include <bbp/sonata/nodes.h>
 #include <bbp/sonata/optional.hpp>  //nonstd::optional
 #include <bbp/sonata/report_reader.h>
-#include <bbp/sonata/variant.hpp>  //nonstd::variant
+#include <variant>
 
 #include "generated/docstrings.h"
 
@@ -332,23 +332,6 @@ py::class_<Storage> bindStorageClass(py::module& m, const char* clsName, const c
              imbuePopulationClassName(DOC_POP_STOR(openPopulation)).c_str());
 }
 }  // unnamed namespace
-
-namespace pybind11 {
-namespace detail {
-template <typename T>
-struct type_caster<nonstd::optional<T>>: optional_caster<nonstd::optional<T>> {
-};
-
-template <>
-struct type_caster<nonstd::nullopt_t>: public void_caster<nonstd::nullopt_t> {
-};
-
-template <typename... Ts>
-struct type_caster<nonstd::variant<Ts...>>: variant_caster<nonstd::variant<Ts...>> {
-};
-}  // namespace detail
-}  // namespace pybind11
-
 
 template <typename ReportType, typename KeyType>
 void bindReportReader(py::module& m, const std::string& prefix) {
