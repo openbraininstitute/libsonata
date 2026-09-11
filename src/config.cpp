@@ -20,7 +20,7 @@
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 
-#include "../extlib/filesystem.hpp"
+#include <filesystem>
 #include "utils.h"
 
 // Add a specialization of adl_serializer to the nlohmann namespace for conversion from/to
@@ -166,8 +166,7 @@ D(Run::DEFAULT_spikeThreshold)
 // }
 
 namespace {
-// to be replaced by std::filesystem once C++17 is used
-namespace fs = ghc::filesystem;
+namespace fs = std::filesystem;
 
 void raiseOnBiophysicalPopulationErrors(const std::string& population,
                                         const bbp::sonata::NodePopulationProperties& properties) {
