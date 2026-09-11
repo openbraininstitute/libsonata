@@ -1529,7 +1529,8 @@ class SimulationConfig::Parser
                       std::holds_alternative<SimulationConfig::InputAbsoluteShotNoise>(input) ||
                       std::holds_alternative<SimulationConfig::InputHyperpolarizing>(input) ||
                       std::holds_alternative<SimulationConfig::InputOrnsteinUhlenbeck>(input) ||
-                      std::holds_alternative<SimulationConfig::InputRelativeOrnsteinUhlenbeck>(input) ||
+                      std::holds_alternative<SimulationConfig::InputRelativeOrnsteinUhlenbeck>(
+                          input) ||
                       std::holds_alternative<SimulationConfig::InputReplay>(input))) {
                     mismatchingModuleInputType();
                 }

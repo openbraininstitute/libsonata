@@ -1290,7 +1290,9 @@ PYBIND11_MODULE(_libsonata, m) {
                       DOC_SIMULATIONCONFIG(InputPoissonSpike, weight));
 
     py::class_<SimulationConfig::InputReplay, SimulationConfig::InputBase>(simConf, "Replay")
-        .def_readonly("path", &SimulationConfig::InputReplay::path, "Path to the input file to replay.");
+        .def_readonly("path",
+                      &SimulationConfig::InputReplay::path,
+                      "Path to the input file to replay.");
 
     py::enum_<SimulationConfig::InputBase::Module>(inputBase, "Module")
         .value("linear", SimulationConfig::InputBase::Module::linear)
