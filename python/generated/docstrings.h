@@ -844,12 +844,12 @@ R"doc(Parameter ``node_ids``:
     limit the report to the given selection.
 
 Parameter ``tstart``:
-    return voltages occurring on or after tstart.
-    tstart=std::nullopt indicates no limit.
+    return voltages occurring on or after tstart. tstart=std::nullopt
+    indicates no limit.
 
 Parameter ``tstop``:
-    return voltages occurring on or before tstop.
-    tstop=std::nullopt indicates no limit.
+    return voltages occurring on or before tstop. tstop=std::nullopt
+    indicates no limit.
 
 Parameter ``tstride``:
     indicates every how many timesteps we read data.
