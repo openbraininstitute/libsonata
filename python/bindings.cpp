@@ -9,7 +9,7 @@
 #include <bbp/sonata/electrode_reader.h>
 #include <bbp/sonata/node_sets.h>
 #include <bbp/sonata/nodes.h>
-#include <bbp/sonata/optional.hpp>  //nonstd::optional
+#include <optional>
 #include <bbp/sonata/report_reader.h>
 #include <variant>
 
@@ -365,24 +365,24 @@ void bindReportReader(py::module& m, const std::string& prefix) {
              &ReportType::Population::get,
              "Return reports with all those node_ids between 'tstart' and 'tstop' with a stride "
              "tstride",
-             "node_ids"_a = nonstd::nullopt,
-             "tstart"_a = nonstd::nullopt,
-             "tstop"_a = nonstd::nullopt,
-             "tstride"_a = nonstd::nullopt,
-             "block_gap_limit"_a = nonstd::nullopt)
+             "node_ids"_a = std::nullopt,
+             "tstart"_a = std::nullopt,
+             "tstop"_a = std::nullopt,
+             "tstride"_a = std::nullopt,
+             "block_gap_limit"_a = std::nullopt)
         .def("get_node_ids",
              &ReportType::Population::getNodeIds,
              "Return the list of nodes ids for this population")
         .def(
             "get_node_id_element_id_mapping",
             [](const typename ReportType::Population& population,
-               const nonstd::optional<Selection>& selection,
-               const nonstd::optional<size_t>& block_gap_limit) {
+               const std::optional<Selection>& selection,
+               const std::optional<size_t>& block_gap_limit) {
                 return asArray(population.getNodeIdElementIdMapping(selection, block_gap_limit));
             },
             DOC_REPORTREADER_POP(getNodeIdElementIdMapping),
-            "selection"_a = nonstd::nullopt,
-            "block_gap_limit"_a = nonstd::nullopt)
+            "selection"_a = std::nullopt,
+            "block_gap_limit"_a = std::nullopt)
         .def_property_readonly("sorted",
                                &ReportType::Population::getSorted,
                                DOC_REPORTREADER_POP(getSorted))
@@ -1500,9 +1500,9 @@ PYBIND11_MODULE(_libsonata, m) {
         .def("get",
              &SpikeReader::Population::get,
              DOC_SPIKEREADER_POP(get),
-             "node_ids"_a = nonstd::nullopt,
-             "tstart"_a = nonstd::nullopt,
-             "tstop"_a = nonstd::nullopt)
+             "node_ids"_a = std::nullopt,
+             "tstart"_a = std::nullopt,
+             "tstop"_a = std::nullopt)
         .def(
             "get_dict",
             [](const SpikeReader::Population& self,
@@ -1513,12 +1513,12 @@ PYBIND11_MODULE(_libsonata, m) {
                     (node_ids.is_none() && tstart.is_none() && tstop.is_none())
                         ? self.getRawArrays()
                         : self.getArrays(node_ids.is_none()
-                                             ? nonstd::nullopt
-                                             : node_ids.cast<nonstd::optional<Selection>>(),
-                                         tstart.is_none() ? nonstd::nullopt
-                                                          : tstart.cast<nonstd::optional<double>>(),
-                                         tstop.is_none() ? nonstd::nullopt
-                                                         : tstop.cast<nonstd::optional<double>>());
+                                             ? std::nullopt
+                                             : node_ids.cast<std::optional<Selection>>(),
+                                         tstart.is_none() ? std::nullopt
+                                                          : tstart.cast<std::optional<double>>(),
+                                         tstop.is_none() ? std::nullopt
+                                                         : tstop.cast<std::optional<double>>());
 
                 py::dict result;
                 result["node_ids"] = py::array_t<NodeID>(spikes.node_ids.size(),
@@ -1527,9 +1527,9 @@ PYBIND11_MODULE(_libsonata, m) {
                                                            spikes.timestamps.data());
                 return result;
             },
-            "node_ids"_a = nonstd::nullopt,
-            "tstart"_a = nonstd::nullopt,
-            "tstop"_a = nonstd::nullopt)
+            "node_ids"_a = std::nullopt,
+            "tstart"_a = std::nullopt,
+            "tstop"_a = std::nullopt)
         .def_property_readonly(
             "sorting",
             [](const SpikeReader::Population& self) {
@@ -1593,8 +1593,8 @@ PYBIND11_MODULE(_libsonata, m) {
         .def("get",
              &ElectrodeReader::Population::get,
              "Return scaling factors for selected nodes and electrodes",
-             "node_ids"_a = nonstd::nullopt,
-             "electrode_ids"_a = nonstd::nullopt)
+             "node_ids"_a = std::nullopt,
+             "electrode_ids"_a = std::nullopt)
         .def_property_readonly(
             "node_ids",
             [](const ElectrodeReader::Population& pop) { return asArray(pop.getNodeIds()); },

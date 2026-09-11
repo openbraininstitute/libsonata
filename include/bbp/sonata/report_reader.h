@@ -7,7 +7,7 @@
 
 #include <highfive/H5File.hpp>
 
-#include <bbp/sonata/optional.hpp>
+#include <optional>
 #include <bbp/sonata/population.h>
 
 namespace bbp {
@@ -51,9 +51,9 @@ class SONATA_API SpikeReader
         /**
          * Return spikes with all those node_ids between 'tstart' and 'tstop'
          */
-        Spikes get(const nonstd::optional<Selection>& node_ids = nonstd::nullopt,
-                   const nonstd::optional<double>& tstart = nonstd::nullopt,
-                   const nonstd::optional<double>& tstop = nonstd::nullopt) const;
+        Spikes get(const std::optional<Selection>& node_ids = std::nullopt,
+                   const std::optional<double>& tstart = std::nullopt,
+                   const std::optional<double>& tstop = std::nullopt) const;
 
         /**
          * Return the raw node_ids and timestamps vectors
@@ -63,9 +63,9 @@ class SONATA_API SpikeReader
         /**
          * Return the node_ids and timestamps vectors with all node_ids between 'tstart' and 'tstop'
          */
-        SpikeTimes getArrays(const nonstd::optional<Selection>& node_ids = nonstd::nullopt,
-                             const nonstd::optional<double>& tstart = nonstd::nullopt,
-                             const nonstd::optional<double>& tstop = nonstd::nullopt) const;
+        SpikeTimes getArrays(const std::optional<Selection>& node_ids = std::nullopt,
+                             const std::optional<double>& tstart = std::nullopt,
+                             const std::optional<double>& tstop = std::nullopt) const;
 
         /**
          * Return the way data are sorted ('none', 'by_id', 'by_time')
@@ -158,23 +158,23 @@ class SONATA_API ReportReader
          * \param block_gap_limit gap limit between each IO block while fetching data from storage
          */
         typename DataFrame<KeyType>::DataType getNodeIdElementIdMapping(
-            const nonstd::optional<Selection>& node_ids = nonstd::nullopt,
-            const nonstd::optional<size_t>& block_gap_limit = nonstd::nullopt) const;
+            const std::optional<Selection>& node_ids = std::nullopt,
+            const std::optional<size_t>& block_gap_limit = std::nullopt) const;
 
         /**
          * \param node_ids limit the report to the given selection.
-         * \param tstart return voltages occurring on or after tstart. tstart=nonstd::nullopt
+         * \param tstart return voltages occurring on or after tstart. tstart=std::nullopt
          * indicates no limit. \param tstop return voltages occurring on or before tstop.
-         * tstop=nonstd::nullopt indicates no limit. \param tstride indicates every how many
-         * timesteps we read data. tstride=nonstd::nullopt indicates that all timesteps are read.
+         * tstop=std::nullopt indicates no limit. \param tstride indicates every how many
+         * timesteps we read data. tstride=std::nullopt indicates that all timesteps are read.
          * \param block_gap_limit gap limit between each IO block while fetching data from storage.
          */
         DataFrame<KeyType> get(
-            const nonstd::optional<Selection>& node_ids = nonstd::nullopt,
-            const nonstd::optional<double>& tstart = nonstd::nullopt,
-            const nonstd::optional<double>& tstop = nonstd::nullopt,
-            const nonstd::optional<size_t>& tstride = nonstd::nullopt,
-            const nonstd::optional<size_t>& block_gap_limit = nonstd::nullopt) const;
+            const std::optional<Selection>& node_ids = std::nullopt,
+            const std::optional<double>& tstart = std::nullopt,
+            const std::optional<double>& tstop = std::nullopt,
+            const std::optional<size_t>& tstride = std::nullopt,
+            const std::optional<size_t>& block_gap_limit = std::nullopt) const;
 
       private:
         struct NodeIdElementLayout {
@@ -186,8 +186,8 @@ class SONATA_API ReportReader
         };
 
         Population(const HighFive::File& file, const std::string& populationName);
-        std::pair<size_t, size_t> getIndex(const nonstd::optional<double>& tstart,
-                                           const nonstd::optional<double>& tstop) const;
+        std::pair<size_t, size_t> getIndex(const std::optional<double>& tstart,
+                                           const std::optional<double>& tstop) const;
         /**
          * Return the element IDs for the given selection, alongside the filtered node pointers
          * and the range of positions where they fit in the file. This latter two are necessary
@@ -198,8 +198,8 @@ class SONATA_API ReportReader
          * \param block_gap_limit gap limit between each IO block while fetching data from storage
          */
         NodeIdElementLayout getNodeIdElementLayout(
-            const nonstd::optional<Selection>& node_ids = nonstd::nullopt,
-            const nonstd::optional<size_t>& block_gap_limit = nonstd::nullopt) const;
+            const std::optional<Selection>& node_ids = std::nullopt,
+            const std::optional<size_t>& block_gap_limit = std::nullopt) const;
 
         HighFive::Group pop_group_;
         std::vector<NodeID> node_ids_;

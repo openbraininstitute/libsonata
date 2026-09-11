@@ -337,7 +337,7 @@ TEST_CASE("SimulationConfig") {
         CHECK(config.getConditions().vInit == -80);
         CHECK(config.getConditions().spikeLocation ==
               SimulationConfig::Conditions::SpikeLocation::AIS);
-        CHECK(config.getConditions().extracellularCalcium == nonstd::nullopt);
+        CHECK(config.getConditions().extracellularCalcium == std::nullopt);
         CHECK(config.getConditions().randomizeGabaRiseTime == false);
         CHECK(config.getConditions().mechanisms.size() == 2);
         auto itr = config.getConditions().mechanisms.find("ProbAMPANMDA_EMS");
@@ -519,7 +519,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.ampMean == 70);
             CHECK(input.ampVar == 40);
             CHECK(input.rate == 4);
-            CHECK(input.randomSeed == nonstd::nullopt);
+            CHECK(input.randomSeed == std::nullopt);
             CHECK(input.riseTime == 0.4);
             CHECK(input.decayTime == 4);
             CHECK(input.reversal == 10);
@@ -576,7 +576,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.mean == 50);
             CHECK(input.sigma == 5);
             CHECK(input.reversal == 10);
-            CHECK(input.randomSeed == nonstd::nullopt);
+            CHECK(input.randomSeed == std::nullopt);
             CHECK(input.representsPhysicalElectrode == true);
             CHECK(input.relativeSkew == 0.1);
         }
@@ -589,7 +589,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.reversal == 10);
             CHECK(input.mean == 50);
             CHECK(input.sigma == 5);
-            CHECK(input.randomSeed == nonstd::nullopt);
+            CHECK(input.randomSeed == std::nullopt);
             CHECK(input.representsPhysicalElectrode == false);
         }
         {
@@ -692,17 +692,17 @@ TEST_CASE("SimulationConfig") {
         CHECK(overrides[0].spontMinis == 0.01);
         CHECK(overrides[0].modoverride == "GluSynapse");
         CHECK(overrides[0].delay == 0.5);
-        CHECK(overrides[0].synapseDelayOverride == nonstd::nullopt);
-        CHECK(overrides[0].synapseConfigure == nonstd::nullopt);
-        CHECK(overrides[0].neuromodulationDtc == nonstd::nullopt);
-        CHECK(overrides[0].neuromodulationStrength == nonstd::nullopt);
+        CHECK(overrides[0].synapseDelayOverride == std::nullopt);
+        CHECK(overrides[0].synapseConfigure == std::nullopt);
+        CHECK(overrides[0].neuromodulationDtc == std::nullopt);
+        CHECK(overrides[0].neuromodulationStrength == std::nullopt);
 
         CHECK(overrides[1].name == "GABAB_erev");
-        CHECK(overrides[1].spontMinis == nonstd::nullopt);
+        CHECK(overrides[1].spontMinis == std::nullopt);
         CHECK(overrides[1].synapseDelayOverride == 0.5);
         CHECK(overrides[1].delay == 0);
         CHECK(overrides[1].synapseConfigure == "%s.e_GABAA = -82.0 tau_d_GABAB_ProbGABAAB_EMS = 77");
-        CHECK(overrides[1].modoverride == nonstd::nullopt);
+        CHECK(overrides[1].modoverride == std::nullopt);
         CHECK(overrides[1].neuromodulationDtc == 100);
         CHECK(overrides[1].neuromodulationStrength == 0.75);
         REQUIRE_THAT(config.getMetaData(),
@@ -747,7 +747,7 @@ TEST_CASE("SimulationConfig") {
         CHECK(config.getNetwork() == network.lexically_normal());
         CHECK(config.getTargetSimulator() == SimulatorType::UNSPECIFIED);
         CHECK(config.getNodeSetsFile() == "");  // network file is not readable so default empty
-        CHECK(config.getNodeSet() == nonstd::nullopt);  // default
+        CHECK(config.getNodeSet() == std::nullopt);  // default
         CHECK(config.getRun().stimulusSeed == 0);
         CHECK(config.getRun().ionchannelSeed == 0);
         CHECK(config.getRun().minisSeed == 0);

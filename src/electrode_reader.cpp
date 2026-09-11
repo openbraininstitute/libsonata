@@ -120,7 +120,7 @@ void discoverElectrodeMetadata(const HighFive::Group& electrodes_group,
 
 /// Resolve an optional electrode Selection into concrete column indices.
 /// Returns all indices if nullopt, filtered valid indices if provided, empty if empty selection.
-std::vector<uint64_t> resolveElectrodeSelection(const nonstd::optional<Selection>& electrode_ids,
+std::vector<uint64_t> resolveElectrodeSelection(const std::optional<Selection>& electrode_ids,
                                                 size_t n_electrodes) {
     std::vector<uint64_t> selected;
     if (!electrode_ids) {
@@ -234,7 +234,7 @@ void readAndScatter(const HighFive::DataSet& sf_dset,
 
 
 /// Uses binary search on the sorted index. Nodes not found are silently skipped.
-NodeLayout resolveNodeSelection(const nonstd::optional<Selection>& node_ids,
+NodeLayout resolveNodeSelection(const std::optional<Selection>& node_ids,
                                 const std::vector<NodeID>& all_node_ids,
                                 const Selection::Ranges& all_ranges,
                                 const std::vector<uint64_t>& sorted_index) {
@@ -333,8 +333,8 @@ std::vector<std::string> ElectrodeReader::Population::getElectrodeTypes() const 
 
 
 ElectrodeScalingFactors ElectrodeReader::Population::get(
-    const nonstd::optional<Selection>& node_ids,
-    const nonstd::optional<Selection>& electrode_ids) const {
+    const std::optional<Selection>& node_ids,
+    const std::optional<Selection>& electrode_ids) const {
     ElectrodeScalingFactors result;
 
     const auto selected_electrodes = resolveElectrodeSelection(electrode_ids, n_electrodes_);

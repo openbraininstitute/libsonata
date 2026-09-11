@@ -845,15 +845,15 @@ R"doc(Parameter ``node_ids``:
 
 Parameter ``tstart``:
     return voltages occurring on or after tstart.
-    tstart=nonstd::nullopt indicates no limit.
+    tstart=std::nullopt indicates no limit.
 
 Parameter ``tstop``:
     return voltages occurring on or before tstop.
-    tstop=nonstd::nullopt indicates no limit.
+    tstop=std::nullopt indicates no limit.
 
 Parameter ``tstride``:
     indicates every how many timesteps we read data.
-    tstride=nonstd::nullopt indicates that all timesteps are read.
+    tstride=std::nullopt indicates that all timesteps are read.
 
 Parameter ``block_gap_limit``:
     gap limit between each IO block while fetching data from storage.)doc";

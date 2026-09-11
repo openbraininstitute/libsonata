@@ -11,7 +11,7 @@
 
 #include <bbp/sonata/config.h>
 
-#include <bbp/sonata/optional.hpp>
+#include <optional>
 #include <regex>
 #include <set>
 #include <string>
@@ -24,21 +24,21 @@
 #include "utils.h"
 
 // Add a specialization of adl_serializer to the nlohmann namespace for conversion from/to
-// nonstd::optional
+// std::optional
 namespace nlohmann {
 template <typename T>
-struct adl_serializer<nonstd::optional<T>> {
-    static void to_json(json& j, const nonstd::optional<T>& opt) {
-        if (opt == nonstd::nullopt) {
+struct adl_serializer<std::optional<T>> {
+    static void to_json(json& j, const std::optional<T>& opt) {
+        if (opt == std::nullopt) {
             j = nullptr;
         } else {
             j = *opt;
         }
     }
 
-    static void from_json(const json& j, nonstd::optional<T>& opt) {
+    static void from_json(const json& j, std::optional<T>& opt) {
         if (j.is_null()) {
-            opt = nonstd::nullopt;
+            opt = std::nullopt;
         } else {
             opt = j.get<T>();
         }
@@ -372,12 +372,12 @@ template <typename Type>
 void parseOptional(const nlohmann::json& it,
                    const char* name,
                    Type& buf,
-                   nonstd::optional<Type> default_value = nonstd::nullopt) {
+                   std::optional<Type> default_value = std::nullopt) {
     const auto element = it.find(name);
     if (element != it.end()) {
         buf = element->get<Type>();
         raiseIfInvalidEnum(name, buf, element->dump(), std::is_enum<Type>());
-    } else if (default_value != nonstd::nullopt) {
+    } else if (default_value != std::nullopt) {
         buf = default_value.value();
     }
 }
@@ -833,14 +833,14 @@ class CircuitConfig::Parser
         return defaultValue;
     }
 
-    nonstd::optional<std::string> getOptionalJSONPath(const nlohmann::json& json,
+    std::optional<std::string> getOptionalJSONPath(const nlohmann::json& json,
                                                       const std::string& key) const {
         auto value = getJSONValue<std::string>(json, key);
         if (!value.empty()) {
             return toAbsolute(_basePath, value);
         }
 
-        return nonstd::nullopt;
+        return std::nullopt;
     }
 
     std::string getJSONPath(const nlohmann::json& json,
@@ -1463,11 +1463,11 @@ class SimulationConfig::Parser
         return val;
     }
 
-    nonstd::optional<std::string> parseNodeSet() const {
+    std::optional<std::string> parseNodeSet() const {
         if (_json.contains("node_set")) {
             return {_json["node_set"]};
         } else {
-            return nonstd::nullopt;
+            return std::nullopt;
         }
     }
 
@@ -1737,7 +1737,7 @@ const std::string& SimulationConfig::getCompartmentSetsFile() const noexcept {
     return _compartmentSetsFile;
 }
 
-const nonstd::optional<std::string>& SimulationConfig::getNodeSet() const noexcept {
+const std::optional<std::string>& SimulationConfig::getNodeSet() const noexcept {
     return _nodeSet;
 }
 
