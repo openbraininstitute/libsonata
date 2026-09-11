@@ -418,10 +418,10 @@ class SONATA_API SimulationConfig
     };
 
     using Modification = std::variant<ModificationTTX,
-                                         ModificationConfigureAllSections,
-                                         ModificationSectionList,
-                                         ModificationSection,
-                                         ModificationCompartmentSet>;
+                                      ModificationConfigureAllSections,
+                                      ModificationSectionList,
+                                      ModificationSection,
+                                      ModificationCompartmentSet>;
 
     /**
      * Parameters defining global experimental conditions.
@@ -774,21 +774,21 @@ class SONATA_API SimulationConfig
     };
 
     using Input = std::variant<InputLinear,
-                                  InputRelativeLinear,
-                                  InputPulse,
-                                  InputSinusoidal,
-                                  InputSubthreshold,
-                                  InputHyperpolarizing,
-                                  InputSynapseReplay,
-                                  InputSeclamp,
-                                  InputNoise,
-                                  InputShotNoise,
-                                  InputRelativeShotNoise,
-                                  InputAbsoluteShotNoise,
-                                  InputOrnsteinUhlenbeck,
-                                  InputRelativeOrnsteinUhlenbeck,
-                                  InputSpatiallyUniformEField,
-                                  InputPoissonSpike>;
+                               InputRelativeLinear,
+                               InputPulse,
+                               InputSinusoidal,
+                               InputSubthreshold,
+                               InputHyperpolarizing,
+                               InputSynapseReplay,
+                               InputSeclamp,
+                               InputNoise,
+                               InputShotNoise,
+                               InputRelativeShotNoise,
+                               InputAbsoluteShotNoise,
+                               InputOrnsteinUhlenbeck,
+                               InputRelativeOrnsteinUhlenbeck,
+                               InputSpatiallyUniformEField,
+                               InputPoissonSpike>;
 
     using InputMap = std::unordered_map<std::string, Input>;
 

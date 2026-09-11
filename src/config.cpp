@@ -20,8 +20,8 @@
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 
-#include <filesystem>
 #include "utils.h"
+#include <filesystem>
 
 // Add a specialization of adl_serializer to the nlohmann namespace for conversion from/to
 // std::optional
@@ -833,7 +833,7 @@ class CircuitConfig::Parser
     }
 
     std::optional<std::string> getOptionalJSONPath(const nlohmann::json& json,
-                                                      const std::string& key) const {
+                                                   const std::string& key) const {
         auto value = getJSONValue<std::string>(json, key);
         if (!value.empty()) {
             return toAbsolute(_basePath, value);
@@ -1528,8 +1528,7 @@ class SimulationConfig::Parser
                 }
                 break;
             case InputBase::InputType::extracellular_stimulation:
-                if (!std::holds_alternative<SimulationConfig::InputSpatiallyUniformEField>(
-                        input)) {
+                if (!std::holds_alternative<SimulationConfig::InputSpatiallyUniformEField>(input)) {
                     mismatchingModuleInputType();
                 }
                 break;

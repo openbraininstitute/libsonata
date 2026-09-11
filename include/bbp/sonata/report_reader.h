@@ -7,8 +7,8 @@
 
 #include <highfive/H5File.hpp>
 
-#include <optional>
 #include <bbp/sonata/population.h>
+#include <optional>
 
 namespace bbp {
 namespace sonata {
@@ -169,12 +169,11 @@ class SONATA_API ReportReader
          * timesteps we read data. tstride=std::nullopt indicates that all timesteps are read.
          * \param block_gap_limit gap limit between each IO block while fetching data from storage.
          */
-        DataFrame<KeyType> get(
-            const std::optional<Selection>& node_ids = std::nullopt,
-            const std::optional<double>& tstart = std::nullopt,
-            const std::optional<double>& tstop = std::nullopt,
-            const std::optional<size_t>& tstride = std::nullopt,
-            const std::optional<size_t>& block_gap_limit = std::nullopt) const;
+        DataFrame<KeyType> get(const std::optional<Selection>& node_ids = std::nullopt,
+                               const std::optional<double>& tstart = std::nullopt,
+                               const std::optional<double>& tstop = std::nullopt,
+                               const std::optional<size_t>& tstride = std::nullopt,
+                               const std::optional<size_t>& block_gap_limit = std::nullopt) const;
 
       private:
         struct NodeIdElementLayout {

@@ -352,8 +352,7 @@ std::vector<NodeID> ReportReader<T>::Population::getNodeIds() const {
 template <typename T>
 typename ReportReader<T>::Population::NodeIdElementLayout
 ReportReader<T>::Population::getNodeIdElementLayout(
-    const std::optional<Selection>& node_ids,
-    const std::optional<size_t>& _block_gap_limit) const {
+    const std::optional<Selection>& node_ids, const std::optional<size_t>& _block_gap_limit) const {
     NodeIdElementLayout result;
     std::vector<NodeID> concrete_node_ids;
     size_t element_ids_count = 0;
@@ -501,18 +500,16 @@ std::pair<size_t, size_t> ReportReader<T>::Population::getIndex(
 
 template <typename T>
 typename DataFrame<T>::DataType ReportReader<T>::Population::getNodeIdElementIdMapping(
-    const std::optional<Selection>& node_ids,
-    const std::optional<size_t>& block_gap_limit) const {
+    const std::optional<Selection>& node_ids, const std::optional<size_t>& block_gap_limit) const {
     return getNodeIdElementLayout(node_ids, block_gap_limit).ids;
 }
 
 template <typename T>
-DataFrame<T> ReportReader<T>::Population::get(
-    const std::optional<Selection>& node_ids,
-    const std::optional<double>& tstart,
-    const std::optional<double>& tstop,
-    const std::optional<size_t>& tstride,
-    const std::optional<size_t>& block_gap_limit) const {
+DataFrame<T> ReportReader<T>::Population::get(const std::optional<Selection>& node_ids,
+                                              const std::optional<double>& tstart,
+                                              const std::optional<double>& tstop,
+                                              const std::optional<size_t>& tstride,
+                                              const std::optional<size_t>& block_gap_limit) const {
     size_t index_start = 0;
     size_t index_stop = 0;
     std::tie(index_start, index_stop) = getIndex(tstart, tstop);

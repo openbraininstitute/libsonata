@@ -333,8 +333,7 @@ std::vector<std::string> ElectrodeReader::Population::getElectrodeTypes() const 
 
 
 ElectrodeScalingFactors ElectrodeReader::Population::get(
-    const std::optional<Selection>& node_ids,
-    const std::optional<Selection>& electrode_ids) const {
+    const std::optional<Selection>& node_ids, const std::optional<Selection>& electrode_ids) const {
     ElectrodeScalingFactors result;
 
     const auto selected_electrodes = resolveElectrodeSelection(electrode_ids, n_electrodes_);

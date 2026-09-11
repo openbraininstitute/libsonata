@@ -9,8 +9,8 @@
 #include <bbp/sonata/electrode_reader.h>
 #include <bbp/sonata/node_sets.h>
 #include <bbp/sonata/nodes.h>
-#include <optional>
 #include <bbp/sonata/report_reader.h>
+#include <optional>
 #include <variant>
 
 #include "generated/docstrings.h"

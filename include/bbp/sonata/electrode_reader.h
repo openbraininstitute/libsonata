@@ -8,8 +8,8 @@
 #include <highfive/H5File.hpp>
 
 #include <bbp/sonata/common.h>
-#include <optional>
 #include <bbp/sonata/selection.h>
+#include <optional>
 
 namespace bbp {
 namespace sonata {
