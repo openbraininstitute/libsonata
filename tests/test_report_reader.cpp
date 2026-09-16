@@ -61,6 +61,8 @@ TEST_CASE("SomaReportReader limits", "[base]") {
     // DataType of dataset 'data' should be Float32
     auto pop2 = reader.openPopulation("soma1");
     REQUIRE_THROWS(pop2.get());
+
+    REQUIRE_THROWS(SomaReportReader("./data/report-invalid-tstep.h5").openPopulation("RingA"));
 }
 
 TEST_CASE("SomaReportReader", "[base]") {
