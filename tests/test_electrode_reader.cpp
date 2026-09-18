@@ -95,7 +95,7 @@ TEST_CASE("ElectrodeReader::Population::get with electrode selection", "[electro
     const ElectrodeReader reader(TEST_FILE);
     const auto& pop = reader.openPopulation("NodeA");
 
-    auto df = pop.get(nonstd::nullopt, Selection({{1, 2}}));
+    auto df = pop.get(std::nullopt, Selection({{1, 2}}));
 
     // All 9 rows, but only electrode 1
     REQUIRE(df.ids.size() == 9);
@@ -134,7 +134,7 @@ TEST_CASE("ElectrodeReader::Population::get with empty selection", "[electrode]"
     }
 
     SECTION("empty electrode selection") {
-        auto df = pop.get(nonstd::nullopt, Selection({}));
+        auto df = pop.get(std::nullopt, Selection({}));
         REQUIRE(df.ids.empty());
         REQUIRE(df.data.empty());
     }
@@ -159,7 +159,7 @@ TEST_CASE("ElectrodeReader::Population::get with out-of-range electrode_ids", "[
     const auto& pop = reader.openPopulation("NodeA");
 
     // Electrode 99 doesn't exist
-    auto df = pop.get(nonstd::nullopt, Selection({{99, 100}}));
+    auto df = pop.get(std::nullopt, Selection({{99, 100}}));
     REQUIRE(df.ids.empty());
     REQUIRE(df.data.empty());
 }

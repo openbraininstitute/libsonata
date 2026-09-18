@@ -8,8 +8,8 @@
 #include <highfive/H5File.hpp>
 
 #include <bbp/sonata/common.h>
-#include <bbp/sonata/optional.hpp>
 #include <bbp/sonata/selection.h>
+#include <optional>
 
 namespace bbp {
 namespace sonata {
@@ -65,8 +65,8 @@ class SONATA_API ElectrodeReader
          * \return ElectrodeScalingFactors with the submatrix of scaling factors.
          */
         ElectrodeScalingFactors get(
-            const nonstd::optional<Selection>& node_ids = nonstd::nullopt,
-            const nonstd::optional<Selection>& electrode_ids = nonstd::nullopt) const;
+            const std::optional<Selection>& node_ids = std::nullopt,
+            const std::optional<Selection>& electrode_ids = std::nullopt) const;
 
         /**
          * Return electrode names ordered by column index.

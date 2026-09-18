@@ -1,4 +1,5 @@
-#include "../extlib/filesystem.hpp"
+#include <filesystem>
+#include <fstream>
 
 #include "utils.h"  // readFile
 
@@ -8,7 +9,7 @@
 namespace bbp {
 namespace sonata {
 
-namespace fs = ghc::filesystem;
+namespace fs = std::filesystem;
 
 namespace detail {
 

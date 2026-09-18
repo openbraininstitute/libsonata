@@ -73,7 +73,8 @@ jobs:
         if: runner.os == 'macOS'
 
         env:
-          CIBW_ENVIRONMENT_PASS: "CMAKE_ARGS CMAKE_PREFIX_PATH"
+          MACOSX_DEPLOYMENT_TARGET: "10.15"
+          CIBW_ENVIRONMENT_PASS: "CMAKE_ARGS CMAKE_PREFIX_PATH MACOSX_DEPLOYMENT_TARGET"
           CIBW_BEFORE_BUILD: |
             # CMake complains if the dependencies come from within the same tree
             # as the source, so we'll just pretend they are elsewhere

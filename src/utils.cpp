@@ -9,13 +9,13 @@
 
 #include "utils.h"
 
-#include "../extlib/filesystem.hpp"
+#include <filesystem>
 
 #include <fstream>
 #include <unordered_set>
 
 std::string readFile(const std::string& path) {
-    namespace fs = ghc::filesystem;
+    namespace fs = std::filesystem;
 
     if (!fs::is_regular_file(path)) {
         throw std::runtime_error("Path `" + path + "` is not a file");
