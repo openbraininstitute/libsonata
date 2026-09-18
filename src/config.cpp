@@ -114,7 +114,8 @@ NLOHMANN_JSON_SERIALIZE_ENUM(
      {SimulationConfig::InputBase::Module::relative_ornstein_uhlenbeck,
       "relative_ornstein_uhlenbeck"},
      {SimulationConfig::InputBase::Module::spatially_uniform_e_field, "spatially_uniform_e_field"},
-     {SimulationConfig::InputBase::Module::poisson, "poisson"}})
+     {SimulationConfig::InputBase::Module::poisson, "poisson"},
+     {SimulationConfig::InputBase::Module::replay, "replay"}})
 
 NLOHMANN_JSON_SERIALIZE_ENUM(
     SimulationConfig::InputBase::InputType,
@@ -696,6 +697,15 @@ SimulationConfig::Input parseInputModule(const nlohmann::json& valueIt,
         parseCommon(ret);
         parseMandatory(valueIt, "rate", debugStr, ret.rate);
         parseMandatory(valueIt, "weight", debugStr, ret.weight);
+        return ret;
+    }
+    case Module::replay: {
+        SimulationConfig::InputReplay ret;
+        parseCommon(ret);
+        parseMandatory(valueIt, "path", debugStr, ret.path);
+        ret.path = toAbsolute(basePath, ret.path);
+
+        parseMandatory(valueIt, "interpolate", debugStr, ret.interpolate);
         return ret;
     }
     default:
@@ -1522,7 +1532,8 @@ class SimulationConfig::Parser
                       std::holds_alternative<SimulationConfig::InputHyperpolarizing>(input) ||
                       std::holds_alternative<SimulationConfig::InputOrnsteinUhlenbeck>(input) ||
                       std::holds_alternative<SimulationConfig::InputRelativeOrnsteinUhlenbeck>(
-                          input))) {
+                          input) ||
+                      std::holds_alternative<SimulationConfig::InputReplay>(input))) {
                     mismatchingModuleInputType();
                 }
             } break;

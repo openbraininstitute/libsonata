@@ -519,8 +519,8 @@ class SONATA_API SimulationConfig
             ornstein_uhlenbeck,
             relative_ornstein_uhlenbeck,
             spatially_uniform_e_field,
-            poisson
-
+            poisson,
+            replay
         };
 
         enum class InputType {
@@ -773,6 +773,14 @@ class SONATA_API SimulationConfig
         double weight{};
     };
 
+    struct InputReplay: public InputBase {
+        /// Path to the input file to replay.
+        std::string path;
+
+        /// Whether the signal should be interpolated.
+        bool interpolate;
+    };
+
     using Input = std::variant<std::monostate,
                                InputLinear,
                                InputRelativeLinear,
@@ -789,7 +797,8 @@ class SONATA_API SimulationConfig
                                InputOrnsteinUhlenbeck,
                                InputRelativeOrnsteinUhlenbeck,
                                InputSpatiallyUniformEField,
-                               InputPoissonSpike>;
+                               InputPoissonSpike,
+                               InputReplay>;
 
     using InputMap = std::unordered_map<std::string, Input>;
 
