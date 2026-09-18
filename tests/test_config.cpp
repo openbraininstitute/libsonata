@@ -49,7 +49,7 @@ TEST_CASE("CircuitConfig") {
         CHECK(endswith(config.getEdgePopulationProperties("edges-AB").typesPath, ""));
         CHECK(endswith(config.getEdgePopulationProperties("edges-AB").elementsPath, "tests/data/edges1.h5"));
 
-        CHECK_NOTHROW((void)nlohmann::json::parse(config.getExpandedJSON()));
+        CHECK_NOTHROW(nlohmann::json::parse(config.getExpandedJSON()).size());
         CHECK(nlohmann::json::parse(config.getExpandedJSON())
                   .at("components")
                   .at("morphologies_dir")
@@ -412,7 +412,7 @@ TEST_CASE("SimulationConfig") {
         CHECK(config.getReport("compartment_set_v").compartments == SimulationConfig::Report::Compartments::invalid);
         CHECK(config.getReport("compartment_set_v").compartment_set == "cs0");
 
-        CHECK_NOTHROW(nlohmann::json::parse(config.getExpandedJSON()));
+        CHECK_NOTHROW(nlohmann::json::parse(config.getExpandedJSON()).size());
         CHECK(config.getBasePath() == basePath.lexically_normal());
 
         const auto network = fs::absolute(basePath / fs::path("circuit_config.json"));
@@ -565,6 +565,7 @@ TEST_CASE("SimulationConfig") {
             CHECK(input.duration == 250);
             CHECK(input.nodeSet == "Column");
             CHECK(endswith(input.path, "current_replay.h5"));
+            CHECK(input.interpolate);
         }
         {
             const auto input = std::get<SimulationConfig::InputSeclamp>(config.getInput("ex_seclamp"));
@@ -1463,7 +1464,8 @@ TEST_CASE("SimulationConfig") {
                   "delay": 5.0,
                   "duration": 250.0,
                   "path": "current_replay.h5",
-                  "node_set": "Column"
+                  "node_set": "Column",
+                  "interpolate": true
                 }
               }
             })";

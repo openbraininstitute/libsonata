@@ -921,6 +921,7 @@ class TestSimulationConfig(unittest.TestCase):
               "delay": 5.0,
               "duration": 250.0,
               "path": "current_replay.h5",
+              "interpolate": True,
               "node_set": "Column"
             }
           }
