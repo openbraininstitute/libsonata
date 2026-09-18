@@ -776,6 +776,9 @@ class SONATA_API SimulationConfig
     struct InputReplay: public InputBase {
         /// Path to the input file to replay.
         std::string path;
+
+        /// Whether the signal should be interpolated.
+        bool interpolate;
     };
 
     using Input = std::variant<std::monostate,

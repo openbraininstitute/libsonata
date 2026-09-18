@@ -1303,6 +1303,8 @@ R"doc(signal std dev as percentage of a cell’s threshold current
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputReplay = R"doc()doc";
 
+static const char *__doc_bbp_sonata_SimulationConfig_InputReplay_interpolate = R"doc(Whether the signal should be interpolated.)doc";
+
 static const char *__doc_bbp_sonata_SimulationConfig_InputReplay_path = R"doc(Path to the input file to replay.)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_InputSeclamp = R"doc()doc";

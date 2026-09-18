@@ -1292,7 +1292,10 @@ PYBIND11_MODULE(_libsonata, m) {
     py::class_<SimulationConfig::InputReplay, SimulationConfig::InputBase>(simConf, "Replay")
         .def_readonly("path",
                       &SimulationConfig::InputReplay::path,
-                      "Path to the input file to replay.");
+                      DOC_SIMULATIONCONFIG(InputReplay, path))
+        .def_readonly("interpolate",
+                      &SimulationConfig::InputReplay::interpolate,
+                      DOC_SIMULATIONCONFIG(InputReplay, interpolate));
 
     py::enum_<SimulationConfig::InputBase::Module>(inputBase, "Module")
         .value("linear", SimulationConfig::InputBase::Module::linear)

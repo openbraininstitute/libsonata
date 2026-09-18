@@ -704,6 +704,8 @@ SimulationConfig::Input parseInputModule(const nlohmann::json& valueIt,
         parseCommon(ret);
         parseMandatory(valueIt, "path", debugStr, ret.path);
         ret.path = toAbsolute(basePath, ret.path);
+
+        parseMandatory(valueIt, "interpolate", debugStr, ret.interpolate);
         return ret;
     }
     default:
