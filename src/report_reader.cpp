@@ -315,6 +315,21 @@ ReportReader<T>::Population::Population(const HighFive::File& file,
         tstop_ = times[1];
         tstep_ = times[2];
         mapping_group.getDataSet("time").getAttribute("units").read(time_units_);
+
+
+        if (tstart_ < 0) {
+            throw SonataError("Start is negative");
+        } else if (tstop_ < 0) {
+            throw SonataError("End is negative");
+        } else if (tstep_ < 0) {
+            throw SonataError("Step is negative");
+        } else if (tstart_ > tstop_) {
+            throw SonataError(fmt::format(
+                "Report start time ({}) comes before report end time: ({})", tstart_, tstop_));
+        } else if (tstep_ < EPSILON) {
+            throw SonataError(fmt::format("Report step time ({}) is too close to 0", tstep_));
+        }
+
         size_t i = 0;
         for (double t = tstart_; t < tstop_ - EPSILON; t += tstep_, ++i) {
             times_index_.emplace_back(i, t);
