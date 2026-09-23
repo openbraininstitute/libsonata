@@ -8,8 +8,31 @@
 #include <bbp/sonata/config.h>
 
 #include <cstdio>
+#include <filesystem>
 #include <string>
-#include <vector>
+
+
+namespace {
+namespace fs = std::filesystem;
+class ScopedChdir {
+public:
+    explicit ScopedChdir(const fs::path& newDir)
+        : original_(fs::current_path()) {
+        fs::current_path(newDir);
+    }
+
+    ~ScopedChdir() {
+        std::error_code ec;
+        fs::current_path(original_, ec);
+    }
+
+    ScopedChdir(const ScopedChdir&) = delete;
+    ScopedChdir& operator=(const ScopedChdir&) = delete;
+
+private:
+    fs::path original_;
+};
+} // anonymous
 
 using namespace bbp::sonata;
 
@@ -23,7 +46,8 @@ bool contains(const std::string& haystack, const std::string& needle) {
 
 TEST_CASE("CircuitConfig") {
     SECTION("Simple") {
-        const auto config = CircuitConfig::fromFile("./data/config/circuit_config.json");
+        ScopedChdir chdir("data/config/");
+        const auto config = CircuitConfig::fromFile("circuit_config.json");
         CHECK(config.getNodeSetsPath()[0] == '/');  // is an absolute path
         CHECK(endswith(config.getNodeSetsPath(), "node_sets.json"));
 
