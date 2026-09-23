@@ -1167,7 +1167,7 @@ CircuitConfig::CircuitConfig(const std::string& contents, const std::string& bas
 }
 
 CircuitConfig CircuitConfig::fromFile(const std::string& path) {
-    return {readFile(path), fs::path(path).parent_path()};
+    return {readFile(path), fs::absolute(fs::path(path)).parent_path()};
 }
 
 CircuitConfig::ConfigStatus CircuitConfig::getCircuitConfigStatus() const {
@@ -1684,7 +1684,7 @@ SimulationConfig::SimulationConfig(const std::string& content, const std::string
 }
 
 SimulationConfig SimulationConfig::fromFile(const std::string& path) {
-    return SimulationConfig(readFile(path), fs::path(path).parent_path());
+    return {readFile(path), fs::absolute(fs::path(path)).parent_path()};
 }
 
 const std::string& SimulationConfig::getBasePath() const noexcept {
