@@ -961,7 +961,10 @@ PYBIND11_MODULE(_libsonata, m) {
                       DOC_SIMULATIONCONFIG(Report, enabled))
         .def_readonly("electrodes_file",
                       &SimulationConfig::Report::electrodesFile,
-                      DOC_SIMULATIONCONFIG(Report, electrodesFile));
+                      DOC_SIMULATIONCONFIG(Report, electrodesFile))
+        .def_readonly("method",
+                      &SimulationConfig::Report::method,
+                      DOC_SIMULATIONCONFIG(Report, method));
 
     py::enum_<SimulationConfig::Report::Sections>(report, "Sections")
         .value("invalid", SimulationConfig::Report::Sections::invalid)
@@ -996,6 +999,10 @@ PYBIND11_MODULE(_libsonata, m) {
         .value("invalid", SimulationConfig::Report::Compartments::invalid)
         .value("center", SimulationConfig::Report::Compartments::center)
         .value("all", SimulationConfig::Report::Compartments::all);
+
+    py::enum_<SimulationConfig::Report::Method>(report, "Method")
+        .value("by_cell", SimulationConfig::Report::Method::by_cell)
+        .value("sum", SimulationConfig::Report::Method::sum);
 
     py::class_<SimulationConfig::InputBase> inputBase(simConf, "InputBase");
     inputBase

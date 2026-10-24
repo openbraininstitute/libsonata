@@ -94,6 +94,10 @@ NLOHMANN_JSON_SERIALIZE_ENUM(SimulationConfig::Report::Compartments,
                              {{SimulationConfig::Report::Compartments::invalid, nullptr},
                               {SimulationConfig::Report::Compartments::center, "center"},
                               {SimulationConfig::Report::Compartments::all, "all"}})
+NLOHMANN_JSON_SERIALIZE_ENUM(SimulationConfig::Report::Method,
+                             {{SimulationConfig::Report::Method::invalid, nullptr},
+                              {SimulationConfig::Report::Method::by_cell, "by_cell"},
+                              {SimulationConfig::Report::Method::sum, "sum"}})
 
 NLOHMANN_JSON_SERIALIZE_ENUM(
     SimulationConfig::InputBase::Module,
@@ -1388,6 +1392,7 @@ class SimulationConfig::Parser
                         fmt::format("'electrodes_file' must not be empty in {}", debugStr));
                 }
                 report.electrodesFile = toAbsolute(_basePath, report.electrodesFile);
+                parseOptional(valueIt, "method", report.method, {Report::Method::by_cell});
             } else {
                 parseMandatory(valueIt, "variable_name", debugStr, report.variableName);
                 if (report.variableName.empty()) {
@@ -1412,6 +1417,13 @@ class SimulationConfig::Parser
                                     "It is only valid for LFP reports.",
                                     debugStr));
                 }
+                if (valueIt.find("method") != valueIt.end()) {
+                    throw SonataError(
+                        fmt::format("Field 'method' is not allowed in {}. "
+                                    "It is only valid for LFP reports.",
+                                    debugStr));
+                }
+                report.method = Report::Method::by_cell;
             }
 
             const auto extension = fs::path(report.fileName).extension().string();
