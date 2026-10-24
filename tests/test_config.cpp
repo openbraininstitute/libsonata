@@ -431,6 +431,8 @@ TEST_CASE("SimulationConfig") {
         CHECK(config.getReport("cell_imembrane").endTime == 500.);
         CHECK(config.getReport("cell_imembrane").variableName == "i_membrane, IClamp");
         CHECK(config.getReport("lfp").type == SimulationConfig::Report::Type::lfp);
+        CHECK(config.getReport("lfp").method == SimulationConfig::Report::Method::by_cell);
+        CHECK(config.getReport("compartment").method == SimulationConfig::Report::Method::by_cell);
         CHECK(config.getReport("compartment_set_v").type == SimulationConfig::Report::Type::compartment_set);
         CHECK(config.getReport("compartment_set_v").sections == SimulationConfig::Report::Sections::invalid);
         CHECK(config.getReport("compartment_set_v").compartments == SimulationConfig::Report::Compartments::invalid);
@@ -1257,6 +1259,54 @@ TEST_CASE("SimulationConfig") {
                                  Catch::Matchers::Message(
                                      "Field 'compartments' is not allowed for reports of type "
                                      "'compartment_set'."));
+        }
+        {  // Invalid method in an LFP report
+            auto contents = R"({
+              "run": {
+                "dt": 0.05,
+                "tstop": 1000,
+                "random_seed": 0
+              },
+              "reports": {
+                "test": {
+                   "type": "lfp",
+                   "method": "mean",
+                   "dt": 0.05,
+                   "start_time": 0,
+                   "end_time": 500,
+                   "electrodes_file": "electrodes.h5"
+                }
+              }
+            })";
+            CHECK_THROWS_MATCHES(SimulationConfig(contents, "./"),
+                                 SonataError,
+                                 Catch::Matchers::Message(
+                                     "Invalid value: '\"mean\"' for key 'method'"));
+        }
+        {  // The "method" key is only allowed in LFP reports
+            auto contents = R"({
+              "run": {
+                "dt": 0.05,
+                "tstop": 1000,
+                "random_seed": 0
+              },
+              "reports": {
+                "test": {
+                   "cells": "nodesetstring",
+                   "type": "compartment",
+                   "method": "sum",
+                   "variable_name": "variablestring",
+                   "dt": 0.05,
+                   "start_time": 0,
+                   "end_time": 500
+                }
+              }
+            })";
+            CHECK_THROWS_MATCHES(SimulationConfig(contents, "./"),
+                                 SonataError,
+                                 Catch::Matchers::Message(
+                                     "Field 'method' is not allowed in report test. "
+                                     "It is only valid for LFP reports."));
         }
         {  // wrong input_type in an input object
             auto contents = R"({

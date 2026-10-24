@@ -1413,6 +1413,70 @@ class TestSimulationConfig(unittest.TestCase):
         }
         self.assertRaises(SonataError, SimulationConfig, json.dumps(contents), './')
 
+    def test_lfp_report_method(self):
+        """An LFP report's method defaults to by_cell, and can be sum."""
+        contents = {
+            "run": {"tstop": 100, "dt": 0.025, "random_seed": 1},
+            "reports": {
+                "per_cell": {
+                    "type": "lfp",
+                    "dt": 0.1,
+                    "start_time": 0,
+                    "end_time": 100,
+                    "electrodes_file": "electrodes/electrode_weights.h5"
+                },
+                "summed": {
+                    "type": "lfp",
+                    "method": "sum",
+                    "dt": 0.1,
+                    "start_time": 0,
+                    "end_time": 100,
+                    "electrodes_file": "electrodes/electrode_weights.h5"
+                }
+            }
+        }
+        config = SimulationConfig(json.dumps(contents), './')
+        self.assertEqual(config.report('per_cell').method, SimulationConfig.Report.Method.by_cell)
+        self.assertEqual(config.report('summed').method, SimulationConfig.Report.Method.sum)
+
+    def test_lfp_report_rejects_invalid_method(self):
+        """An LFP report's method must be by_cell or sum."""
+        contents = {
+            "run": {"tstop": 100, "dt": 0.025, "random_seed": 1},
+            "reports": {
+                "my_lfp": {
+                    "type": "lfp",
+                    "method": "mean",
+                    "dt": 0.1,
+                    "start_time": 0,
+                    "end_time": 100,
+                    "electrodes_file": "electrodes/electrode_weights.h5"
+                }
+            }
+        }
+        with self.assertRaises(SonataError) as ctx:
+            SimulationConfig(json.dumps(contents), './')
+        self.assertIn("method", str(ctx.exception))
+
+    def test_non_lfp_report_rejects_method(self):
+        """method on a non-LFP report should raise an error."""
+        contents = {
+            "run": {"tstop": 100, "dt": 0.025, "random_seed": 1},
+            "reports": {
+                "my_report": {
+                    "type": "compartment",
+                    "variable_name": "v",
+                    "method": "sum",
+                    "dt": 0.1,
+                    "start_time": 0,
+                    "end_time": 100
+                }
+            }
+        }
+        with self.assertRaises(SonataError) as ctx:
+            SimulationConfig(json.dumps(contents), './')
+        self.assertIn("method", str(ctx.exception))
+
     def test_run_rejects_electrodes_file(self):
         """electrodes_file in run section should raise an error."""
         contents = {

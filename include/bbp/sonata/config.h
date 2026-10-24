@@ -463,6 +463,7 @@ class SONATA_API SimulationConfig
         enum class Type { invalid = -1, compartment, lfp, summation, synapse, compartment_set };
         enum class Scaling { invalid = -1, none, area };
         enum class Compartments { invalid = -1, center, all };
+        enum class Method { invalid = -1, by_cell, sum };
 
 
         /// Node sets on which to report
@@ -497,6 +498,10 @@ class SONATA_API SimulationConfig
         bool enabled = true;
         /// Filename that contains the weights for the LFP calculation (LFP reports only).
         std::string electrodesFile;
+        /// For LFP reports, whether to write each cell's contribution to each electrode
+        /// ("by_cell") or, for each population, the sum over its cells ("sum").
+        /// Default value: "by_cell"
+        Method method;
     };
 
     using ReportMap = std::unordered_map<std::string, Report>;
