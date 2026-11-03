@@ -30,7 +30,15 @@ namespace sonata {
 
 using variantValueType = std::variant<bool, std::string, int, double>;
 
-enum class SimulatorType { invalid = -1, NEURON, CORENEURON, LEARNINGENGINE, BRIAN2, UNSPECIFIED };
+enum class SimulatorType {
+    invalid = -1,
+    NEURON,
+    CORENEURON,
+    LEARNINGENGINE,
+    BRIAN2,
+    NEST,
+    UNSPECIFIED
+};
 
 struct CommonPopulationProperties {
     /**
@@ -61,6 +69,12 @@ struct CommonPopulationProperties {
      * Path to the templates for point neurons
      */
     std::string pointNeuronModelsDir;
+
+    /**
+     * Path to the directory holding the model templates referenced by the population's
+     * `model_template` attribute (NEST circuits). Population-specific; no global default.
+     */
+    std::string modelTemplateDir;
 
     /**
      * Path to the mechanisms required for the circuit
