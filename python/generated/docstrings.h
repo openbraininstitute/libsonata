@@ -172,6 +172,10 @@ static const char *__doc_bbp_sonata_CommonPopulationProperties_morphologiesDir =
 
 static const char *__doc_bbp_sonata_CommonPopulationProperties_pointNeuronModelsDir = R"doc(Path to the templates for point neurons)doc";
 
+static const char *__doc_bbp_sonata_CommonPopulationProperties_modelTemplateDir = R"doc(Path to the directory holding the model templates referenced by the
+population's `model_template` attribute (NEST circuits).
+Population-specific; no global default.)doc";
+
 static const char *__doc_bbp_sonata_CommonPopulationProperties_type = R"doc(Population type)doc";
 
 static const char *__doc_bbp_sonata_CommonPopulationProperties_typesPath =

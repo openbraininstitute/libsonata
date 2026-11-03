@@ -685,6 +685,9 @@ PYBIND11_MODULE(_libsonata, m) {
         .def_readonly("point_neuron_models_dir",
                       &CommonPopulationProperties::pointNeuronModelsDir,
                       DOC_COMMON_POPULATION_PROPERTIES(pointNeuronModelsDir))
+        .def_readonly("model_template_dir",
+                      &CommonPopulationProperties::modelTemplateDir,
+                      DOC_COMMON_POPULATION_PROPERTIES(modelTemplateDir))
         .def_readonly("mechanisms_dir",
                       &CommonPopulationProperties::mechanismsDir,
                       DOC_COMMON_POPULATION_PROPERTIES(mechanismsDir))
@@ -733,6 +736,7 @@ PYBIND11_MODULE(_libsonata, m) {
         .value("CORENEURON", SimulatorType::CORENEURON)
         .value("LearningEngine", SimulatorType::LEARNINGENGINE)
         .value("Brian2", SimulatorType::BRIAN2)
+        .value("NEST", SimulatorType::NEST)
         .value("UNSPECIFIED", SimulatorType::UNSPECIFIED);
 
     py::enum_<CircuitConfig::ConfigStatus>(m, "CircuitConfigStatus")
