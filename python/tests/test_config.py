@@ -249,7 +249,7 @@ class TestCircuitConfig(unittest.TestCase):
                     "nodes_file": "$BASE_DIR/nodes1.h5",
                     "populations": {
                         "nodes-A": {"type": "point_neuron",
-                                    "model_template_dir": "$BASE_DIR/templates/nodes-A"},
+                                    "point_neuron_models_dir": "$BASE_DIR/templates/nodes-A"},
                         "nodes-B": {"type": "virtual"},
                     }
                 }],
@@ -257,7 +257,7 @@ class TestCircuitConfig(unittest.TestCase):
                     "edges_file": "$BASE_DIR/edges1.h5",
                     "populations": {
                         "edges-AB": {"type": "chemical",
-                                     "model_template_dir": "$BASE_DIR/templates/edges-AB"},
+                                     "point_neuron_models_dir": "$BASE_DIR/templates/edges-AB"},
                     }
                 }]
             }
@@ -266,10 +266,38 @@ class TestCircuitConfig(unittest.TestCase):
         assert res.target_simulator == SimulatorType.NEST
         nodes = res.node_population_properties('nodes-A')
         assert nodes.type == 'point_neuron'
-        assert nodes.model_template_dir.endswith('tests/data/templates/nodes-A')
-        assert res.node_population_properties('nodes-B').model_template_dir == ''
+        assert nodes.point_neuron_models_dir.endswith('tests/data/templates/nodes-A')
+        assert res.node_population_properties('nodes-B').point_neuron_models_dir == ''
         edges = res.edge_population_properties('edges-AB')
-        assert edges.model_template_dir.endswith('tests/data/templates/edges-AB')
+        assert edges.point_neuron_models_dir.endswith('tests/data/templates/edges-AB')
+
+    def test_nest_components_default(self):
+        contents = {
+            "manifest": {"$BASE_DIR": "./"},
+            "target_simulator": "NEST",
+            "components": {"point_neuron_models_dir": "$BASE_DIR/templates/default"},
+            "networks": {
+                "nodes": [{
+                    "nodes_file": "$BASE_DIR/nodes1.h5",
+                    "populations": {
+                        "nodes-A": {"type": "point_neuron"},
+                        "nodes-B": {"type": "point_process",
+                                    "point_neuron_models_dir": "$BASE_DIR/templates/B"},
+                    }
+                }],
+                "edges": [{
+                    "edges_file": "$BASE_DIR/edges1.h5",
+                    "populations": {"edges-AB": {"type": "chemical"}}
+                }]
+            }
+        }
+        res = CircuitConfig(json.dumps(contents), PATH)
+        nodes_a = res.node_population_properties('nodes-A')
+        assert nodes_a.point_neuron_models_dir.endswith('tests/data/templates/default')
+        nodes_b = res.node_population_properties('nodes-B')
+        assert nodes_b.point_neuron_models_dir.endswith('tests/data/templates/B')
+        edges = res.edge_population_properties('edges-AB')
+        assert edges.point_neuron_models_dir.endswith('tests/data/templates/default')
 
     def test_nest_properties_raises(self):
         cases = (("nodes", "point_neuron"), ("nodes", "point_process"), ("edges", "chemical"))
@@ -281,7 +309,7 @@ class TestCircuitConfig(unittest.TestCase):
             # Without target_simulator NEST these are ordinary populations.
             CircuitConfig(json.dumps(contents), PATH)
             contents["target_simulator"] = "NEST"
-            self.assertRaisesRegex(SonataError, "model_template_dir",
+            self.assertRaisesRegex(SonataError, "point_neuron_models_dir",
                                    CircuitConfig, json.dumps(contents), PATH)
 
     def test_duplicate_population(self):

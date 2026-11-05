@@ -327,7 +327,7 @@ TEST_CASE("CircuitConfig") {
 }
 
 TEST_CASE("CircuitConfig NEST") {
-    SECTION("model_template_dir") {
+    SECTION("point_neuron_models_dir") {
         auto contents = R"({
           "manifest": { "$BASE_DIR": "./" },
           "target_simulator": "NEST",
@@ -335,29 +335,60 @@ TEST_CASE("CircuitConfig NEST") {
             "nodes": [{
               "nodes_file": "$BASE_DIR/nodes1.h5",
               "populations": {
-                "nodes-A": { "type": "point_neuron", "model_template_dir": "$BASE_DIR/templates/A" },
+                "nodes-A": { "type": "point_neuron",
+                             "point_neuron_models_dir": "$BASE_DIR/templates/A" },
                 "nodes-B": { "type": "virtual" }
               }
             }],
             "edges": [{
               "edges_file": "$BASE_DIR/edges1.h5",
               "populations": {
-                "edges-AB": { "type": "chemical", "model_template_dir": "$BASE_DIR/templates/AB" }
+                "edges-AB": { "type": "chemical",
+                              "point_neuron_models_dir": "$BASE_DIR/templates/AB" }
               }
             }]
           }
         })";
         const auto config = CircuitConfig(contents, "./");
         CHECK(config.getTargetSimulator() == SimulatorType::NEST);
-        CHECK(endswith(config.getNodePopulationProperties("nodes-A").modelTemplateDir,
+        CHECK(endswith(config.getNodePopulationProperties("nodes-A").pointNeuronModelsDir,
                        "templates/A"));
-        CHECK(config.getNodePopulationProperties("nodes-B").modelTemplateDir.empty());
-        CHECK(endswith(config.getEdgePopulationProperties("edges-AB").modelTemplateDir,
+        CHECK(config.getNodePopulationProperties("nodes-B").pointNeuronModelsDir.empty());
+        CHECK(endswith(config.getEdgePopulationProperties("edges-AB").pointNeuronModelsDir,
                        "templates/AB"));
     }
 
+    SECTION("components default") {
+        auto contents = R"({
+          "manifest": { "$BASE_DIR": "./" },
+          "target_simulator": "NEST",
+          "components": { "point_neuron_models_dir": "$BASE_DIR/templates/default" },
+          "networks": {
+            "nodes": [{
+              "nodes_file": "$BASE_DIR/nodes1.h5",
+              "populations": {
+                "nodes-A": { "type": "point_neuron" },
+                "nodes-B": { "type": "point_process",
+                             "point_neuron_models_dir": "$BASE_DIR/templates/B" }
+              }
+            }],
+            "edges": [{
+              "edges_file": "$BASE_DIR/edges1.h5",
+              "populations": { "edges-AB": { "type": "chemical" } }
+            }]
+          }
+        })";
+        const auto config = CircuitConfig(contents, "./");
+        CHECK(endswith(config.getNodePopulationProperties("nodes-A").pointNeuronModelsDir,
+                       "templates/default"));
+        CHECK(endswith(config.getNodePopulationProperties("nodes-B").pointNeuronModelsDir,
+                       "templates/B"));
+        CHECK(endswith(config.getEdgePopulationProperties("edges-AB").pointNeuronModelsDir,
+                       "templates/default"));
+    }
+
     SECTION("Exception") {
-        // NEST neuron and edge populations must define 'model_template_dir'.
+        // NEST neuron and edge populations must define 'point_neuron_models_dir'.
         auto nodes = R"({
           "manifest": { "$BASE_DIR": "./" },
           "target_simulator": "NEST",
