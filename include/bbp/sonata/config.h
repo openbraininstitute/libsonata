@@ -71,12 +71,6 @@ struct CommonPopulationProperties {
     std::string pointNeuronModelsDir;
 
     /**
-     * Path to the directory holding the model templates referenced by the population's
-     * `model_template` attribute (NEST circuits). Population-specific; no global default.
-     */
-    std::string modelTemplateDir;
-
-    /**
      * Path to the mechanisms required for the circuit
      */
     std::string mechanismsDir;

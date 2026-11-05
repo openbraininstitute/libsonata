@@ -685,9 +685,6 @@ PYBIND11_MODULE(_libsonata, m) {
         .def_readonly("point_neuron_models_dir",
                       &CommonPopulationProperties::pointNeuronModelsDir,
                       DOC_COMMON_POPULATION_PROPERTIES(pointNeuronModelsDir))
-        .def_readonly("model_template_dir",
-                      &CommonPopulationProperties::modelTemplateDir,
-                      DOC_COMMON_POPULATION_PROPERTIES(modelTemplateDir))
         .def_readonly("mechanisms_dir",
                       &CommonPopulationProperties::mechanismsDir,
                       DOC_COMMON_POPULATION_PROPERTIES(mechanismsDir))

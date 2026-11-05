@@ -226,10 +226,10 @@ template <typename PopulationProperties>
 void raiseOnNestPopulationErrors(const std::string& kind,
                                  const std::string& population,
                                  const PopulationProperties& properties) {
-    if (properties.modelTemplateDir.empty()) {
+    if (properties.pointNeuronModelsDir.empty()) {
         throw SonataError(
             fmt::format("{} population '{}' of type '{}' in a NEST circuit "
-                        "does not define 'model_template_dir'",
+                        "does not define 'point_neuron_models_dir'",
                         kind,
                         population,
                         properties.type));
@@ -1085,7 +1085,6 @@ class CircuitConfig::Parser
                     getJSONPath(popData, "biophysical_neuron_models_dir");
                 popProperties.pointNeuronModelsDir = getJSONPath(popData,
                                                                  "point_neuron_models_dir");
-                popProperties.modelTemplateDir = getJSONPath(popData, "model_template_dir");
                 popProperties.mechanismsDir = getJSONPath(popData, "mechanisms_dir");
 
                 // Overwrite those specified, if any
