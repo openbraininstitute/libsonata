@@ -236,6 +236,18 @@ void raiseOnNestPopulationErrors(const std::string& kind,
     }
 }
 
+void raiseOnUnsupportedNestType(const std::string& kind,
+                                const std::string& population,
+                                const std::string& type,
+                                const std::string& nestType) {
+    throw SonataError(
+        fmt::format("{} population '{}' of type '{}' in a NEST circuit is not supported, use '{}'",
+                    kind,
+                    population,
+                    type,
+                    nestType));
+}
+
 template <typename PopulationType>
 PopulationType getPopulationProperties(
     const std::string& populationName,
@@ -1169,10 +1181,17 @@ CircuitConfig::CircuitConfig(const std::string& contents, const std::string& bas
             } else if (properties.type == "astrocyte") {
                 raiseOnAstrocytePopulationErrors(population, properties);
             }
-            // NEST circuits use the NEST SONATA model types; neuron populations need templates.
-            if (_targetSimulator == SimulatorType::NEST &&
-                (properties.type == "point_neuron" || properties.type == "point_process")) {
-                raiseOnNestPopulationErrors("Node", population, properties);
+            // NEST circuits use their own population types, which other simulators do not load.
+            if (_targetSimulator == SimulatorType::NEST) {
+                if (properties.type == "nest_point") {
+                    raiseOnNestPopulationErrors("Node", population, properties);
+                } else if (properties.type == "point_neuron" ||
+                           properties.type == "point_process") {
+                    raiseOnUnsupportedNestType("Node",
+                                               population,
+                                               properties.type,
+                                               "nest_point");
+                }
             }
         }
 
@@ -1183,7 +1202,14 @@ CircuitConfig::CircuitConfig(const std::string& contents, const std::string& bas
                 raiseOnEndfootPopulationErrors(population, properties);
             }
             if (_targetSimulator == SimulatorType::NEST) {
-                raiseOnNestPopulationErrors("Edge", population, properties);
+                if (properties.type == "nest_chemical") {
+                    raiseOnNestPopulationErrors("Edge", population, properties);
+                } else if (properties.type == "chemical") {
+                    raiseOnUnsupportedNestType("Edge",
+                                               population,
+                                               properties.type,
+                                               "nest_chemical");
+                }
             }
         }
     }

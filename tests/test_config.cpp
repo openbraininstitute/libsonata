@@ -335,7 +335,7 @@ TEST_CASE("CircuitConfig NEST") {
             "nodes": [{
               "nodes_file": "$BASE_DIR/nodes1.h5",
               "populations": {
-                "nodes-A": { "type": "point_neuron",
+                "nodes-A": { "type": "nest_point",
                              "point_neuron_models_dir": "$BASE_DIR/templates/A" },
                 "nodes-B": { "type": "virtual" }
               }
@@ -343,7 +343,7 @@ TEST_CASE("CircuitConfig NEST") {
             "edges": [{
               "edges_file": "$BASE_DIR/edges1.h5",
               "populations": {
-                "edges-AB": { "type": "chemical",
+                "edges-AB": { "type": "nest_chemical",
                               "point_neuron_models_dir": "$BASE_DIR/templates/AB" }
               }
             }]
@@ -367,14 +367,14 @@ TEST_CASE("CircuitConfig NEST") {
             "nodes": [{
               "nodes_file": "$BASE_DIR/nodes1.h5",
               "populations": {
-                "nodes-A": { "type": "point_neuron" },
-                "nodes-B": { "type": "point_process",
+                "nodes-A": { "type": "nest_point" },
+                "nodes-B": { "type": "nest_point",
                              "point_neuron_models_dir": "$BASE_DIR/templates/B" }
               }
             }],
             "edges": [{
               "edges_file": "$BASE_DIR/edges1.h5",
-              "populations": { "edges-AB": { "type": "chemical" } }
+              "populations": { "edges-AB": { "type": "nest_chemical" } }
             }]
           }
         })";
@@ -394,7 +394,7 @@ TEST_CASE("CircuitConfig NEST") {
           "target_simulator": "NEST",
           "networks": {
             "nodes": [{ "nodes_file": "$BASE_DIR/nodes1.h5",
-                        "populations": { "nodes-A": { "type": "point_process" } } }],
+                        "populations": { "nodes-A": { "type": "nest_point" } } }],
             "edges": []
           }
         })";
@@ -406,10 +406,57 @@ TEST_CASE("CircuitConfig NEST") {
           "networks": {
             "nodes": [],
             "edges": [{ "edges_file": "$BASE_DIR/edges1.h5",
-                        "populations": { "edges-AB": { "type": "chemical" } } }]
+                        "populations": { "edges-AB": { "type": "nest_chemical" } } }]
           }
         })";
         CHECK_THROWS_AS(CircuitConfig(edges, "./"), SonataError);
+
+        // The types of other simulators are not NEST populations, so they are rejected.
+        const std::string legacy_template = R"({
+          "manifest": { "$BASE_DIR": "./" },
+          "target_simulator": "NEST",
+          "networks": {
+            "nodes": [{ "nodes_file": "$BASE_DIR/nodes1.h5",
+                        "populations": { "nodes-A": {
+                          "type": "TYPE",
+                          "point_neuron_models_dir": "$BASE_DIR/t" } } }],
+            "edges": []
+          }
+        })";
+        for (const std::string type : {"point_neuron", "point_process"}) {
+            auto legacy = legacy_template;
+            legacy.replace(legacy.find("TYPE"), 4, type);
+            CHECK_THROWS_WITH(CircuitConfig(legacy, "./"),
+                              Catch::Matchers::ContainsSubstring("use 'nest_point'"));
+        }
+
+        auto chemical = R"({
+          "manifest": { "$BASE_DIR": "./" },
+          "target_simulator": "NEST",
+          "networks": {
+            "nodes": [],
+            "edges": [{ "edges_file": "$BASE_DIR/edges1.h5",
+                        "populations": { "edges-AB": {
+                          "type": "chemical",
+                          "point_neuron_models_dir": "$BASE_DIR/t" } } }]
+          }
+        })";
+        CHECK_THROWS_WITH(CircuitConfig(chemical, "./"),
+                          Catch::Matchers::ContainsSubstring("use 'nest_chemical'"));
+
+        // An edge population without a type has the default type, which is not a NEST type.
+        auto untyped = R"({
+          "manifest": { "$BASE_DIR": "./" },
+          "target_simulator": "NEST",
+          "networks": {
+            "nodes": [],
+            "edges": [{ "edges_file": "$BASE_DIR/edges1.h5",
+                        "populations": { "edges-AB": {
+                          "point_neuron_models_dir": "$BASE_DIR/t" } } }]
+          }
+        })";
+        CHECK_THROWS_WITH(CircuitConfig(untyped, "./"),
+                          Catch::Matchers::ContainsSubstring("use 'nest_chemical'"));
 
         // The same populations are valid in a non-NEST circuit.
         auto neuron = R"({
