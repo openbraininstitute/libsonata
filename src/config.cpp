@@ -1187,10 +1187,7 @@ CircuitConfig::CircuitConfig(const std::string& contents, const std::string& bas
                     raiseOnNestPopulationErrors("Node", population, properties);
                 } else if (properties.type == "point_neuron" ||
                            properties.type == "point_process") {
-                    raiseOnUnsupportedNestType("Node",
-                                               population,
-                                               properties.type,
-                                               "nest_point");
+                    raiseOnUnsupportedNestType("Node", population, properties.type, "nest_point");
                 }
             }
         }
