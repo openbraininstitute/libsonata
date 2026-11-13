@@ -1069,7 +1069,7 @@ file (ms), default = None.)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_ConnectionOverride_target = R"doc(node_set specifying postsynaptic nodes)doc";
 
-static const char *__doc_bbp_sonata_SimulationConfig_ConnectionOverride_weight = R"doc(Scalar to adjust synaptic strength, default = 1.)doc";
+static const char *__doc_bbp_sonata_SimulationConfig_ConnectionOverride_weight = R"doc(Scalar to adjust synaptic strength, default = None)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_EField = R"doc(Data structure for an electric field)doc";
 

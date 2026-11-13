@@ -734,6 +734,7 @@ TEST_CASE("SimulationConfig") {
         CHECK(overrides[0].neuromodulationStrength == std::nullopt);
 
         CHECK(overrides[1].name == "GABAB_erev");
+        CHECK(overrides[1].weight == std::nullopt);
         CHECK(overrides[1].spontMinis == std::nullopt);
         CHECK(overrides[1].synapseDelayOverride == 0.5);
         CHECK(overrides[1].delay == 0);

@@ -813,8 +813,8 @@ class SONATA_API SimulationConfig
         std::string source;
         /// node_set specifying postsynaptic nodes
         std::string target;
-        /// Scalar to adjust synaptic strength, default = 1.
-        double weight{1.};
+        /// Scalar to adjust synaptic strength, default = None
+        std::optional<double> weight{std::nullopt};
         /// Rate to spontaneously trigger the synapses in this connection_override, default = None
         std::optional<double> spontMinis{std::nullopt};
         /// Snippet of hoc code to be executed on the synapses in this connection_override, default
