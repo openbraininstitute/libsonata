@@ -721,6 +721,7 @@ class TestSimulationConfig(unittest.TestCase):
         self.assertEqual(overrides['ConL3Exc-Uni'].synapse_configure, None)
         self.assertEqual(overrides['ConL3Exc-Uni'].neuromodulation_dtc, None)
         self.assertEqual(overrides['ConL3Exc-Uni'].neuromodulation_strength, None)
+        self.assertEqual(overrides['GABAB_erev'].weight, None)
         self.assertEqual(overrides['GABAB_erev'].spont_minis, None)
         self.assertEqual(overrides['GABAB_erev'].synapse_delay_override, 0.5)
         self.assertEqual(overrides['GABAB_erev'].delay, 0)
