@@ -10,7 +10,7 @@ env:
 
   CIBW_BUILD_VERBOSITY: 3
   CIBW_BUILD: 'cp*'
-  CIBW_SKIP: 'cp38-* cp39-* cp314t-* *-musllinux_* *-manylinux_i686'
+  CIBW_SKIP: 'cp3??t-* *-musllinux_* *-manylinux_i686'
   CIBW_TEST_COMMAND: ( cd {project}/python/tests; python -m unittest -v )
 
 jobs:
@@ -22,7 +22,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-24.04, ubuntu-24.04-arm, macos-14, macos-15-intel]
+        os: [ubuntu-26.04, ubuntu-26.04-arm, macos-15, macos-15-intel]
 
     steps:
       - uses: actions/checkout@v6
