@@ -239,13 +239,35 @@ void raiseOnNestPopulationErrors(const std::string& kind,
 void raiseOnUnsupportedNestType(const std::string& kind,
                                 const std::string& population,
                                 const std::string& type,
-                                const std::string& nestType) {
+                                const std::string& supportedTypes) {
     throw SonataError(
-        fmt::format("{} population '{}' of type '{}' in a NEST circuit is not supported, use '{}'",
+        fmt::format("{} population '{}' of type '{}' in a NEST circuit is not supported, use {}",
                     kind,
                     population,
                     type,
-                    nestType));
+                    supportedTypes));
+}
+
+// A NEST circuit has only these population types, and not those of the other simulators.
+void raiseOnNestNodePopulationErrors(const std::string& population,
+                                     const bbp::sonata::NodePopulationProperties& properties) {
+    if (properties.type == "nest_point") {
+        raiseOnNestPopulationErrors("Node", population, properties);
+    } else if (properties.type != "virtual") {
+        raiseOnUnsupportedNestType("Node",
+                                   population,
+                                   properties.type,
+                                   "'nest_point' or 'virtual'");
+    }
+}
+
+void raiseOnNestEdgePopulationErrors(const std::string& population,
+                                     const bbp::sonata::EdgePopulationProperties& properties) {
+    if (properties.type == "nest_chemical") {
+        raiseOnNestPopulationErrors("Edge", population, properties);
+    } else {
+        raiseOnUnsupportedNestType("Edge", population, properties.type, "'nest_chemical'");
+    }
 }
 
 template <typename PopulationType>
@@ -1174,39 +1196,24 @@ CircuitConfig::CircuitConfig(const std::string& contents, const std::string& bas
         for (const auto& it : _nodePopulationProperties) {
             const auto& population = it.first;
             const auto& properties = it.second;
-            if (properties.type == "biophysical") {
+            if (_targetSimulator == SimulatorType::NEST) {
+                raiseOnNestNodePopulationErrors(population, properties);
+            } else if (properties.type == "biophysical") {
                 raiseOnBiophysicalPopulationErrors(population, properties);
             } else if (properties.type == "vasculature") {
                 raiseOnVasculaturePopulationErrors(population, properties);
             } else if (properties.type == "astrocyte") {
                 raiseOnAstrocytePopulationErrors(population, properties);
             }
-            // NEST circuits use their own population types, which other simulators do not load.
-            if (_targetSimulator == SimulatorType::NEST) {
-                if (properties.type == "nest_point") {
-                    raiseOnNestPopulationErrors("Node", population, properties);
-                } else if (properties.type == "point_neuron" ||
-                           properties.type == "point_process") {
-                    raiseOnUnsupportedNestType("Node", population, properties.type, "nest_point");
-                }
-            }
         }
 
         for (const auto& it : _edgePopulationProperties) {
             const auto& population = it.first;
             const auto& properties = it.second;
-            if (properties.type == "endfoot") {
-                raiseOnEndfootPopulationErrors(population, properties);
-            }
             if (_targetSimulator == SimulatorType::NEST) {
-                if (properties.type == "nest_chemical") {
-                    raiseOnNestPopulationErrors("Edge", population, properties);
-                } else if (properties.type == "chemical") {
-                    raiseOnUnsupportedNestType("Edge",
-                                               population,
-                                               properties.type,
-                                               "nest_chemical");
-                }
+                raiseOnNestEdgePopulationErrors(population, properties);
+            } else if (properties.type == "endfoot") {
+                raiseOnEndfootPopulationErrors(population, properties);
             }
         }
     }

@@ -411,10 +411,16 @@ TEST_CASE("CircuitConfig NEST") {
         })";
         CHECK_THROWS_AS(CircuitConfig(edges, "./"), SonataError);
 
-        // The types of other simulators are not NEST populations, so they are rejected.
-        const std::string legacy_template = R"({
+        // Only 'nest_point' and 'virtual' nodes, and 'nest_chemical' edges, are NEST populations.
+        // The other types are rejected, with the directories they would need set, so that
+        // no other check can stand in for the type check.
+        const std::string node_template = R"({
           "manifest": { "$BASE_DIR": "./" },
           "target_simulator": "NEST",
+          "components": {
+            "morphologies_dir": "$BASE_DIR/morphologies",
+            "biophysical_neuron_models_dir": "$BASE_DIR/hoc"
+          },
           "networks": {
             "nodes": [{ "nodes_file": "$BASE_DIR/nodes1.h5",
                         "populations": { "nodes-A": {
@@ -423,26 +429,54 @@ TEST_CASE("CircuitConfig NEST") {
             "edges": []
           }
         })";
-        for (const std::string type : {"point_neuron", "point_process"}) {
-            auto legacy = legacy_template;
-            legacy.replace(legacy.find("TYPE"), 4, type);
-            CHECK_THROWS_WITH(CircuitConfig(legacy, "./"),
-                              Catch::Matchers::ContainsSubstring("use 'nest_point'"));
+        for (const std::string type : {"point_neuron", "point_process", "biophysical",
+                                       "vasculature", "astrocyte", "nest_chemical",
+                                       "nest_pointt"}) {
+            auto node = node_template;
+            node.replace(node.find("TYPE"), 4, type);
+            CHECK_THROWS_WITH(
+                CircuitConfig(node, "./"),
+                Catch::Matchers::ContainsSubstring("of type '" + type + "' in a NEST circuit") &&
+                    Catch::Matchers::ContainsSubstring("use 'nest_point' or 'virtual'"));
         }
 
-        auto chemical = R"({
+        const std::string edge_template = R"({
           "manifest": { "$BASE_DIR": "./" },
           "target_simulator": "NEST",
           "networks": {
             "nodes": [],
             "edges": [{ "edges_file": "$BASE_DIR/edges1.h5",
                         "populations": { "edges-AB": {
-                          "type": "chemical",
+                          "type": "TYPE",
                           "point_neuron_models_dir": "$BASE_DIR/t" } } }]
           }
         })";
-        CHECK_THROWS_WITH(CircuitConfig(chemical, "./"),
-                          Catch::Matchers::ContainsSubstring("use 'nest_chemical'"));
+        for (const std::string type : {"chemical", "electrical", "synapse_astrocyte",
+                                       "neuromodulatory", "point_process", "endfoot",
+                                       "nest_point", "nest_chemcial"}) {
+            auto edge = edge_template;
+            edge.replace(edge.find("TYPE"), 4, type);
+            CHECK_THROWS_WITH(
+                CircuitConfig(edge, "./"),
+                Catch::Matchers::ContainsSubstring("of type '" + type + "' in a NEST circuit") &&
+                    Catch::Matchers::ContainsSubstring("use 'nest_chemical'"));
+        }
+
+        // A node population without a type has the default type, which is not a NEST type.
+        // It is reported as such, and not as a missing 'morphologies_dir'.
+        auto untyped_node = R"({
+          "manifest": { "$BASE_DIR": "./" },
+          "target_simulator": "NEST",
+          "networks": {
+            "nodes": [{ "nodes_file": "$BASE_DIR/nodes1.h5",
+                        "populations": { "nodes-A": {
+                          "point_neuron_models_dir": "$BASE_DIR/t" } } }],
+            "edges": []
+          }
+        })";
+        CHECK_THROWS_WITH(CircuitConfig(untyped_node, "./"),
+                          Catch::Matchers::ContainsSubstring("use 'nest_point' or 'virtual'") &&
+                              !Catch::Matchers::ContainsSubstring("morphologies_dir"));
 
         // An edge population without a type has the default type, which is not a NEST type.
         auto untyped = R"({
@@ -457,6 +491,18 @@ TEST_CASE("CircuitConfig NEST") {
         })";
         CHECK_THROWS_WITH(CircuitConfig(untyped, "./"),
                           Catch::Matchers::ContainsSubstring("use 'nest_chemical'"));
+
+        // A virtual population needs no model directory.
+        auto virtual_nodes = R"({
+          "manifest": { "$BASE_DIR": "./" },
+          "target_simulator": "NEST",
+          "networks": {
+            "nodes": [{ "nodes_file": "$BASE_DIR/nodes1.h5",
+                        "populations": { "nodes-A": { "type": "virtual" } } }],
+            "edges": []
+          }
+        })";
+        CHECK_NOTHROW(CircuitConfig(virtual_nodes, "./"));
 
         // The same populations are valid in a non-NEST circuit.
         auto neuron = R"({

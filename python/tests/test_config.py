@@ -312,23 +312,51 @@ class TestCircuitConfig(unittest.TestCase):
             self.assertRaisesRegex(SonataError, "point_neuron_models_dir",
                                    CircuitConfig, json.dumps(contents), PATH)
 
-    def test_nest_other_simulator_types_raise(self):
-        # point_neuron, point_process and chemical are types of other simulators.
-        cases = (("nodes", "point_neuron", "nest_point"),
-                 ("nodes", "point_process", "nest_point"),
-                 ("edges", "chemical", "nest_chemical"))
-        for kind, pop_type, replacement in cases:
+    def test_nest_only_nest_types_are_accepted(self):
+        # Only nest_point and virtual nodes, and nest_chemical edges, are NEST populations.
+        # The directories the other types would need are set, so that no other check
+        # stands in for the type check.
+        node_types = ("point_neuron", "point_process", "biophysical", "vasculature",
+                      "astrocyte", "nest_chemical", "nest_pointt")
+        edge_types = ("chemical", "electrical", "synapse_astrocyte", "neuromodulatory",
+                      "point_process", "endfoot", "nest_point", "nest_chemcial")
+        cases = [("nodes", t, "'nest_point' or 'virtual'") for t in node_types]
+        cases += [("edges", t, "'nest_chemical'") for t in edge_types]
+        for kind, pop_type, expected in cases:
             networks = {"nodes": [], "edges": []}
             networks[kind] = [{f"{kind}_file": f"$BASE_DIR/{kind}1.h5",
                                "populations": {"pop": {"type": pop_type,
                                                        "point_neuron_models_dir": "$BASE_DIR/t"}}}]
-            contents = {"manifest": {"$BASE_DIR": "./"}, "networks": networks}
-            CircuitConfig(json.dumps(contents), PATH)
-            contents["target_simulator"] = "NEST"
+            contents = {"manifest": {"$BASE_DIR": "./"},
+                        "components": {"morphologies_dir": "$BASE_DIR/morphologies",
+                                       "biophysical_neuron_models_dir": "$BASE_DIR/hoc"},
+                        "networks": networks}
             self.assertRaisesRegex(SonataError,
-                                   f"'{pop_type}' in a NEST circuit is not supported, "
-                                   f"use '{replacement}'",
-                                   CircuitConfig, json.dumps(contents), PATH)
+                                   f"of type '{pop_type}' in a NEST circuit is not supported, "
+                                   f"use {expected}",
+                                   CircuitConfig,
+                                   json.dumps({**contents, "target_simulator": "NEST"}), PATH)
+
+    def test_nest_nodes_need_a_type(self):
+        # an untyped node population has the default type, biophysical; the error names the
+        # NEST types, not the missing 'morphologies_dir' of a biophysical population
+        networks = {"nodes": [{"nodes_file": "$BASE_DIR/nodes1.h5",
+                               "populations": {"pop": {"point_neuron_models_dir": "$BASE_DIR/t"}}}],
+                    "edges": []}
+        contents = {"manifest": {"$BASE_DIR": "./"}, "networks": networks,
+                    "target_simulator": "NEST"}
+        with self.assertRaises(SonataError) as ctx:
+            CircuitConfig(json.dumps(contents), PATH)
+        self.assertIn("use 'nest_point' or 'virtual'", str(ctx.exception))
+        self.assertNotIn("morphologies_dir", str(ctx.exception))
+
+    def test_nest_virtual_nodes_need_no_models_dir(self):
+        networks = {"nodes": [{"nodes_file": "$BASE_DIR/nodes1.h5",
+                               "populations": {"pop": {"type": "virtual"}}}],
+                    "edges": []}
+        contents = {"manifest": {"$BASE_DIR": "./"}, "networks": networks,
+                    "target_simulator": "NEST"}
+        CircuitConfig(json.dumps(contents), PATH)
 
     def test_nest_edges_need_a_type(self):
         # an untyped edge population has the default type, chemical
