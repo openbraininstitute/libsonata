@@ -1,5 +1,5 @@
 test:
-  image: python:3.9
+  image: python:3.11
   stage: test
   tags:
     - docker-runner
