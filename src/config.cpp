@@ -134,6 +134,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(SimulatorType,
                                  {SimulatorType::CORENEURON, "CORENEURON"},
                                  {SimulatorType::LEARNINGENGINE, "LearningEngine"},
                                  {SimulatorType::BRIAN2, "Brian2"},
+                                 {SimulatorType::NEST, "NEST"},
                                  {SimulatorType::UNSPECIFIED, "unspecified"},
                              })
 
@@ -218,6 +219,54 @@ void raiseOnEndfootPopulationErrors(const std::string& population,
             fmt::format("Node population '{}' is defined as 'endfoot' "
                         "but does not define 'endfeet_meshes_file",
                         population));
+    }
+}
+
+template <typename PopulationProperties>
+void raiseOnNestPopulationErrors(const std::string& kind,
+                                 const std::string& population,
+                                 const PopulationProperties& properties) {
+    if (properties.pointNeuronModelsDir.empty()) {
+        throw SonataError(
+            fmt::format("{} population '{}' of type '{}' in a NEST circuit "
+                        "does not define 'point_neuron_models_dir'",
+                        kind,
+                        population,
+                        properties.type));
+    }
+}
+
+void raiseOnUnsupportedNestType(const std::string& kind,
+                                const std::string& population,
+                                const std::string& type,
+                                const std::string& supportedTypes) {
+    throw SonataError(
+        fmt::format("{} population '{}' of type '{}' in a NEST circuit is not supported, use {}",
+                    kind,
+                    population,
+                    type,
+                    supportedTypes));
+}
+
+// A NEST circuit has only these population types, and not those of the other simulators.
+void raiseOnNestNodePopulationErrors(const std::string& population,
+                                     const bbp::sonata::NodePopulationProperties& properties) {
+    if (properties.type == "nest_point") {
+        raiseOnNestPopulationErrors("Node", population, properties);
+    } else if (properties.type != "virtual") {
+        raiseOnUnsupportedNestType("Node",
+                                   population,
+                                   properties.type,
+                                   "'nest_point' or 'virtual'");
+    }
+}
+
+void raiseOnNestEdgePopulationErrors(const std::string& population,
+                                     const bbp::sonata::EdgePopulationProperties& properties) {
+    if (properties.type == "nest_chemical") {
+        raiseOnNestPopulationErrors("Edge", population, properties);
+    } else {
+        raiseOnUnsupportedNestType("Edge", population, properties.type, "'nest_chemical'");
     }
 }
 
@@ -1147,7 +1196,9 @@ CircuitConfig::CircuitConfig(const std::string& contents, const std::string& bas
         for (const auto& it : _nodePopulationProperties) {
             const auto& population = it.first;
             const auto& properties = it.second;
-            if (properties.type == "biophysical") {
+            if (_targetSimulator == SimulatorType::NEST) {
+                raiseOnNestNodePopulationErrors(population, properties);
+            } else if (properties.type == "biophysical") {
                 raiseOnBiophysicalPopulationErrors(population, properties);
             } else if (properties.type == "vasculature") {
                 raiseOnVasculaturePopulationErrors(population, properties);
@@ -1159,7 +1210,9 @@ CircuitConfig::CircuitConfig(const std::string& contents, const std::string& bas
         for (const auto& it : _edgePopulationProperties) {
             const auto& population = it.first;
             const auto& properties = it.second;
-            if (properties.type == "endfoot") {
+            if (_targetSimulator == SimulatorType::NEST) {
+                raiseOnNestEdgePopulationErrors(population, properties);
+            } else if (properties.type == "endfoot") {
                 raiseOnEndfootPopulationErrors(population, properties);
             }
         }

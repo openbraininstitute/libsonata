@@ -1711,6 +1711,8 @@ static const char *__doc_bbp_sonata_SimulatorType_CORENEURON = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulatorType_LEARNINGENGINE = R"doc()doc";
 
+static const char *__doc_bbp_sonata_SimulatorType_NEST = R"doc()doc";
+
 static const char *__doc_bbp_sonata_SimulatorType_NEURON = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulatorType_UNSPECIFIED = R"doc()doc";
