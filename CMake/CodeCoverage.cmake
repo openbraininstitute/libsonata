@@ -271,6 +271,15 @@ function(setup_target_for_coverage_lcov)
       set(GENHTML_EXTRA_ARGS "--demangle-cpp")
     endif()
 
+    # Exclude during capture/baseline. Filtering only in --remove is too late:
+    # newer lcov+GCC can fail consistency checks on system/vendored headers first.
+    # geninfo_unexecuted_blocks fixes GCC 15 gcov "unexecuted block on non-branch
+    # line" inconsistencies by zeroing those block counts.
+    set(LCOV_CAPTURE_FILTER_ARGS --no-external --rc geninfo_unexecuted_blocks=1)
+    foreach(EXCLUDE ${LCOV_EXCLUDES})
+        list(APPEND LCOV_CAPTURE_FILTER_ARGS --exclude "${EXCLUDE}")
+    endforeach()
+
     # Setting up commands which will be run to generate coverage data.
     # Cleanup lcov
     set(LCOV_CLEAN_CMD
@@ -279,7 +288,7 @@ function(setup_target_for_coverage_lcov)
     )
     # Create baseline to make sure untouched files show up in the report
     set(LCOV_BASELINE_CMD
-        ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -c -i -d . -b
+        ${LCOV_PATH} ${Coverage_LCOV_ARGS} ${LCOV_CAPTURE_FILTER_ARGS} --gcov-tool ${GCOV_PATH} -c -i -d . -b
         ${BASEDIR} -o ${Coverage_NAME}.base
     )
     # Run tests
@@ -288,7 +297,7 @@ function(setup_target_for_coverage_lcov)
     )
     # Capturing lcov counters and generating report
     set(LCOV_CAPTURE_CMD
-        ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} --directory . -b
+        ${LCOV_PATH} ${Coverage_LCOV_ARGS} ${LCOV_CAPTURE_FILTER_ARGS} --gcov-tool ${GCOV_PATH} --directory . -b
         ${BASEDIR} --capture --output-file ${Coverage_NAME}.capture
     )
     # add baseline counters
@@ -296,10 +305,9 @@ function(setup_target_for_coverage_lcov)
         ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -a ${Coverage_NAME}.base
         -a ${Coverage_NAME}.capture --output-file ${Coverage_NAME}.total
     )
-    # filter collected data to final coverage report
+    # Excludes already applied at capture; --remove of the same patterns errors as unused.
     set(LCOV_FILTER_CMD
-        ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} --remove
-        ${Coverage_NAME}.total ${LCOV_EXCLUDES} --output-file ${Coverage_NAME}.info
+        ${CMAKE_COMMAND} -E copy ${Coverage_NAME}.total ${Coverage_NAME}.info
     )
     # Generate HTML output
     set(LCOV_GEN_HTML_CMD

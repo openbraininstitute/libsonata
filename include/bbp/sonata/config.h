@@ -30,7 +30,15 @@ namespace sonata {
 
 using variantValueType = std::variant<bool, std::string, int, double>;
 
-enum class SimulatorType { invalid = -1, NEURON, CORENEURON, LEARNINGENGINE, BRIAN2, UNSPECIFIED };
+enum class SimulatorType {
+    invalid = -1,
+    NEURON,
+    CORENEURON,
+    LEARNINGENGINE,
+    BRIAN2,
+    NEST,
+    UNSPECIFIED
+};
 
 struct CommonPopulationProperties {
     /**

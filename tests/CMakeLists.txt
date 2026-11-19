@@ -30,11 +30,12 @@ target_link_libraries(unittests
 
 if (ENABLE_COVERAGE)
     include(CodeCoverage)
+    # System headers are omitted via --no-external during capture in CodeCoverage.cmake.
     SETUP_TARGET_FOR_COVERAGE_LCOV(
         NAME coverage
         EXECUTABLE ctest
         DEPENDENCIES unittests
-        EXCLUDE "/usr/*" "${PROJECT_SOURCE_DIR}/include/*" "${PROJECT_SOURCE_DIR}/extlib/*"
+        EXCLUDE "${PROJECT_SOURCE_DIR}/extlib/*"
     )
 endif()
 

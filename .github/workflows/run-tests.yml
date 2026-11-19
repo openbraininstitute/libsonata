@@ -12,8 +12,8 @@ env:
 
 jobs:
   build-linux-cpp:
-    name: Run tests on ubuntu-22.04
-    runs-on: ubuntu-22.04
+    name: Run tests on ubuntu-26.04
+    runs-on: ubuntu-26.04
     strategy:
       matrix:
         compiler:
@@ -23,7 +23,7 @@ jobs:
             CXX: g++
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: 'true'
 
@@ -40,8 +40,8 @@ jobs:
           ./ci/cpp_test.sh
 
   build-linux-cpp-phdf5:
-    name: Run tests on ubuntu-22.04 with pHDF5.
-    runs-on: ubuntu-22.04
+    name: Run tests on ubuntu-26.04 with pHDF5.
+    runs-on: ubuntu-26.04
     strategy:
       matrix:
         compiler:
@@ -49,7 +49,7 @@ jobs:
             CXX: g++
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: 'true'
 
@@ -66,20 +66,20 @@ jobs:
           ./ci/cpp_test.sh
 
   build-linux-python:
-    name: Run python tests on ubuntu-22.04
-    runs-on: ubuntu-22.04
+    name: Run python tests on ubuntu-26.04
+    runs-on: ubuntu-26.04
 
     strategy:
       matrix:
-        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
+        python-version: ['3.11', '3.12', '3.13', '3.14', '3.15']
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: 'true'
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         name: Install Python
         with:
           python-version: ${{ matrix.python-version }}
@@ -101,13 +101,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: 'true'
 
       - name: Cache HDF5 On Linux/macOS
         if: runner.os == 'Linux' || runner.os == 'macOS'
-        uses: actions/cache@v3
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         id: cache-hdf5-posix
         env:
           cache-name: cache-hdf5-posix
