@@ -1479,6 +1479,14 @@ static const char *__doc_bbp_sonata_SimulationConfig_Report_Compartments_center 
 
 static const char *__doc_bbp_sonata_SimulationConfig_Report_Compartments_invalid = R"doc()doc";
 
+static const char *__doc_bbp_sonata_SimulationConfig_Report_Method = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_Report_Method_by_cell = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_Report_Method_invalid = R"doc()doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_Report_Method_sum = R"doc()doc";
+
 static const char *__doc_bbp_sonata_SimulationConfig_Report_Scaling = R"doc()doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_Report_Scaling_area = R"doc()doc";
@@ -1538,6 +1546,11 @@ true)doc";
 static const char *__doc_bbp_sonata_SimulationConfig_Report_endTime = R"doc(Time to stop reporting in milliseconds)doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_Report_fileName = R"doc(Report filename. Default is "<report name>.h5")doc";
+
+static const char *__doc_bbp_sonata_SimulationConfig_Report_method =
+R"doc(For LFP reports, whether to write each cell's contribution to each
+electrode ("by_cell") or, for each population, the sum over its cells
+("sum"). Default value: "by_cell")doc";
 
 static const char *__doc_bbp_sonata_SimulationConfig_Report_scaling =
 R"doc(For summation type, specify the handling of density values. Default
