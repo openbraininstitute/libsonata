@@ -332,7 +332,6 @@
             "name": "GABAB_erev",
             "source": "Inhibitory",
             "target": "Mosaic",
-            "weight": 1.0,
             "synapse_delay_override": 0.5,
             "synapse_configure": "%s.e_GABAA = -82.0 tau_d_GABAB_ProbGABAAB_EMS = 77",
             "neuromodulation_dtc": 100,
